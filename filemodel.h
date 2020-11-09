@@ -1,0 +1,84 @@
+#ifndef FILEMODEL_H
+#define FILEMODEL_H
+
+#include <QAbstractTableModel>
+#include <QVariant>
+#include <QtConcurrent/QtConcurrent>
+
+#include <pyros.h>
+
+class FileModel : public QAbstractTableModel
+{
+    Q_OBJECT
+    struct thumbnail_item{
+        int last_known_index;
+        QVariant thumbnail;
+        QByteArray path;
+        QByteArray mime;
+    };
+
+
+public:
+    FileModel(QObject *parent = nullptr);
+    ~FileModel();
+
+    struct file_item{
+        PyrosFile* pFile;
+        QVariant thumbnail;
+    };
+
+    struct external_thumbnailer{
+        QString cmd;
+        QList<QByteArray> support_mimes;
+    };
+
+    static QVector <external_thumbnailer> loaded_thumbnailers;
+    static QVariant generic_image_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
+    static QVariant external_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
+
+    static FileModel::thumbnail_item generateThumbnail (thumbnail_item item);
+
+    QVector<file_item> files() const;
+
+    void setFiles(PyrosList *files);
+    void setFilesFromVector(QVector<PyrosFile*> &files);
+
+    PyrosFile *file(const QModelIndex &index) const;
+
+    void clear();
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    QVariant headerData(int /* section */, Qt::Orientation /* orientation */,
+                        int ) const override;
+
+    void remove_file(const QModelIndex &index);
+    int indexToNum(const QModelIndex &index) const;
+    void startThumbnailer(QVector<QModelIndex> *visible_files);
+    void load_thumbnails(QModelIndex topLeft,int rows);
+
+    void setColumnCount(int columns);
+signals:
+    void sourceChanged();
+
+private:
+
+    int m_columnCount = 4;
+    QModelIndex last_index = QModelIndex();
+
+    QVector<file_item> m_files;
+
+    QFutureWatcher<thumbnail_item> *thumbnailer;
+    void load_thumbnailers();
+    void reset_thumbnailer();
+
+
+private slots:
+    void displayThumbnail(int num);
+
+};
+
+#endif // FILEMODEL_H
