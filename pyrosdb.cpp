@@ -138,6 +138,7 @@ void PyrosWorker::remove_ext(PyrosDB*db,QVector<QByteArray> tags){
     QVector<const char*> ctags  = QVBA_to_QVc(tags);
     for(int i = 1; i < ctags.count();i+=2)
         Pyros_Remove_Ext_Tag(db,ctags.at(i-1),ctags.at(i));
+    Pyros_Execute(db);
 }
 
 PyrosTC::~PyrosTC(){
