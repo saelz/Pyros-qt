@@ -36,7 +36,6 @@ QVariant TagItem::data(int column) const
       switch (type) {
         default:
             return tag;
-            break;
         case ALIAS_TAG:
             return  tag.toString() + " <A>";
         }

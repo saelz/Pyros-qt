@@ -47,16 +47,15 @@ TagView::~TagView()
 void TagView::add_tag_as_child(TagItem::TAG_TYPE type,QString tag){
     QItemSelectionModel *select = selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
-    //QAbstractItemModel *model = model();
+    QAbstractItemModel *model = this->model();
 
     foreach(QModelIndex index, indexes) {
-        if (model()->insertRows(0,1,index)){
+        if (model->insertRows(model->rowCount(index)-1,1,index)){
 
-            const QModelIndex child = model()->index(0,TagItem::TAG_COLUMN,index);
-            const QModelIndex tag_type = model()->index(0,TagItem::TYPE_COLUMN,index);
-            if (!model()->setData(child,tag))
-
-            model()->setData(tag_type,type);
+            const QModelIndex child = model->index(model->rowCount(index)-1,TagItem::TAG_COLUMN,index);
+            const QModelIndex tag_type = model->index(model->rowCount(index)-1,TagItem::TYPE_COLUMN,index);
+            model->setData(child,tag);
+            model->setData(tag_type,type);
         }
     }
 }
@@ -225,14 +224,13 @@ bool TagView::loadModelFromTag(QByteArray tag,const QModelIndex index,PyrosDB *p
                 type = TagItem::NEW_TAG;
             }else{
                 if(tag.contains('*') || tag.contains('?') ||
-                        tag.contains('[') || tag.contains(']') ||
+                        (tag.contains('[') && tag.contains(']')) ||
                         tag.startsWith("mime:") ||
                         tag.startsWith("ext:") ||
                         tag.startsWith("order:") ||
-                        tag.startsWith("tag count:") ||
+                        tag.startsWith("tagcount:") ||
                         tag.startsWith("limit:") ||
                         tag.startsWith("page:") ||
-                        tag.startsWith("import time:") ||
                         tag.startsWith("size:")
                         )
                     type = TagItem::SPECIAL_TAG;
@@ -252,7 +250,6 @@ bool TagView::loadModelFromTag(QByteArray tag,const QModelIndex index,PyrosDB *p
         }
 
         return result;
-        //TODO clear search
     }
 
     return true;
