@@ -10,7 +10,7 @@ You can make tags aliases of one another, that way if you search for one tag it 
 You can filter tags you don't want to see by puting a '-' infront of it, additionally there are a few special filters that allow you filter files by metadata
 * limit:(number)
 
-  Sets maximum number of results to return  
+  Sets maximum number of results to return
 * order:(order type)
 
   Set the order you want the results to return in you can choose to order by time, size, ext, mime, hash or set it to random (putting a '-' at the start will allow you to reverse the order)
@@ -26,8 +26,8 @@ You can filter tags you don't want to see by puting a '-' infront of it, additio
 * ext:(extension)
 
   Only show files with a specified file extension (e.g. ext:gif)
-  
-In addtion you can use [globbing] with the filters listed above or with any tag.
+
+In addition you can use [globbing] with the filters listed above or with any tag.
 ## Dependencies
 * Qt
 * [libPyros]

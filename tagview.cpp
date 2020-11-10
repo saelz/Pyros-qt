@@ -98,16 +98,20 @@ void TagView::add_parent(){
     QVector<QByteArray> selected_tags = get_selected_tags();
     QVector<QByteArray> ext_tags = create_tag_dialog("Parent");
     ptc->add_parent(selected_tags,ext_tags);
-    foreach (QByteArray tag,ext_tags)
-        add_tag_as_child(TagItem::NORMAL_TAG,tag);
+    if (tag_type == PYROS_FILE_EXT){
+        foreach (QByteArray tag,ext_tags)
+            add_tag_as_child(TagItem::NORMAL_TAG,tag);
+    }
 }
 void TagView::add_child(){
     PyrosTC *ptc = PyrosTC::get();
     QVector<QByteArray> selected_tags = get_selected_tags();
     QVector<QByteArray> ext_tags = create_tag_dialog("Child");
     ptc->add_child(selected_tags,ext_tags);
-    foreach (QByteArray tag,ext_tags)
-        add_tag_as_child(TagItem::NORMAL_TAG,tag);
+    if (tag_type == PYROS_TAG_EXT){
+        foreach (QByteArray tag,ext_tags)
+            add_tag_as_child(TagItem::NORMAL_TAG,tag);
+    }
 }
 
 QVector<QByteArray> TagView::get_selected_tags(){
