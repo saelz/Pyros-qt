@@ -97,11 +97,14 @@ bool TagItem::setData(int column, const QVariant &value)
         if (value.toInt() < 0 || value.toInt() >= TAG_TYPE_COUNT)
             return false;
         if (value.toInt() == SPECIAL_TAG)
-            fg_color = QColorConstants::LightGray;
+            fg_color = settings.value("special-tagcolor/special",
+                                      QColorConstants::LightGray).value<QColor>();
         else if (value.toInt() == INVALID_TAG)
-            fg_color = QColorConstants::Red;
+            fg_color = settings.value("special-tagcolor/invalid",
+                                      QColorConstants::Red).value<QColor>();
         else if (value.toInt() == NEW_TAG)
-            fg_color = QColorConstants::Yellow;
+            fg_color = settings.value("special-tagcolor/new",
+                                      QColorConstants::DarkYellow).value<QColor>();
 
         type = (enum TAG_TYPE)value.toInt();
     }

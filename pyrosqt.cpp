@@ -62,7 +62,6 @@ void PyrosQT::initalize_config(){
         settings.setValue("video/",QColorConstants::Green);
         settings.setValue("image/gif",QColorConstants::Green);
         settings.setValue("audio/",QColorConstants::Blue);
-        //settings.setValue("image/",QColorConstants::White);
         settings.endGroup();
 
         settings.beginGroup("tagcolor");
