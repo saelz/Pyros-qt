@@ -50,10 +50,14 @@ void TagView::add_tag_as_child(TagItem::TAG_TYPE type,QString tag){
     QAbstractItemModel *model = this->model();
 
     foreach(QModelIndex index, indexes) {
-        if (model->insertRows(model->rowCount(index)-1,1,index)){
+        int insert_location = model->rowCount(index)-1;
+        if (insert_location < 0)
+            insert_location = 0;
 
-            const QModelIndex child = model->index(model->rowCount(index)-1,TagItem::TAG_COLUMN,index);
-            const QModelIndex tag_type = model->index(model->rowCount(index)-1,TagItem::TYPE_COLUMN,index);
+        if (model->insertRows(insert_location,1,index)){
+
+            const QModelIndex child = model->index(insert_location,TagItem::TAG_COLUMN,index);
+            const QModelIndex tag_type = model->index(insert_location,TagItem::TYPE_COLUMN,index);
             model->setData(child,tag);
             model->setData(tag_type,type);
         }

@@ -43,7 +43,6 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     delete_bind = new QAction("delete",this);
     zoom_in_bind = new QAction("zoom in",this);
     zoom_out_bind = new QAction("zoom out",this);
-    //QList keys
 
     next_bind->setShortcut(QKeySequence("CTRL+n"));
     prev_bind->setShortcut(QKeySequence("CTRL+p"));
@@ -83,7 +82,6 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
 
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
 
-    //ui->img_label->setScaledContents(true);
     ui->scrollArea->installEventFilter(this);
 }
 

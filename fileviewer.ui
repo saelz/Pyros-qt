@@ -183,14 +183,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="zoom_out_button">
+          <widget class="QPushButton" name="zoom_in_button">
            <property name="text">
             <string>zoom in</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="zoom_in_button">
+          <widget class="QPushButton" name="zoom_out_button">
            <property name="text">
             <string>zoom out</string>
            </property>
