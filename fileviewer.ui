@@ -210,6 +210,13 @@
           </spacer>
          </item>
          <item>
+          <widget class="QLabel" name="file_count_label">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="delete_button">
            <property name="text">
             <string>Delet</string>

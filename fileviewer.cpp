@@ -106,6 +106,9 @@ void FileViewer::set_file()
     if (m_pFile == nullptr)
         return;
 
+    QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
+    ui->file_count_label->setText(filecount);
+
     if (!strcmp(m_pFile->mime,"image/gif") ||
         !strncmp(m_pFile->mime,"audio/",6) ||
         !strncmp(m_pFile->mime,"video/",6)){
