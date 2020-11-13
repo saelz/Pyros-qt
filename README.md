@@ -27,7 +27,7 @@ You can filter tags you don't want to see by puting a '-' infront of it, additio
 
   Only show files with a specified file extension (e.g. ext:gif)
 
-In addition you can use [globbing] with the filters listed above or with any tag.
+You can also use [globbing] with tags, including the filters listed above.
 ## Dependencies
 * Qt
 * [libPyros]
