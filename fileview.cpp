@@ -160,6 +160,7 @@ void FileView::hide_file()
     QItemSelectionModel *select = selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
     QModelIndex index;
+    int old_row_count = file_model->rowCount();
 
     std::sort(indexes.begin(), indexes.end(), std::less<QModelIndex>());
 
@@ -168,7 +169,9 @@ void FileView::hide_file()
         file_model->remove_file(index);
     }
     select->clear();
-   emit new_files(file_model->files());
+    emit new_files(file_model->files());
+    file_model->remove_excess_rows(old_row_count);
+
 }
 
 void FileView::refresh(){

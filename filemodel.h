@@ -61,6 +61,8 @@ public:
     void load_thumbnails(QModelIndex topLeft,int rows);
 
     void setColumnCount(int columns);
+    void remove_excess_rows(int old_row_count);
+
 signals:
     void sourceChanged();
 

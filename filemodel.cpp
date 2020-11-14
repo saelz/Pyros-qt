@@ -357,3 +357,12 @@ void FileModel::setColumnCount(int columns)
     }
 
 }
+
+void FileModel::remove_excess_rows(int old_row_count)
+{
+    if (old_row_count == rowCount())
+        return;
+
+    beginRemoveRows(QModelIndex(),rowCount(),old_row_count-1);
+    endRemoveRows();
+}
