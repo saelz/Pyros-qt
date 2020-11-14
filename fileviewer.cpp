@@ -11,6 +11,7 @@
 #include <QBitmap>
 #include <QComboBox>
 #include <QResizeEvent>
+#include <QSettings>
 
 #include <iostream>
 
@@ -106,10 +107,22 @@ void FileViewer::set_file()
     if (m_pFile == nullptr)
         return;
 
+    QSettings settings;
     QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
     ui->file_count_label->setText(filecount);
 
-    if (!strcmp(m_pFile->mime,"image/gif") ||
+    if (!strcmp(m_pFile->mime,"image/gif") &&
+            !settings.value("treat_gifs_as_video",false).toBool()){
+        viewer_type = GIF;
+        ui->stackedWidget->setCurrentIndex(0);
+        m_img = QPixmap();
+        ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+        QMovie *movie = new QMovie(m_pFile->path);
+        ui->img_label->setMovie(movie);
+        movie->start();
+        file_orignal_size = movie->currentImage().size();
+
+    } else if (!strcmp(m_pFile->mime,"image/gif") ||
         !strncmp(m_pFile->mime,"audio/",6) ||
         !strncmp(m_pFile->mime,"video/",6)){
         viewer_type = MPV;
@@ -181,7 +194,7 @@ void FileViewer::update_fit(const QString &text){
 }
 
 void FileViewer::zoom_in(){
-    if (viewer_type == IMAGE){
+    if (viewer_type == IMAGE || viewer_type == GIF){
         if ((zoom_level += zoom_increment) >= 3)
             zoom_level = 3;
         set_scale();
@@ -193,7 +206,7 @@ void FileViewer::zoom_in(){
 }
 
 void FileViewer::zoom_out(){
-    if (viewer_type == IMAGE){
+    if (viewer_type == IMAGE || viewer_type == GIF){
         if ((zoom_level -= zoom_increment) <= 0)
             zoom_level = zoom_increment;
         set_scale();
@@ -207,30 +220,53 @@ void FileViewer::zoom_out(){
 
 void FileViewer::set_scale()
 {
-    if (viewer_type != IMAGE)
+    QSize newsize;
+    switch (viewer_type) {
+    case IMAGE:
+        newsize = m_img.size();
+        break;
+    case GIF:
+        newsize = file_orignal_size;
+        break;
+    default:
         return;
-    QPixmap scaledimg;
+    }
+    qDebug("HEIGHT:%d,WIDTH%d",newsize.height(),newsize.width());
 
     switch (scale_type){
     case SCALE_TYPE::HEIGHT:
-        scaledimg = m_img.scaled(m_img.width()*zoom_level,ui->scrollArea->height()*zoom_level,
-                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        newsize.scale(newsize.width()*zoom_level,
+                      ui->scrollArea->height()*zoom_level,
+                      Qt::KeepAspectRatio);
         break;
     case SCALE_TYPE::WIDTH:
-        scaledimg = m_img.scaled(ui->scrollArea->width()*zoom_level,m_img.height()*zoom_level,
-                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        newsize.scale(ui->scrollArea->width()*zoom_level,
+                      newsize.height()*zoom_level,
+                      Qt::KeepAspectRatio);
         break;
     case SCALE_TYPE::BOTH:
-        scaledimg = m_img.scaled(ui->scrollArea->width()*zoom_level,ui->scrollArea->height()*zoom_level,
-                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
+        newsize.scale(ui->scrollArea->width()*zoom_level,
+                      ui->scrollArea->height()*zoom_level,
+                      Qt::KeepAspectRatio);
         break;
     case SCALE_TYPE::ORIGINAL:
-        scaledimg = m_img.scaled(m_img.width()*zoom_level,m_img.height()*zoom_level,
-                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        newsize.scale(newsize.width()*zoom_level,
+                      newsize.height()*zoom_level,
+                      Qt::KeepAspectRatio);
         break;
     }
-    ui->img_label->setPixmap(scaledimg);
+    QPixmap scaledimg;
+    switch (viewer_type) {
+    case IMAGE:
+        scaledimg = m_img.scaled(newsize,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        ui->img_label->setPixmap(scaledimg);
+        break;
+    case GIF:
+        ui->img_label->movie()->setScaledSize(newsize);
+        break;
+    default:
+        break;
+    }
 }
 
 void FileViewer::next_file()
@@ -287,7 +323,7 @@ void FileViewer::remove_tag(QVector<QByteArray> tags)
 bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 {
     bool result = QWidget::eventFilter(obj, event);
-    if (viewer_type == IMAGE &&
+    if (( viewer_type == GIF||viewer_type == IMAGE) &&
             event->type() == QEvent::Resize &&
             obj == ui->scrollArea) {
         if (scale_type != SCALE_TYPE::ORIGINAL ||

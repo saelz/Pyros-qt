@@ -159,6 +159,13 @@
              </layout>
             </item>
             <item>
+             <widget class="QCheckBox" name="use_video_play_with_gifs">
+              <property name="text">
+               <string>Use video player with gifs</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="verticalSpacer_4">
               <property name="orientation">
                <enum>Qt::Vertical</enum>

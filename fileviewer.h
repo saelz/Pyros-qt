@@ -32,6 +32,7 @@ private:
 
     enum ViewerType{
         IMAGE,
+        GIF,
         MPV,
         TEXT,
         UNSUPPORTED,
@@ -41,6 +42,8 @@ private:
 
     Ui::FileViewer *ui;
     QPixmap m_img;
+    QSize file_orignal_size;
+
     SCALE_TYPE scale_type = BOTH;
     ViewerType viewer_type = IMAGE;
     double zoom_level = 1;

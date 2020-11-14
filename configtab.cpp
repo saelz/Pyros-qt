@@ -23,6 +23,7 @@ configtab::configtab(QWidget *parent) :
     QSettings settings;
     ui->theme->setCurrentText(settings.value("theme","Default").toString());
     ui->use_tag_history->setChecked(settings.value("use_tag_history",true).toBool());
+    ui->use_video_play_with_gifs->setChecked(settings.value("treat_gifs_as_video",false).toBool());
 
     settings.beginGroup("tagcolor");
     QStringList colored_tags = settings.allKeys();
@@ -69,6 +70,7 @@ void configtab::apply()
     const QString theme = ui->theme->currentText();
     settings.setValue("theme",theme);
     settings.setValue("use_tag_history",ui->use_tag_history->checkState());
+    settings.setValue("treat_gifs_as_video",ui->use_video_play_with_gifs->checkState());
 
     settings.beginGroup("tagcolor");
     apply_color_entries(ui->tag_color_box,settings);
