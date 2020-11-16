@@ -127,13 +127,14 @@ void SearchTab::set_tag_view(const QModelIndex &current, const QModelIndex &prev
         ui->file_tags->setTagsFromFile(pFile);
 
         if (pFile != nullptr){
+            QSettings settings;
             QDateTime timestamp;
             QLocale locale = this->locale();
             timestamp.setTime_t(pFile->import_time);
 
             ui->data_file_mime->setText(pFile->mime);
             ui->data_file_size->setText(locale.formattedDataSize(pFile->file_size));
-            ui->data_file_time->setText(timestamp.toString("dd/MM/yy"));
+            ui->data_file_time->setText(timestamp.toString(settings.value("timestamp_format","MM/dd/yy").toString()));
         }
     } else{
         ui->file_tags->clear();

@@ -28,6 +28,7 @@ configtab::configtab(QWidget *parent) :
     ui->theme->setCurrentText(settings.value("theme","Default").toString());
     ui->use_tag_history->setChecked(settings.value("use_tag_history",true).toBool());
     ui->use_video_play_with_gifs->setChecked(settings.value("treat_gifs_as_video",false).toBool());
+    ui->timestamp_format->setText(settings.value("timestamp_format","MM/dd/yy").toString());
 
     settings.beginGroup("tagcolor");
     QStringList colored_tags = settings.allKeys();
@@ -97,6 +98,7 @@ void configtab::apply()
     settings.setValue("theme",theme);
     settings.setValue("use_tag_history",ui->use_tag_history->checkState());
     settings.setValue("treat_gifs_as_video",ui->use_video_play_with_gifs->checkState());
+    settings.setValue("timestamp_format",ui->timestamp_format->text());
 
     settings.beginGroup("tagcolor");
     apply_color_entries(settings,tag_colors);
