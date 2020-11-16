@@ -147,7 +147,6 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
     foreach(struct external_thumbnailer nailer,loaded_thumbnailers){
         foreach(QByteArray mime,nailer.support_mimes){
             if (mime == item.mime){
-                //qDebug() << "using thumbnailer:" << nailer.cmd;
                 QString cmd  = nailer.cmd;
                 cmd.replace("%i",item.path);
                 cmd.replace("%u",item.path);
@@ -187,7 +186,6 @@ QVariant FileModel::generic_image_thumbnailer(thumbnail_item item,QByteArray& th
         file.open(QIODevice::WriteOnly);
         newPix.save(&file, "PNG");
 
-        qDebug() << thumbpath << '\n';
 
         return QVariant(newPix);
     }
@@ -199,7 +197,6 @@ FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
 
         QByteArray imgPath(item.path);
         imgPath += ".256";
-        //qDebug("THUMBNAILING: %s",imgPath.data());
 
         if (pix1.load(imgPath)){
             item.thumbnail = pix1;

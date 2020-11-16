@@ -7,12 +7,16 @@
 #include <QColorDialog>
 #include <QDebug>
 
+
+
+
+
 configtab::configtab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::configtab)
 {
     ui->setupUi(this);
-    connect(ui->tags_button,  &QPushButton::clicked,this,&configtab::set_tag_page);
+    connect(ui->tags_button,   &QPushButton::clicked,this,&configtab::set_tag_page);
     connect(ui->files_button,  &QPushButton::clicked,this,&configtab::set_file_page);
     connect(ui->general_button,&QPushButton::clicked,this,&configtab::set_general_page);
     connect(ui->apply_button,  &QPushButton::clicked,this,&configtab::apply);
@@ -29,7 +33,7 @@ configtab::configtab(QWidget *parent) :
     QStringList colored_tags = settings.allKeys();
     foreach(QString colored_prefix,colored_tags){
         QColor color = settings.value(colored_prefix).value<QColor>();
-        ui->tag_color_box->addLayout(new_color_entry(colored_prefix,color.name(),"Tag"));
+        tag_colors.append(new color_entry(ui->tag_color_box,"Tag",colored_prefix,color.name()));
     }
     settings.endGroup();
 
@@ -37,31 +41,53 @@ configtab::configtab(QWidget *parent) :
     colored_tags = settings.allKeys();
     foreach(QString colored_prefix,colored_tags){
         QColor color = settings.value(colored_prefix).value<QColor>();
-        ui->file_border_box->addLayout(new_color_entry(colored_prefix,color.name(),"Mime/Type"));
+        file_colors.append(new color_entry(ui->file_border_box,"Mime/Type",colored_prefix,color.name()));
     }
     settings.endGroup();
+    set_general_page();
 }
 
 configtab::~configtab()
 {
     delete ui;
+
+    for(int i = 0;i < file_colors.count();i++)
+        if (!file_colors[i].isNull())
+            delete file_colors[i].data();
+    for(int i = 0;i < tag_colors.count();i++)
+        if (!tag_colors[i].isNull())
+            delete tag_colors[i].data();
+}
+
+void configtab::enable_all_buttons(){
+    ui->tags_button->setEnabled(true);
+    ui->files_button->setEnabled(true);
+    ui->general_button->setEnabled(true);
+
 }
 
 void configtab::set_tag_page()
 {
     ui->stackedWidget->setCurrentIndex(2);
+    enable_all_buttons();
+    ui->tags_button->setEnabled(false);
+
 }
 
 
 void configtab::set_file_page()
 {
     ui->stackedWidget->setCurrentIndex(1);
+    enable_all_buttons();
+    ui->files_button->setEnabled(false);
 }
 
 
 void configtab::set_general_page()
 {
     ui->stackedWidget->setCurrentIndex(0);
+    enable_all_buttons();
+    ui->general_button->setEnabled(false);
 }
 
 void configtab::apply()
@@ -73,56 +99,76 @@ void configtab::apply()
     settings.setValue("treat_gifs_as_video",ui->use_video_play_with_gifs->checkState());
 
     settings.beginGroup("tagcolor");
-    apply_color_entries(ui->tag_color_box,settings);
+    apply_color_entries(settings,tag_colors);
     settings.endGroup();
     settings.beginGroup("filecolor");
-    apply_color_entries(ui->file_border_box,settings);
+    apply_color_entries(settings,file_colors);
     settings.endGroup();
 
     emit settings_changed();
 }
 
-void configtab::apply_color_entries(QVBoxLayout *inital_layout,QSettings &settings){
+void configtab::apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entries){
     settings.remove("");
-    for	(int i = 0; i < inital_layout->count();i++){
-        QLayout *l = inital_layout->itemAt(i)->layout();
-
-        QWidget *tag_widget = l->itemAt(0)->widget();
-        QLineEdit *tag = qobject_cast<QLineEdit*>(tag_widget);
-        QWidget *color_widget = l->itemAt(1)->widget();
-        QLineEdit *color = qobject_cast<QLineEdit*>(color_widget);
-        QColor c = "#"+color->text();
-        qDebug() << tag->text() << color->text();
-        settings.setValue(tag->text(),c);
-
+    for(int i = 0;i < entries.count();i++){
+        if (entries[i].isNull())
+            continue;
+        color_entry *entry = entries[i].data();
+        QColor c = "#"+entry->color->text();
+        qDebug() << entry->entry->text() << entry->color->text();
+        settings.setValue(entry->entry->text(),c);
     }
 }
 
 void configtab::new_color_tag()
 {
-        ui->tag_color_box->addLayout(new_color_entry("","","Tag"));
+        tag_colors.append(new color_entry(ui->tag_color_box,"Tag"));
 }
 void configtab::new_file_border()
 {
-        ui->file_border_box->addLayout(new_color_entry("","","Tag"));
+        file_colors.append(new color_entry(ui->file_border_box,"Mime/Type"));
 }
 
-QHBoxLayout* configtab::new_color_entry(QString item,QString hex,QString placeholder)
+color_entry::color_entry(QVBoxLayout *parent,QString placeholder,
+               QString item,QString hex)
 {
-        QHBoxLayout *hbox = new QHBoxLayout();
-        QLineEdit *tag_label = new QLineEdit(item);
-        QLineEdit *color_label = new QLineEdit(hex);
-        QPushButton *delete_button = new QPushButton("-");
-        connect(delete_button,&QPushButton::clicked,tag_label,&QLineEdit::deleteLater);
-        connect(delete_button,&QPushButton::clicked,color_label,&QLineEdit::deleteLater);
-        connect(delete_button,&QPushButton::clicked,delete_button,&QPushButton::deleteLater);
-        connect(delete_button,&QPushButton::clicked,hbox,&QHBoxLayout::deleteLater);
 
-        color_label->setInputMask("HHHHHH");
-        color_label->setPlaceholderText("Hex Color");
-        tag_label->setPlaceholderText(placeholder);
-        hbox->addWidget(tag_label);
-        hbox->addWidget(color_label);
+        hbox = new QHBoxLayout();
+        entry = new QLineEdit(item);
+        color = new QLineEdit(hex);
+        delete_button = new QPushButton("-");
+        entry->setPlaceholderText(placeholder);
+        color->setInputMask("HHHHHH");
+        color->setPlaceholderText("Hex Color");
+
+        hbox->addWidget(entry);
+        hbox->addWidget(color);
         hbox->addWidget(delete_button);
-        return hbox;
+        parent->addLayout(hbox);
+
+        connect(delete_button,&QPushButton::clicked,this,&color_entry::deleteLater);
+        connect(color,&QLineEdit::textChanged,this,&color_entry::update_color);
+        update_color(hex.remove(0,1));
+}
+
+void
+color_entry::update_color(const QString &text)
+{
+    if (text.length() != 3 && text.length() != 6){
+        entry->setStyleSheet("");
+        return;
+    }
+
+    QString color_prefix = "color: ";
+    QColor c = "#"+text;
+    entry->setStyleSheet(color_prefix+c.name());
+
+}
+
+color_entry::~color_entry()
+{
+    delete delete_button;
+    delete color;
+    delete entry;
+    delete hbox;
 }

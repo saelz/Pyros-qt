@@ -231,7 +231,6 @@ void FileViewer::set_scale()
     default:
         return;
     }
-    qDebug("HEIGHT:%d,WIDTH%d",newsize.height(),newsize.width());
 
     switch (scale_type){
     case SCALE_TYPE::HEIGHT:
