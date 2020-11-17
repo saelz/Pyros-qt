@@ -96,6 +96,7 @@ void SearchTab::set_file_count(QVector<FileModel::file_item> files)
 {
     if (files.length() == 0){
         set_loading_screen("No Results");
+        ui->data_file_count->setText("0");
     } else if (!ui->loading_status->text().isEmpty()){
         show_results();
         ui->data_file_count->setText(QString::number(files.length()));
