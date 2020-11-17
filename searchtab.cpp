@@ -9,6 +9,7 @@ SearchTab::SearchTab(QWidget *parent) :
     ui(new Ui::SearchTab)
 {
     init();
+    set_loading_screen("");
 
 }
 SearchTab::SearchTab(QVector<PyrosFile*> &files,QWidget *parent) :
@@ -16,6 +17,7 @@ SearchTab::SearchTab(QVector<PyrosFile*> &files,QWidget *parent) :
     ui(new Ui::SearchTab)
 {
     init();
+    set_loading_screen("Loading...");
     ui->file_view->set_files_from_vector(files);
 }
 SearchTab::~SearchTab()
@@ -73,14 +75,33 @@ void SearchTab::init()
     connect(ui->file_view->selectionModel(), &QItemSelectionModel::selectionChanged ,this, &SearchTab::set_bottom_bar);
 }
 
+void SearchTab::set_loading_screen(QString text)
+{
+    ui->stackedWidget->setCurrentIndex(1);
+    ui->loading_status->setText(text);
+}
+
+void SearchTab::show_results()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
 void SearchTab::create_title(QVector<QByteArray> tags){
+    set_loading_screen("Loading...");
     QString str = tags.first();
     emit set_title(str,this);
 }
 
 void SearchTab::set_file_count(QVector<FileModel::file_item> files)
 {
-    ui->data_file_count->setText(QString::number(files.length()));
+    if (files.length() == 0){
+        set_loading_screen("No Results");
+    } else if (!ui->loading_status->text().isEmpty()){
+        show_results();
+        ui->data_file_count->setText(QString::number(files.length()));
+    } else {
+        clear();
+    }
 }
 
 void SearchTab::create_new_viewer_tab(const QModelIndex &inital_index)
@@ -146,6 +167,8 @@ void SearchTab::set_tag_view(const QModelIndex &current, const QModelIndex &prev
 
 void SearchTab::clear()
 {
+
+    set_loading_screen("");
     ui->file_tags->clear();
 
     ui->search_tags->clear();

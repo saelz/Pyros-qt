@@ -26,6 +26,8 @@ private:
     Ui::SearchTab *ui;
     void init();
     void create_title(QVector<QByteArray> tags);
+    void set_loading_screen(QString text);
+    void show_results();
 
 
 private slots:

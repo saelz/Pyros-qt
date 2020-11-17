@@ -60,7 +60,8 @@ configtab::~configtab()
             delete tag_colors[i].data();
 }
 
-void configtab::enable_all_buttons(){
+void configtab::enable_all_buttons()
+{
     ui->tags_button->setEnabled(true);
     ui->files_button->setEnabled(true);
     ui->general_button->setEnabled(true);
@@ -75,14 +76,12 @@ void configtab::set_tag_page()
 
 }
 
-
 void configtab::set_file_page()
 {
     ui->stackedWidget->setCurrentIndex(1);
     enable_all_buttons();
     ui->files_button->setEnabled(false);
 }
-
 
 void configtab::set_general_page()
 {
@@ -158,12 +157,13 @@ color_entry::update_color(const QString &text)
 {
     if (text.length() != 3 && text.length() != 6){
         entry->setStyleSheet("");
+        color->setStyleSheet("color:#ff0000");
         return;
     }
 
-    QString color_prefix = "color: ";
     QColor c = "#"+text;
-    entry->setStyleSheet(color_prefix+c.name());
+    color->setStyleSheet("");
+    entry->setStyleSheet("color:"+c.name());
 
 }
 
