@@ -300,8 +300,9 @@ void TagView::clear()
 
 void TagView::add_tags(QVector<QByteArray> tags)
 {
-    QSettings settings;
-    PyrosDB *pyrosDB = Pyros_Open_Database(settings.value("db").toByteArray());
+    PyrosTC *ptc = PyrosTC::get();
+
+    PyrosDB *pyrosDB = Pyros_Open_Database(ptc->db_path());
     foreach(QByteArray tag,tags){
         loadModelFromTag(tag,QModelIndex(),pyrosDB);
     }

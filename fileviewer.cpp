@@ -84,6 +84,8 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
 
     ui->scrollArea->installEventFilter(this);
+    ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 FileViewer::~FileViewer()
@@ -329,6 +331,28 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
                 zoom_level != 1){
             set_scale();
         }
+    }
+    if (event->type() == QEvent::Enter) {
+        qDebug() << "Enter";
+        switch (scale_type){
+        case SCALE_TYPE::HEIGHT:
+            ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            break;
+        case SCALE_TYPE::WIDTH:
+            ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            break;
+        default:
+            ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            break;
+        }
+    }
+
+    if (event->type() == QEvent::Leave) {
+        qDebug() << "Leave";
+
+        ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
     return result;
