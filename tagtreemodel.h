@@ -11,13 +11,10 @@
 
 #include "tagitem.h"
 
-#define PDB_PATH "/home/sam/.local/share/pyros/main/"
-
 
 class TagTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
-    //should keep list of tags
 public:
     TagTreeModel(const QString &column_title, QObject *parent = nullptr);
     ~TagTreeModel();

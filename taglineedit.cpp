@@ -1,4 +1,4 @@
-#include "pyrosqt.h"
+#include "pyrosdb.h"
 #include "taglineedit.h"
 
 #include <QCompleter>
@@ -12,21 +12,17 @@
 TagLineEdit::TagLineEdit(QWidget *parent) :
     QLineEdit(parent)
 {
-    QStringList wordList;
     QSettings settings;
-    PyrosDB *pyrosDB = Pyros_Open_Database(settings.value("db").toByteArray());
+    PyrosTC *ptc = PyrosTC::get();
 
+    PyrosTC::all_tags_cb cb= [&](QStringList tags){
+        QCompleter *completer = new QCompleter(tags, this);
+        completer->setCaseSensitivity(Qt::CaseInsensitive);
+        setCompleter(completer);
 
-    PyrosList *all_tags = Pyros_Get_All_Tags(pyrosDB);
-    for (size_t i = 0;i < all_tags->length; i++) {
-        wordList << (char*)all_tags->list[i];
-    }
-    Pyros_List_Free(all_tags,free);
-    Pyros_Close_Database(pyrosDB);
+    };
+    ptc->get_all_tags(this,cb);
 
-    QCompleter *completer = new QCompleter(wordList, this);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    setCompleter(completer);
     tag_history.append("");
 
 

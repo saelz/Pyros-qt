@@ -123,7 +123,6 @@ void PyrosWorker::ext_func(PyrosDB* db,QVector<QByteArray> tags, QVector<QByteAr
     foreach(QByteArray tag,tags){
         foreach(QByteArray sub_tag,sub_tags){
             ExtFunc(db,tag,sub_tag);
-            qDebug("%s->%s",tag.data(),sub_tag.data());
         }
     }
 
@@ -139,6 +138,18 @@ void PyrosWorker::remove_ext(PyrosDB*db,QVector<QByteArray> tags){
     for(int i = 1; i < ctags.count();i+=2)
         Pyros_Remove_Ext_Tag(db,ctags.at(i-1),ctags.at(i));
     Pyros_Execute(db);
+}
+
+void PyrosWorker::get_all_tags(PyrosDB *db){
+    PyrosList *all_tags = Pyros_Get_All_Tags(db);
+    QStringList tags;
+
+    for (size_t i = 0;i < all_tags->length; i++)
+        tags << (char*)all_tags->list[i];
+
+    Pyros_List_Free(all_tags,free);
+
+    emit return_all_tags(tags);
 }
 
 PyrosTC::~PyrosTC(){
@@ -204,6 +215,11 @@ PyrosTC::PyrosTC()
     connect(this,&PyrosTC::sig_remove_ext,
         worker,&PyrosWorker::remove_ext);
 
+    connect(this,&PyrosTC::sig_get_all_tags,
+        worker,&PyrosWorker::get_all_tags);
+    connect(worker,&PyrosWorker::return_all_tags,
+        this,&PyrosTC::return_all_tags);
+
     workerThread.start();
 
 
@@ -262,7 +278,17 @@ void PyrosTC::tag_return(QVector<PyrosTag*> tags){
             Pyros_Free_Tag(tag);
     } else {
         req.t_cb(tags);
-     }
+    }
+
+    requests.pop_front();
+}
+
+void PyrosTC::return_all_tags(QStringList tags){
+    struct request req = requests.front();
+
+    if (!req.discard && !req.sender.isNull()){
+        req.at_cb(tags);
+    }
 
     requests.pop_front();
 }
@@ -283,7 +309,7 @@ void PyrosTC::add_tags(QByteArray hash, QVector<QByteArray> tags){
 }
 
 void PyrosTC::search(QPointer<QObject>sender,QVector<QByteArray> tags, search_cb func){
-    struct request req = {sender,SEARCH_CB|OVERRIDE,func,nullptr,nullptr,false};
+    struct request req = {sender,OVERRIDE,func,nullptr,nullptr,nullptr,false};
     if (db == nullptr) return;
     push_request(req);
     emit sig_search(db,tags);
@@ -301,7 +327,7 @@ void PyrosTC::remove_tags(QByteArray hash, QVector<QByteArray> tags){
 }
 
 void PyrosTC::import(QPointer<QObject>sender,QVector<QByteArray> files, search_cb func,import_progress_cb ib,bool use_tag_files,QVector<QByteArray> import_tags){
-    struct request req = {sender,SEARCH_CB|PROGRESS_CB,func,ib,nullptr,false};
+    struct request req = {sender,NONE,func,ib,nullptr,nullptr,false};
     if (db == nullptr) return;
     push_request(req);
 
@@ -309,7 +335,7 @@ void PyrosTC::import(QPointer<QObject>sender,QVector<QByteArray> files, search_c
 }
 
 void PyrosTC::get_tags_from_hash(QPointer<QObject>sender, QByteArray hash, PyrosTC::tag_cb func) {
-    struct request req = {sender,TAG_CB|OVERRIDE,nullptr,nullptr,func,false};
+    struct request req = {sender,OVERRIDE,nullptr,nullptr,func,nullptr,false};
     if (db == nullptr) return;
     push_request(req);
 
@@ -350,5 +376,11 @@ void PyrosTC::close_db(){
 void PyrosTC::remove_ext(QVector<QByteArray> tags){
     if (db == nullptr) return;
     emit sig_remove_ext(db,tags);
+}
 
+void PyrosTC::get_all_tags(QPointer<QObject>sender,all_tags_cb cb){
+    struct request req = {sender,OVERRIDE,nullptr,nullptr,nullptr,cb,false};
+    if (db == nullptr) return;
+    push_request(req);
+    emit sig_get_all_tags(db);
 }
