@@ -31,7 +31,7 @@ private:
 
     enum REQUEST_FLAGS{
         NONE        = 0x00,
-        OVERRIDE    = 0x08,
+        OVERRIDE    = 0x02,
     };
 
     struct request{
@@ -69,6 +69,8 @@ signals:
     void sig_get_all_tags(PyrosDB *);
 
 public:
+    QByteArray db_path();
+
     void add_tags(QVector<QByteArray> hashes, QVector<QByteArray>tags);
     void add_tags(QByteArray hashes, QVector<QByteArray>tags);
 

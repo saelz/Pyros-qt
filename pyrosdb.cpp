@@ -226,6 +226,13 @@ PyrosTC::PyrosTC()
 
 }
 
+QByteArray PyrosTC::db_path()
+{
+    if (db == nullptr)
+        return QByteArray();
+    return db->path;
+}
+
 PyrosTC* PyrosTC::get()
 {
     if (!instance){

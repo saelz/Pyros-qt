@@ -196,8 +196,8 @@ void PyrosQT::open_database()
         new_search_tab();
     } else {
         QErrorMessage qem;
-        qem.showMessage("Not a database.");
-        qem.show();
+        qem.showMessage("\""+dir+"\" is not a database.");
+        qem.exec();
     }
 
 }

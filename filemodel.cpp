@@ -156,11 +156,8 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
                 QStringList cmd_list = cmd.split(' ');
                 cmd = cmd_list.at(0);
                 cmd_list.pop_front();
-                if (cmd == "ffmpegthumbnailer")
+                if (cmd == "ffmpegthumbnailer" && cmd_list.back() == "-f")
                     cmd_list.pop_back();
-
-                /*QProcess::execute("ffmpegthumbnailer", QStringList() <<
-                                  "-s" << "256" << "-i" << pFile->path<< "-o" << imgPath );*/
 
                 QProcess::execute(cmd,cmd_list);
                 QPixmap pix;
@@ -170,7 +167,7 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
 
         }
     }
-    return QVariant("no thumbnail");
+    return QVariant();
 }
 
 QVariant FileModel::generic_image_thumbnailer(thumbnail_item item,QByteArray& thumbpath){

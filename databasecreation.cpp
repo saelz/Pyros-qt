@@ -26,7 +26,8 @@ void DatabaseCreation::create_database(){
     QByteArray path = ui->database_path->text().toUtf8();
     if (Pyros_Database_Exists(path.data())){
         QErrorMessage qem;
-        qem.showMessage("Database already exists");
+        qem.showMessage("Database \""+path+"\" already exists");
+        qem.exec();
     } else {
         QSettings settings;
         PYROS_HASHTYPE hashtype = PYROS_MD5HASH;
