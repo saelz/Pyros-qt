@@ -33,7 +33,6 @@ TagView::TagView(QWidget *parent) :
     contextMenu->addAction("Remove Ext",        this, &TagView::remove_ext);
 
     connect(this, &TagView::customContextMenuRequested, this, &TagView::onCustomContextMenu);
-    connect(this, &TagView::clicked,this, &TagView::on_search_item_clicked);
 }
 
 TagView::~TagView()
@@ -198,14 +197,6 @@ void TagView::onCustomContextMenu(const QPoint &point)
     }
 }
 
-void TagView::on_search_item_clicked(const QModelIndex &index)
-{
-    QAbstractItemModel *model = this->model();
-    QVariant str = model->data(index,Qt::EditRole);
-    QString sstr = str.toString();
-    //std::cout << "KEK: " << sstr.toStdString() << std::endl;
-}
-
 bool TagView::loadModelFromTag(QByteArray tag,const QModelIndex index,PyrosDB *pyrosDB)
 {
     if (!tag.isEmpty()){
@@ -336,8 +327,6 @@ void TagView::setTagType(int type)
 }
 
 void TagView::create_search_with_selected_tags(){
-  //SearchTab *st = new SearchTab(ui->tabWidget);
-  //ui->tabWidget->addTab(st,"Search");
-  //ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
-
+    QVector<QByteArray> selected_tags = get_selected_tags();
+    emit new_search_with_selected_tags(selected_tags);
 }

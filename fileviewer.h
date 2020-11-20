@@ -69,6 +69,8 @@ private slots:
     void delete_file();
     void add_tag(QVector<QByteArray> tags);
     void remove_tag(QVector<QByteArray> tags);
+signals:
+    void new_search_with_selected_tags(QVector<QByteArray>);
 };
 
 #endif // FILEVIEWER_H

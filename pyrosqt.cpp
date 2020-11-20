@@ -117,19 +117,28 @@ void PyrosQT::new_import_tab()
 
 void PyrosQT::new_search_tab()
 {
-    SearchTab *st = new SearchTab(ui->tabWidget);
-    ui->tabWidget->addTab(st,"Search");
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
-    connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
-    connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
+    SearchTab *st = new SearchTab();
+    search_tab_init(st);
 }
 void PyrosQT::new_search_tab_with_vector(QVector<PyrosFile*>files)
 {
-    SearchTab *st = new SearchTab(files,ui->tabWidget);
+    SearchTab *st = new SearchTab(files);
+    search_tab_init(st);
+}
+void PyrosQT::new_search_tab_with_tags(QVector<QByteArray>tags)
+{
+    SearchTab *st = new SearchTab(tags);
+    search_tab_init(st);
+}
+
+void PyrosQT::search_tab_init(SearchTab *st)
+{
+
     ui->tabWidget->addTab(st,"Import");
     ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
     connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
     connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
+    connect(st,&SearchTab::create_new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
 }
 
 void PyrosQT::remove_tab(int index)
@@ -156,6 +165,7 @@ void PyrosQT::new_viewer_tab(QVector<PyrosFile*> files,int inital_position)
     FileViewer *fv = new FileViewer(files,inital_position,ui->tabWidget);
     ui->tabWidget->addTab(fv,"Viewer");
     ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+    connect(fv,&FileViewer::new_search_with_selected_tags,this,&PyrosQT::new_search_tab_with_tags);
 }
 
 void PyrosQT::new_config_tab()

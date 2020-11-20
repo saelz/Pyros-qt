@@ -49,12 +49,12 @@ private slots:
     void copy_tag();
 
     void onCustomContextMenu(const QPoint &point);
-    void on_search_item_clicked(const QModelIndex &index);
     void create_search_with_selected_tags();
 
 
 signals:
     void removeTag(QVector <QByteArray>);
+    void new_search_with_selected_tags(QVector <QByteArray>);
 };
 
 #endif // TAGVIEW_H

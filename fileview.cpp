@@ -184,9 +184,6 @@ void FileView::refresh(){
     };
 
     ptc->search(this,m_tags, cb);
-
-    //emit new_files(file_model->files());
-
 }
 
 void FileView::search(QVector<QByteArray> tags)

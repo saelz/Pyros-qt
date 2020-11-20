@@ -82,6 +82,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(ui->tag_bar, &TagLineEdit::tag_entered,this, &FileViewer::add_tag);
 
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
+    connect(ui->file_tags, &TagView::new_search_with_selected_tags,this, &FileViewer::new_search_with_selected_tags);
 
     ui->scrollArea->installEventFilter(this);
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -323,7 +324,6 @@ void FileViewer::remove_tag(QVector<QByteArray> tags)
 
 bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 {
-    bool result = QWidget::eventFilter(obj, event);
     if (( viewer_type == GIF||viewer_type == IMAGE) &&
             event->type() == QEvent::Resize &&
             obj == ui->scrollArea) {
@@ -332,8 +332,9 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
             set_scale();
         }
     }
+
+    // enable scrollbars on hovor
     if (event->type() == QEvent::Enter) {
-        qDebug() << "Enter";
         switch (scale_type){
         case SCALE_TYPE::HEIGHT:
             ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -349,11 +350,9 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
     }
 
     if (event->type() == QEvent::Leave) {
-        qDebug() << "Leave";
-
         ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
-    return result;
+    return QWidget::eventFilter(obj, event);
 }

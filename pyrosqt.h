@@ -6,6 +6,7 @@
 
 
 class QAbstractItemModel;
+class SearchTab;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class PyrosQT; }
@@ -30,6 +31,8 @@ private slots:
     void new_import_tab();
     void new_search_tab();
     void new_search_tab_with_vector(QVector<PyrosFile*>files);
+    void new_search_tab_with_tags(QVector<QByteArray>tags);
+    void search_tab_init(SearchTab *st);
     void new_viewer_tab(QVector<PyrosFile*> files,int inital_position);
     void new_config_tab();
     void new_database_creation_tab();

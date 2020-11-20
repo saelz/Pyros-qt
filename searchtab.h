@@ -20,6 +20,7 @@ class SearchTab : public QWidget
 public:
     explicit SearchTab(QWidget *parent = nullptr);
     SearchTab(QVector<PyrosFile*> &files,QWidget *parent = nullptr);
+    SearchTab(QVector<QByteArray> &tags,QWidget *parent = nullptr);
     ~SearchTab();
 
 private:
@@ -44,6 +45,7 @@ private slots:
 signals:
     void set_title(QString ,QWidget *);
     void create_viewer_tab(QVector<PyrosFile*>,int);
+    void create_new_search_with_tags(QVector<QByteArray> tags);
 
 };
 

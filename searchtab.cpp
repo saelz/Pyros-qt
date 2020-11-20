@@ -20,6 +20,16 @@ SearchTab::SearchTab(QVector<PyrosFile*> &files,QWidget *parent) :
     set_loading_screen("Loading...");
     ui->file_view->set_files_from_vector(files);
 }
+SearchTab::SearchTab(QVector<QByteArray> &tags,QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::SearchTab)
+{
+    init();
+    create_title(tags);
+    ui->search_tags->add_tags(tags);
+    ui->file_view->search(tags);
+}
+
 SearchTab::~SearchTab()
 {
     delete ui;
@@ -73,6 +83,9 @@ void SearchTab::init()
     connect(ui->file_view, &FileView::new_files, this, &SearchTab::set_file_count);
     connect(ui->file_view->selectionModel(), &QItemSelectionModel::currentChanged ,this, &SearchTab::set_tag_view);
     connect(ui->file_view->selectionModel(), &QItemSelectionModel::selectionChanged ,this, &SearchTab::set_bottom_bar);
+
+    connect(ui->file_tags,&TagView::new_search_with_selected_tags,this,&SearchTab::create_new_search_with_tags);
+    connect(ui->search_tags,&TagView::new_search_with_selected_tags,this,&SearchTab::create_new_search_with_tags);
 }
 
 void SearchTab::set_loading_screen(QString text)
