@@ -104,7 +104,7 @@ bool TagItem::setData(int column, const QVariant &value)
                                       QColorConstants::Red).value<QColor>();
         else if (value.toInt() == NEW_TAG)
             fg_color = settings.value("special-tagcolor/new",
-                                      QColorConstants::DarkYellow).value<QColor>();
+                                      QColor("#fec033")).value<QColor>();
 
         type = (enum TAG_TYPE)value.toInt();
     }

@@ -31,6 +31,7 @@ private slots:
 signals:
     void new_search(QVector<PyrosFile*>);
     void delete_self(QWidget*);
+    void new_search_with_tags(QVector<QByteArray> tags);
 };
 
 #endif // FILEIMPORT_H

@@ -112,7 +112,7 @@ void PyrosQT::new_import_tab()
     ui->tabWidget->addTab(fi,"Import");
     ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
     connect(fi,&FileImport::new_search,this,&PyrosQT::new_search_tab_with_vector);
-    //connect(fi,&FileImport::delete_self,this,&PyrosQT::remove_tab_by_widget);
+    connect(fi,&FileImport::new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
 }
 
 void PyrosQT::new_search_tab()
