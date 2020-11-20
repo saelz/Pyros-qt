@@ -10,6 +10,8 @@
 #include <QFileDialog>
 #include <QStandardItemModel>
 
+QString FileImport::starting_dir = QDir::home().path();
+
 FileImport::FileImport(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FileImport)
@@ -50,12 +52,15 @@ void FileImport::remove_tags(QVector<QByteArray> tags){
 
 void FileImport::add_files()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this,"Select Files","/home/");
+    QStringList files = QFileDialog::getOpenFileNames(this,"Select Files",starting_dir);
 
     if (files.count() > 0){
         QAbstractItemModel *model = ui->selected_files->model();
         int i = 0;
         model->insertRows(0,files.count(),QModelIndex());
+        QString dir = files.first();
+        dir.truncate(dir.lastIndexOf('/'));
+        starting_dir = dir;
 
         foreach (QString file ,files){
             const QModelIndex index = model->index(i,0);

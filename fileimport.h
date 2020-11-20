@@ -21,6 +21,7 @@ public:
 private:
     Ui::FileImport *ui;
     QVector<QByteArray> m_import_tags;
+    static QString starting_dir;
 
 private slots:
 
