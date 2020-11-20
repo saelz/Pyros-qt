@@ -3,7 +3,6 @@
 #include "fileimport.h"
 #include "searchtab.h"
 #include "fileviewer.h"
-#include "dupefinder.h"
 #include "pyrosdb.h"
 #include "configtab.h"
 #include "databasecreation.h"
