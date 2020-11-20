@@ -1,10 +1,7 @@
 #include "fileimport.h"
 #include "searchtab.h"
 #include "ui_fileimport.h"
-#include "pyrosqt.h"
 #include "pyrosdb.h"
-
-
 
 #include <QDebug>
 #include <QFileDialog>

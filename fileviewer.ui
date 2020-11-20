@@ -92,7 +92,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>575</width>
-                <height>297</height>
+                <height>296</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -152,15 +152,57 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QPushButton" name="prev_button">
+           <property name="toolTip">
+            <string>Previous</string>
+           </property>
            <property name="text">
-            <string>Prev</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/icons/left_arrow.svg</normaloff>:/icons/icons/left_arrow.svg</iconset>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="next_button">
-           <property name="text">
+           <property name="toolTip">
             <string>Next</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/icons/right_arrow.svg</normaloff>:/icons/icons/right_arrow.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="zoom_in_button">
+           <property name="toolTip">
+            <string>Zoom in</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/icons/plus.svg</normaloff>:/icons/icons/plus.svg</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="zoom_out_button">
+           <property name="toolTip">
+            <string>Zoom out</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/icons/minus.svg</normaloff>:/icons/icons/minus.svg</iconset>
            </property>
           </widget>
          </item>
@@ -186,20 +228,6 @@
              <string>Original</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="zoom_in_button">
-           <property name="text">
-            <string>zoom in</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="zoom_out_button">
-           <property name="text">
-            <string>zoom out</string>
-           </property>
           </widget>
          </item>
          <item>
@@ -255,6 +283,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
