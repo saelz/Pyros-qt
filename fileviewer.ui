@@ -91,7 +91,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>575</width>
+                <width>515</width>
                 <height>296</height>
                </rect>
               </property>
@@ -160,7 +160,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/icons/left_arrow.svg</normaloff>:/icons/icons/left_arrow.svg</iconset>
+             <normaloff>:/data/icons/left_arrow.svg</normaloff>:/data/icons/left_arrow.svg</iconset>
            </property>
           </widget>
          </item>
@@ -174,7 +174,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/icons/right_arrow.svg</normaloff>:/icons/icons/right_arrow.svg</iconset>
+             <normaloff>:/data/icons/right_arrow.svg</normaloff>:/data/icons/right_arrow.svg</iconset>
            </property>
           </widget>
          </item>
@@ -188,7 +188,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/icons/plus.svg</normaloff>:/icons/icons/plus.svg</iconset>
+             <normaloff>:/data/icons/plus.svg</normaloff>:/data/icons/plus.svg</iconset>
            </property>
           </widget>
          </item>
@@ -202,7 +202,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/icons/icons/minus.svg</normaloff>:/icons/icons/minus.svg</iconset>
+             <normaloff>:/data/icons/minus.svg</normaloff>:/data/icons/minus.svg</iconset>
            </property>
           </widget>
          </item>

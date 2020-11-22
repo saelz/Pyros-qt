@@ -204,6 +204,9 @@ FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
             } else if (settings.value("use-exernal-thumbnailer",true).toBool()){
                 item.thumbnail = FileModel::external_thumbnailer(item,imgPath);
             }
+
+            if (item.thumbnail == QVariant())
+                item.thumbnail = QPixmap(":/data/icons/nothumb.png");
         }
         return item;
 }

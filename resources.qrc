@@ -1,8 +1,9 @@
 <RCC>
-    <qresource prefix="/icons">
+    <qresource prefix="/data">
         <file>icons/minus.svg</file>
         <file>icons/plus.svg</file>
         <file>icons/right_arrow.svg</file>
         <file>icons/left_arrow.svg</file>
+        <file>icons/nothumb.png</file>
     </qresource>
 </RCC>
