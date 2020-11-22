@@ -133,7 +133,7 @@ void PyrosQT::new_search_tab_with_tags(QVector<QByteArray>tags)
 void PyrosQT::search_tab_init(SearchTab *st)
 {
 
-    ui->tabWidget->addTab(st,"Import");
+    ui->tabWidget->addTab(st,"Search");
     ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
     connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
     connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
