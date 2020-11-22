@@ -114,7 +114,7 @@
            <enum>QFrame::Sunken</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="general_page">
            <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -284,6 +284,32 @@
                 </layout>
                </item>
               </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Thumbnailer</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="use_internal_image_thumbnailer">
+              <property name="text">
+               <string>Use interal image thumbnailer</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="use_external_thumbnailers">
+              <property name="text">
+               <string>use external thumbnailers from /usr/share/thumbnailers</string>
+              </property>
              </widget>
             </item>
             <item>

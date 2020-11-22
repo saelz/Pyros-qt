@@ -24,12 +24,14 @@ configtab::configtab(QWidget *parent) :
     connect(ui->more_tag_color_button,   &QPushButton::clicked,this,&configtab::new_color_tag);
     connect(ui->more_file_border_button, &QPushButton::clicked,this,&configtab::new_file_border);
 
+    // GENERAL PAGE
     QSettings settings;
     ui->theme->setCurrentText(settings.value("theme","Default").toString());
     ui->use_tag_history->setChecked(settings.value("use_tag_history",true).toBool());
     ui->use_video_play_with_gifs->setChecked(settings.value("treat_gifs_as_video",false).toBool());
     ui->timestamp_format->setText(settings.value("timestamp_format","MM/dd/yy").toString());
 
+    // TAG PAGE
     settings.beginGroup("tagcolor");
     QStringList colored_tags = settings.allKeys();
     foreach(QString colored_prefix,colored_tags){
@@ -38,12 +40,17 @@ configtab::configtab(QWidget *parent) :
     }
     settings.endGroup();
 
+    // FILE PAGE
     settings.beginGroup("filecolor");
     colored_tags = settings.allKeys();
     foreach(QString colored_prefix,colored_tags){
         QColor color = settings.value(colored_prefix).value<QColor>();
         file_colors.append(new color_entry(ui->file_border_box,"Mime/Type",colored_prefix,color.name()));
     }
+
+    ui->use_internal_image_thumbnailer->setChecked(settings.value("use-interal-image-thumbnailer",true).toBool());
+    ui->use_external_thumbnailers->setChecked(settings.value("use-exernal-thumbnailer",true).toBool());
+
     settings.endGroup();
     set_general_page();
 }
@@ -98,6 +105,8 @@ void configtab::apply()
     settings.setValue("use_tag_history",ui->use_tag_history->checkState());
     settings.setValue("treat_gifs_as_video",ui->use_video_play_with_gifs->checkState());
     settings.setValue("timestamp_format",ui->timestamp_format->text());
+    settings.setValue("use-interal-image-thumbnailer",ui->use_internal_image_thumbnailer->checkState());
+    settings.setValue("use-exernal-thumbnailer",ui->use_external_thumbnailers->checkState());
 
     settings.beginGroup("tagcolor");
     apply_color_entries(settings,tag_colors);
@@ -105,6 +114,7 @@ void configtab::apply()
     settings.beginGroup("filecolor");
     apply_color_entries(settings,file_colors);
     settings.endGroup();
+
 
     emit settings_changed();
 }

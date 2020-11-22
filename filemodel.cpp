@@ -193,14 +193,15 @@ FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
         QPixmap pix1;
 
         QByteArray imgPath(item.path);
+        QSettings settings;
         imgPath += ".256";
 
         if (pix1.load(imgPath)){
             item.thumbnail = pix1;
         } else {
-            if (item.mime.startsWith("image/")){
+            if (settings.value("use-interal-image-thumbnailer",true).toBool() &&item.mime.startsWith("image/")){
                 item.thumbnail = FileModel::generic_image_thumbnailer(item,imgPath);
-            } else{
+            } else if (settings.value("use-exernal-thumbnailer",true).toBool()){
                 item.thumbnail = FileModel::external_thumbnailer(item,imgPath);
             }
         }
