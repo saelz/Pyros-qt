@@ -5,6 +5,7 @@
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
 #include <QPixmap>
+#include <QImageReader>
 
 #include <pyros.h>
 
@@ -42,6 +43,7 @@ private:
 
     Ui::FileViewer *ui;
     QPixmap m_img;
+    QMovie *movie = nullptr;
     QSize file_orignal_size;
 
     SCALE_TYPE scale_type = BOTH;
@@ -57,6 +59,7 @@ private:
     bool eventFilter(QObject *obj,QEvent *event) override;
 
 private slots:
+    void movie_error(QImageReader::ImageReaderError);
     void update_fit(const QString &text);
 
     void zoom_in();

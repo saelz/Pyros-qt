@@ -91,6 +91,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
 
 FileViewer::~FileViewer()
 {
+    delete movie;
     foreach(PyrosFile *pFile,m_files) Pyros_Close_File(pFile);
     ui->mpv_player->stop();
     delete ui;
@@ -114,37 +115,41 @@ void FileViewer::set_file()
     QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
     ui->file_count_label->setText(filecount);
 
+    m_img = QPixmap();
+
+    if (movie != nullptr)
+        delete movie;
+
+    ui->stackedWidget->setCurrentIndex(0);
+    ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+
     if (!strcmp(m_pFile->mime,"image/gif") &&
             !settings.value("treat_gifs_as_video",false).toBool()){
         viewer_type = GIF;
-        ui->stackedWidget->setCurrentIndex(0);
-        m_img = QPixmap();
-        ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-        QMovie *movie = new QMovie(m_pFile->path);
+
+        movie = new QMovie(m_pFile->path);
+        connect(movie,&QMovie::error,this,&FileViewer::movie_error);
+
         ui->img_label->setMovie(movie);
         movie->start();
         file_orignal_size = movie->currentImage().size();
+        set_scale();
 
     } else if (!strcmp(m_pFile->mime,"image/gif") ||
         !strncmp(m_pFile->mime,"audio/",6) ||
         !strncmp(m_pFile->mime,"video/",6)){
         viewer_type = MPV;
+        ui->stackedWidget->setCurrentIndex(1);
 
         ui->mpv_player->set_file(m_pFile->path);
-        ui->stackedWidget->setCurrentIndex(1);
     } else if (!strncmp(m_pFile->mime,"image/",6)){
         viewer_type = IMAGE;
         m_img = QPixmap(m_pFile->path);
 
-        ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-        ui->stackedWidget->setCurrentIndex(0);
-        set_scale();
     } else if (!strcmp(m_pFile->mime,"text/plain")){
         viewer_type = TEXT;
-        ui->stackedWidget->setCurrentIndex(0);
 
         QFont f("Arial", font_size);
-        m_img = QPixmap();
 
         ui->img_label->setFont(f);
         ui->img_label->setPixmap(m_img);
@@ -155,19 +160,16 @@ void FileViewer::set_file()
         QString line;
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
             QTextStream stream(&file);
-            while (!stream.atEnd()){
-
+            while (!stream.atEnd())
                 line.append(stream.readLine()+"\n");
-            }
+
             ui->img_label->setText(line);
         }
         file.close();
     } else {
         viewer_type = UNSUPPORTED;
-        ui->stackedWidget->setCurrentIndex(0);
 
         QFont f("Arial", font_size);
-        m_img = QPixmap();
 
         ui->img_label->setFont(f);
         ui->img_label->setPixmap(m_img);
@@ -177,6 +179,7 @@ void FileViewer::set_file()
 
     }
 
+    set_scale();
     ui->file_tags->setTagsFromFile(m_pFile);
 
 
@@ -264,7 +267,11 @@ void FileViewer::set_scale()
         ui->img_label->setPixmap(scaledimg);
         break;
     case GIF:
-        ui->img_label->movie()->setScaledSize(newsize);
+        if (movie == nullptr)
+            break;
+        movie->stop();
+        movie->setScaledSize(newsize);
+        movie->start();
         break;
     default:
         break;
@@ -355,4 +362,11 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QWidget::eventFilter(obj, event);
+}
+
+
+void FileViewer::movie_error(QImageReader::ImageReaderError)
+{
+    QMovie *mov = ui->img_label->movie();
+    qDebug() << mov->lastErrorString();
 }
