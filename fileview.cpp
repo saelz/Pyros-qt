@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QColor>
 #include <QResizeEvent>
+#include <QPixmap>
 
 #include <iostream>
 
@@ -25,8 +26,8 @@ class FileDelegate : public QStyledItemDelegate {
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                 const QModelIndex &index) const {
       QStyledItemDelegate::paint(painter, option, index);
-      //QColor k = model->data(index,Qt::ForegroundRole).toUInt();
       PyrosFile *pFile = model->file(index);
+
       QSettings settings;
       if (pFile == nullptr)
           return;
@@ -43,12 +44,16 @@ class FileDelegate : public QStyledItemDelegate {
           return;
       settings.endGroup();
       painter->setPen(color);
-      //painter->drawRect(option.rect);
+
+      QPixmap k = model->data(index,Qt::DecorationRole).value<QPixmap>();
       QRect rect = option.rect;
-      rect.setTop(rect.top()+1);
-      rect.setLeft(rect.left()+1);
-      rect.setWidth(rect.width()-1);
-      rect.setHeight(rect.height()-1);
+
+      int vspacing = rect.height()-k.height();
+      if (vspacing != 0)
+          rect.setTop(rect.top()+vspacing/2);
+      rect.setLeft(rect.left()+2);
+      rect.setWidth(k.width());
+      rect.setHeight(k.height());
       painter->drawRect(rect);
     }
 };
