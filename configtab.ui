@@ -306,6 +306,13 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="use_internal_cbz_thumbnailer">
+              <property name="text">
+               <string>Use internal cbz/zip thumbnailer</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="use_external_thumbnailers">
               <property name="text">
                <string>use external thumbnailers from /usr/share/thumbnailers</string>

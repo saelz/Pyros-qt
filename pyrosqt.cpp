@@ -61,6 +61,8 @@ void PyrosQT::initalize_config(){
         settings.setValue("video",QColorConstants::Green);
         settings.setValue("image/gif",QColorConstants::Green);
         settings.setValue("audio",QColorConstants::Blue);
+        settings.setValue("application/zip",QColor("#cc7722"));
+        settings.setValue("application/vnd.comicbook+zip",QColor("#cc7722"));
         settings.endGroup();
 
         settings.beginGroup("tagcolor");

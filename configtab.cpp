@@ -49,6 +49,7 @@ configtab::configtab(QWidget *parent) :
     }
 
     ui->use_internal_image_thumbnailer->setChecked(settings.value("use-interal-image-thumbnailer",true).toBool());
+    ui->use_internal_cbz_thumbnailer->setChecked(settings.value("use-interal-cbz-thumbnailer",true).toBool());
     ui->use_external_thumbnailers->setChecked(settings.value("use-exernal-thumbnailer",true).toBool());
 
     settings.endGroup();
@@ -106,6 +107,7 @@ void configtab::apply()
     settings.setValue("treat_gifs_as_video",ui->use_video_play_with_gifs->checkState());
     settings.setValue("timestamp_format",ui->timestamp_format->text());
     settings.setValue("use-interal-image-thumbnailer",ui->use_internal_image_thumbnailer->checkState());
+    settings.setValue("use-interal-cbz-thumbnailer",ui->use_internal_cbz_thumbnailer->checkState());
     settings.setValue("use-exernal-thumbnailer",ui->use_external_thumbnailers->checkState());
 
     settings.beginGroup("tagcolor");

@@ -33,7 +33,8 @@ public:
     };
 
     static QVector <external_thumbnailer> loaded_thumbnailers;
-    static QVariant generic_image_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
+    static QVariant internal_image_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
+    static QVariant internal_cbz_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
     static QVariant external_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
 
     static FileModel::thumbnail_item generateThumbnail (thumbnail_item item);

@@ -1,10 +1,12 @@
 #include "filemodel.h"
+#include "zip_reader.h"
 
 #include <QPixmap>
 #include <QImage>
 #include <iostream>
 #include <functional>
 #include <QProcess>
+#include <QPainter>
 
 QVector<struct FileModel::external_thumbnailer> FileModel::loaded_thumbnailers;
 
@@ -170,7 +172,7 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
     return QVariant();
 }
 
-QVariant FileModel::generic_image_thumbnailer(thumbnail_item item,QByteArray& thumbpath){
+QVariant FileModel::internal_image_thumbnailer(thumbnail_item item,QByteArray& thumbpath){
     QPixmap pix;
     if (pix.load(item.path)){
         QPixmap newPix;
@@ -179,14 +181,68 @@ QVariant FileModel::generic_image_thumbnailer(thumbnail_item item,QByteArray& th
         else
             newPix = pix.scaledToWidth(256,Qt::SmoothTransformation);
 
-        QFile file(thumbpath);
-        file.open(QIODevice::WriteOnly);
-        newPix.save(&file, "PNG");
-
-
+        newPix.save(thumbpath, "PNG");
         return QVariant(newPix);
     }
     return external_thumbnailer(item,thumbpath);
+}
+
+QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thumbpath)
+{
+    zip_reader reader;
+    reader.read_file(item.path);
+    if (!reader.isValid)
+        return QVariant();
+
+    QVector<QPixmap> pages;
+    int page_count = (reader.file_count() < 3) ? reader.file_count() : 3;
+
+    int top_file_width = -1;
+    int vspacing = 10;
+    int hspacing;
+
+    for (int i = 0;i < page_count;i++) {
+        QPixmap img;
+        QByteArray data;
+
+        data = reader.get_file_data(i);
+        if (data.isNull())
+            continue;
+
+        if (!img.loadFromData(data))
+            continue;
+
+        img = img.scaledToHeight(256,Qt::SmoothTransformation);
+        if (!img.isNull()){
+            if (top_file_width == -1)
+                top_file_width = img.width();
+            pages.push_front(img);
+        }
+    }
+
+    QImage surface = QImage(256,256,QImage::Format_ARGB32_Premultiplied);
+    surface.fill(Qt::transparent);
+    QPainter p(&surface);
+    p.setCompositionMode(QPainter::CompositionMode_Source);
+
+    hspacing = 256-top_file_width;
+    if (pages.length() > 1)
+        hspacing /= pages.length()-1;
+
+
+    for(int i  = 0;i < pages.length();i++){
+        const QPixmap *img = &pages.at(i);
+        p.drawPixmap(hspacing*i,(pages.length()-(i+1))*vspacing,*img);
+        //page border
+        p.drawRect(hspacing*i,(pages.length()-(i+1))*vspacing,img->width(),img->height());
+    }
+
+    QPixmap pi;
+    pi.convertFromImage(surface);
+    pi.save(thumbpath,"PNG");
+    return pi;
+
+
 }
 
 FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
@@ -200,7 +256,13 @@ FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
             item.thumbnail = pix1;
         } else {
             if (settings.value("use-interal-image-thumbnailer",true).toBool() &&item.mime.startsWith("image/")){
-                item.thumbnail = FileModel::generic_image_thumbnailer(item,imgPath);
+                item.thumbnail = FileModel::internal_image_thumbnailer(item,imgPath);
+
+            } else if (settings.value("use-interal-cbz-thumbnailer",true).toBool() &&
+                       (item.mime.compare("application/vnd.comicbook+zip") ||
+                        item.mime.compare("application/zip"))){
+                item.thumbnail = FileModel::internal_cbz_thumbnailer(item,imgPath);
+
             } else if (settings.value("use-exernal-thumbnailer",true).toBool()){
                 item.thumbnail = FileModel::external_thumbnailer(item,imgPath);
             }

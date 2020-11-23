@@ -30,7 +30,8 @@ SOURCES += \
     tagitem.cpp \
     taglineedit.cpp \
     tagtreemodel.cpp \
-    tagview.cpp
+    tagview.cpp \
+    zip_reader.cpp
 
 HEADERS += \
     configtab.h \
@@ -46,7 +47,8 @@ HEADERS += \
     tagitem.h \
     taglineedit.h \
     tagtreemodel.h \
-    tagview.h
+    tagview.h \
+    zip_reader.h
 
 LIBS += -lpyros -lmpv
 
