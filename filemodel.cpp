@@ -246,31 +246,32 @@ QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thu
 }
 
 FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
-        QPixmap pix1;
+    QPixmap pix1;
 
-        QByteArray imgPath(item.path);
-        QSettings settings;
-        imgPath += ".256";
+    QByteArray imgPath(item.path);
+    QSettings settings;
+    imgPath += ".256";
 
-        if (pix1.load(imgPath)){
-            item.thumbnail = pix1;
-        } else {
-            if (settings.value("use-interal-image-thumbnailer",true).toBool() &&item.mime.startsWith("image/")){
-                item.thumbnail = FileModel::internal_image_thumbnailer(item,imgPath);
+    if (pix1.load(imgPath)){
+        item.thumbnail = pix1;
+    } else {
+        if (settings.value("use-interal-image-thumbnailer",true).toBool() &&item.mime.startsWith("image/")){
+            item.thumbnail = FileModel::internal_image_thumbnailer(item,imgPath);
 
-            } else if (settings.value("use-interal-cbz-thumbnailer",true).toBool() &&
-                       (item.mime.compare("application/vnd.comicbook+zip") ||
-                        item.mime.compare("application/zip"))){
-                item.thumbnail = FileModel::internal_cbz_thumbnailer(item,imgPath);
+        } else if (settings.value("use-interal-cbz-thumbnailer",true).toBool() &&
+               (!item.mime.compare("application/vnd.comicbook+zip") ||
+                !item.mime.compare("application/zip"))){
+            item.thumbnail = FileModel::internal_cbz_thumbnailer(item,imgPath);
 
-            } else if (settings.value("use-exernal-thumbnailer",true).toBool()){
-                item.thumbnail = FileModel::external_thumbnailer(item,imgPath);
-            }
-
-            if (item.thumbnail == QVariant())
-                item.thumbnail = QPixmap(":/data/icons/nothumb.png");
+        } else if (settings.value("use-exernal-thumbnailer",true).toBool()){
+            item.thumbnail = FileModel::external_thumbnailer(item,imgPath);
         }
-        return item;
+
+        if (item.thumbnail.isNull())
+            item.thumbnail = QPixmap(":/data/icons/nothumb.png");
+
+    }
+    return item;
 }
 
 void FileModel::load_thumbnails(QModelIndex topLeft,int rows)
