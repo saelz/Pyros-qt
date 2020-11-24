@@ -9,6 +9,7 @@
 
 #include <pyros.h>
 
+class zip_reader;
 namespace Ui {
 class FileViewer;
 }
@@ -36,6 +37,7 @@ private:
         GIF,
         MPV,
         TEXT,
+        CBZ,
         UNSUPPORTED,
     };
 
@@ -44,7 +46,9 @@ private:
     Ui::FileViewer *ui;
     QPixmap m_img;
     QMovie *movie = nullptr;
+    zip_reader *reader = nullptr;
     QSize file_orignal_size;
+    int current_cbz_page = 0;
 
     SCALE_TYPE scale_type = BOTH;
     ViewerType viewer_type = IMAGE;
@@ -72,6 +76,9 @@ private slots:
     void delete_file();
     void add_tag(QVector<QByteArray> tags);
     void remove_tag(QVector<QByteArray> tags);
+
+    void cbz_next_page();
+    void cbz_prev_page();
 signals:
     void new_search_with_selected_tags(QVector<QByteArray>);
 };

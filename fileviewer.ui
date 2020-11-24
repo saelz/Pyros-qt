@@ -91,7 +91,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>515</width>
+                <width>575</width>
                 <height>296</height>
                </rect>
               </property>
@@ -207,27 +207,83 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="fit_combo_box">
-           <item>
-            <property name="text">
-             <string>Fit Both</string>
+          <widget class="QWidget" name="image_buttons" native="true">
+           <layout class="QHBoxLayout" name="image_buttons_layout">
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Fit Width</string>
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Fit Height</string>
+            <property name="topMargin">
+             <number>0</number>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Original</string>
+            <property name="rightMargin">
+             <number>0</number>
             </property>
-           </item>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="fit_combo_box">
+              <item>
+               <property name="text">
+                <string>Fit Both</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Fit Width</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Fit Height</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Original</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="cbz_buttons" native="true">
+           <layout class="QHBoxLayout" name="cbz_buttons_layout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="cbz_prev_page">
+              <property name="text">
+               <string>Prev Page</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cbz_next_page">
+              <property name="text">
+               <string>Next Page</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>

@@ -5,6 +5,7 @@
 #include "ui_fileviewer.h"
 
 #include "tagtreemodel.h"
+#include "zip_reader.h"
 
 #include <QImageReader>
 #include <QMovie>
@@ -84,6 +85,9 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
     connect(ui->file_tags, &TagView::new_search_with_selected_tags,this, &FileViewer::new_search_with_selected_tags);
 
+    connect(ui->cbz_prev_page, &QPushButton::released,this, &FileViewer::cbz_prev_page);
+    connect(ui->cbz_next_page, &QPushButton::released,this, &FileViewer::cbz_next_page);
+
     ui->scrollArea->installEventFilter(this);
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -117,15 +121,18 @@ void FileViewer::set_file()
 
     m_img = QPixmap();
 
-    if (movie != nullptr)
-        delete movie;
+    if (movie != nullptr) delete movie;
+    if (reader != nullptr) delete reader;
 
+    ui->cbz_buttons->setVisible(false);
+    ui->image_buttons->setVisible(false);
     ui->stackedWidget->setCurrentIndex(0);
     ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
     if (!strcmp(m_pFile->mime,"image/gif") &&
             !settings.value("treat_gifs_as_video",false).toBool()){
         viewer_type = GIF;
+        ui->image_buttons->setVisible(true);
 
         movie = new QMovie(m_pFile->path);
         connect(movie,&QMovie::error,this,&FileViewer::movie_error);
@@ -135,18 +142,33 @@ void FileViewer::set_file()
         file_orignal_size = movie->currentImage().size();
         set_scale();
 
-    } else if (!strcmp(m_pFile->mime,"image/gif") ||
-        !strncmp(m_pFile->mime,"audio/",6) ||
-        !strncmp(m_pFile->mime,"video/",6)){
+    } else if (!qstrcmp(m_pFile->mime,"image/gif") ||
+        !qstrncmp(m_pFile->mime,"audio/",6) ||
+        !qstrncmp(m_pFile->mime,"video/",6)){
         viewer_type = MPV;
         ui->stackedWidget->setCurrentIndex(1);
 
         ui->mpv_player->set_file(m_pFile->path);
-    } else if (!strncmp(m_pFile->mime,"image/",6)){
+    } else if (!qstrncmp(m_pFile->mime,"image/",6)){
         viewer_type = IMAGE;
+        ui->image_buttons->setVisible(true);
         m_img = QPixmap(m_pFile->path);
 
-    } else if (!strcmp(m_pFile->mime,"text/plain")){
+    } else if (!qstrcmp(m_pFile->mime,"application/zip") ||
+               !qstrcmp(m_pFile->mime,"application/vnd.comicbook+zip")){
+        viewer_type = CBZ;
+        ui->image_buttons->setVisible(true);
+        ui->cbz_buttons->setVisible(true);
+        current_cbz_page = 0;
+        reader = new zip_reader(m_pFile->path);
+        if (reader->isValid){
+            QByteArray data = reader->get_file_data(0);
+            m_img.loadFromData(data);
+        } else {
+            ui->img_label->setText("error reading cbz file");
+        }
+
+    } else if (!qstrcmp(m_pFile->mime,"text/plain")){
         viewer_type = TEXT;
 
         QFont f("Arial", font_size);
@@ -200,7 +222,7 @@ void FileViewer::update_fit(const QString &text){
 }
 
 void FileViewer::zoom_in(){
-    if (viewer_type == IMAGE || viewer_type == GIF){
+    if (viewer_type == IMAGE || viewer_type == GIF ||  viewer_type == CBZ ){
         if ((zoom_level += zoom_increment) >= 3)
             zoom_level = 3;
         set_scale();
@@ -212,7 +234,7 @@ void FileViewer::zoom_in(){
 }
 
 void FileViewer::zoom_out(){
-    if (viewer_type == IMAGE || viewer_type == GIF){
+    if (viewer_type == IMAGE || viewer_type == GIF ||  viewer_type == CBZ){
         if ((zoom_level -= zoom_increment) <= 0)
             zoom_level = zoom_increment;
         set_scale();
@@ -228,6 +250,10 @@ void FileViewer::set_scale()
 {
     QSize newsize;
     switch (viewer_type) {
+    case CBZ:
+        if (reader == nullptr || !reader->isValid)
+            return;
+        [[fallthrough]];
     case IMAGE:
         newsize = m_img.size();
         break;
@@ -262,6 +288,10 @@ void FileViewer::set_scale()
     }
     QPixmap scaledimg;
     switch (viewer_type) {
+    case CBZ:
+        if (reader == nullptr || !reader->isValid)
+            break;
+        [[fallthrough]];
     case IMAGE:
         scaledimg = m_img.scaled(newsize,Qt::KeepAspectRatio,Qt::SmoothTransformation);
         ui->img_label->setPixmap(scaledimg);
@@ -331,7 +361,7 @@ void FileViewer::remove_tag(QVector<QByteArray> tags)
 
 bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 {
-    if (( viewer_type == GIF||viewer_type == IMAGE) &&
+    if (( viewer_type == GIF||viewer_type == IMAGE || viewer_type == CBZ) &&
             event->type() == QEvent::Resize &&
             obj == ui->scrollArea) {
         if (scale_type != SCALE_TYPE::ORIGINAL ||
@@ -369,4 +399,29 @@ void FileViewer::movie_error(QImageReader::ImageReaderError)
 {
     QMovie *mov = ui->img_label->movie();
     qDebug() << mov->lastErrorString();
+}
+
+void FileViewer::cbz_next_page()
+{
+    if (reader == nullptr || !reader->isValid || current_cbz_page+1 >= reader->file_count())
+        return;
+
+    current_cbz_page++;
+
+    QByteArray data = reader->get_file_data(current_cbz_page);
+    m_img.loadFromData(data);
+    set_scale();
+}
+
+void FileViewer::cbz_prev_page()
+{
+    if (reader == nullptr || !reader->isValid || current_cbz_page <= 0)
+        return;
+
+    current_cbz_page--;
+
+    QByteArray data = reader->get_file_data(current_cbz_page);
+    m_img.loadFromData(data);
+    set_scale();
+
 }
