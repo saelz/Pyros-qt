@@ -120,6 +120,10 @@ void zip_reader::read_file(QByteArray path)
         header_start += filename_len+extra_len+comment_len;
 
     }
+    if (m_files.length() == 0){
+        isValid = false;
+        goto error;
+    }
     file.close();
     return;
 error:

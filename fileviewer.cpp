@@ -95,7 +95,16 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
 
 FileViewer::~FileViewer()
 {
-    delete movie;
+
+    if (movie != nullptr) {
+        delete movie;
+        movie = nullptr;
+    }
+    if (reader != nullptr){
+        delete reader;
+        reader = nullptr;
+    };
+
     foreach(PyrosFile *pFile,m_files) Pyros_Close_File(pFile);
     ui->mpv_player->stop();
     delete ui;
@@ -121,8 +130,14 @@ void FileViewer::set_file()
 
     m_img = QPixmap();
 
-    if (movie != nullptr) delete movie;
-    if (reader != nullptr) delete reader;
+    if (movie != nullptr) {
+        delete movie;
+        movie = nullptr;
+    }
+    if (reader != nullptr){
+        delete reader;
+        reader = nullptr;
+    };
 
     ui->cbz_buttons->setVisible(false);
     ui->image_buttons->setVisible(false);
