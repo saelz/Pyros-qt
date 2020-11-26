@@ -111,6 +111,8 @@ void zip_reader::read_file(QByteArray path)
             qDebug("multi disk zips are not supported");
         } else if (zfile.compression_type != 0){
             qDebug("only zip files that are uncompressed are supported");
+        } else if (zfile.compressed_size == 0){
+            //qDebug("skipping zero length file\n");
         } else {
             m_files.append(zfile);
         }
