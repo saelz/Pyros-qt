@@ -212,3 +212,9 @@ void PyrosQT::open_database()
     }
 
 }
+
+void PyrosQT::closeEvent(QCloseEvent *event)
+{
+    close_all_tabs();
+    QMainWindow::closeEvent(event);
+}

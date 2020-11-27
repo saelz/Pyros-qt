@@ -42,5 +42,7 @@ private slots:
     void remove_tab(int index);
     void remove_tab_current();
     void close_all_tabs();
+
+    void closeEvent(QCloseEvent *event);
 };
 #endif // PYROSQT_H

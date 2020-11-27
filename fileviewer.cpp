@@ -86,34 +86,37 @@ public:
     virtual void resize(int width, int height, FileViewer::SCALE_TYPE scale) override{
         if (scale_type != scale)
             zoom_level = 1;
+
+        if (zoom_level != 1)
+            return;
+
         FileViewer::Viewer::resize(width,height,scale);
     }
 
-    void update_size() override{
+    void update_size() override
+    {
         QSize newsize;
-        if (zoom_level != 1)
-            return;
 
         newsize = size();
         switch (scale_type){
         case FileViewer::HEIGHT:
-            newsize.scale(newsize.width(),
-                  boundry_height,
+            newsize.scale(newsize.width()*zoom_level,
+                  boundry_height*zoom_level,
                   Qt::KeepAspectRatio);
             break;
         case FileViewer::WIDTH:
-            newsize.scale(boundry_width,
-                  newsize.height(),
+            newsize.scale(boundry_width*zoom_level,
+                  newsize.height()*zoom_level,
                   Qt::KeepAspectRatio);
             break;
         case FileViewer::BOTH:
-            newsize.scale(boundry_width,
-                  boundry_height,
+            newsize.scale(boundry_width*zoom_level,
+                  boundry_height*zoom_level,
                   Qt::KeepAspectRatio);
             break;
         case FileViewer::ORIGINAL:
-            newsize.scale(newsize.width(),
-                  newsize.height(),
+            newsize.scale(newsize.width()*zoom_level,
+                  newsize.height()*zoom_level,
                   Qt::KeepAspectRatio);
             break;
         }
@@ -121,28 +124,19 @@ public:
         set_size(newsize);
 
     }
-    void update_zoom(){
-        QSize newsize = size();
-        newsize.scale(m_label->width()*zoom_level,
-                      m_label->height()*zoom_level,
-                      Qt::KeepAspectRatio);
-        set_size(newsize);
-    }
 
     void zoom_in() override{
         if ((zoom_level += zoom_increment) >= 3)
             zoom_level = 3;
 
-        update_zoom();
-
+        update_size();
     }
 
     void zoom_out() override{
         if ((zoom_level -= zoom_increment) <= 0)
             zoom_level = zoom_increment;
 
-        update_zoom();
-
+        update_size();
     }
 };
 
@@ -351,12 +345,12 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(ui->cbz_prev_page, &QPushButton::released,this, &FileViewer::cbz_prev_page);
     connect(ui->cbz_next_page, &QPushButton::released,this, &FileViewer::cbz_next_page);
 
+    connect(this,&QWidget::destroyed,ui->mpv_player,&mpv_widget::stop);
+
     ui->scrollArea->installEventFilter(this);
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
-
-
 
 
 FileViewer::~FileViewer()
@@ -548,13 +542,14 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 
 void FileViewer::cbz_next_page()
 {
-    viewer->next_page();
+    if (viewer != nullptr)
+        viewer->next_page();
 }
 
 void FileViewer::cbz_prev_page()
 {
-    viewer->prev_page();
-
+    if (viewer != nullptr)
+        viewer->prev_page();
 }
 
 void FileViewer::set_file_info(QString string)
