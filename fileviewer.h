@@ -10,6 +10,8 @@
 #include <pyros.h>
 
 class zip_reader;
+class QLabel;
+
 namespace Ui {
 class FileViewer;
 }
@@ -24,7 +26,6 @@ public:
 
     void set_file();
 
-private:
     enum SCALE_TYPE{
         HEIGHT,
         WIDTH,
@@ -32,29 +33,34 @@ private:
         ORIGINAL,
     };
 
-    enum ViewerType{
-        IMAGE,
-        GIF,
-        MPV,
-        TEXT,
-        CBZ,
-        UNSUPPORTED,
+    class Viewer{
+    protected:
+        QLabel *m_label;
+        int boundry_width = 0;
+        int boundry_height = 0;
+        FileViewer::SCALE_TYPE scale_type = BOTH;
+    public:
+        Viewer(QLabel *label);
+        Viewer();
+        virtual ~Viewer(){};
+        virtual void set_file(char *filepath) = 0;
+        virtual void resize(int width,int height,
+                              FileViewer::SCALE_TYPE scale);
+        virtual void update_size(){};
+        virtual void zoom_in(){};
+        virtual void zoom_out(){};
+
+        virtual void next_page(){};
+        virtual void prev_page(){};
     };
 
+private:
 
+    Viewer *viewer = nullptr;
 
     Ui::FileViewer *ui;
-    QPixmap m_img;
-    QMovie *movie = nullptr;
-    zip_reader *reader = nullptr;
-    QSize file_orignal_size;
-    int current_cbz_page = 0;
 
     SCALE_TYPE scale_type = BOTH;
-    ViewerType viewer_type = IMAGE;
-    double zoom_level = 1;
-    double zoom_increment = .25;
-    int font_size = 12;
 
     PyrosFile *m_pFile;
     QVector<PyrosFile*> m_files;
@@ -63,7 +69,6 @@ private:
     bool eventFilter(QObject *obj,QEvent *event) override;
 
 private slots:
-    void movie_error(QImageReader::ImageReaderError);
     void update_fit(const QString &text);
 
     void zoom_in();
@@ -79,6 +84,8 @@ private slots:
 
     void cbz_next_page();
     void cbz_prev_page();
+
+    void set_file_info(QString string);
 signals:
     void new_search_with_selected_tags(QVector<QByteArray>);
 };

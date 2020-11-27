@@ -307,6 +307,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="file_info">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="delete_button">
            <property name="text">
             <string>Delet</string>

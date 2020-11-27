@@ -14,7 +14,270 @@
 #include <QResizeEvent>
 #include <QSettings>
 
-#include <iostream>
+
+FileViewer::Viewer::Viewer(QLabel *label) : m_label(label){}
+
+void FileViewer::Viewer::resize(int width,int height,FileViewer::SCALE_TYPE scale)
+{
+    if (boundry_height != height ||
+            boundry_width != width ||
+            scale_type != scale){
+
+        boundry_height = height;
+        boundry_width = width;
+        scale_type = scale;
+        update_size();
+    }
+}
+
+
+class Video_Viewer : public FileViewer::Viewer
+{
+    mpv_widget *m_mpv = nullptr;
+public:
+    Video_Viewer(mpv_widget *mpv): FileViewer::Viewer(nullptr),m_mpv(mpv){}
+
+    ~Video_Viewer()
+    {
+        m_mpv->stop();
+    }
+
+    void set_file(char *path) override
+    {
+        m_mpv->set_file(path);
+
+    }
+};
+
+class Image_Viewer : public FileViewer::Viewer
+{
+protected:
+    QPixmap m_img;
+    double zoom_level;
+    double zoom_increment = .25;
+
+public:
+    Image_Viewer(QLabel *label): FileViewer::Viewer(label){
+        m_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+        zoom_level = 1;
+    }
+
+    ~Image_Viewer() override
+    {
+        m_label->setPixmap(QPixmap());
+    }
+
+    void set_file(char *path) override
+    {
+        zoom_level = 1;
+        m_img = QPixmap(path);
+    }
+
+    virtual QSize size(){
+        return m_img.size();
+    };
+
+    virtual void set_size(QSize newsize){
+        QPixmap scaledimg;
+        scaledimg = m_img.scaled(newsize,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        m_label->setPixmap(scaledimg);
+    };
+
+    virtual void resize(int width, int height, FileViewer::SCALE_TYPE scale) override{
+        if (scale_type != scale)
+            zoom_level = 1;
+        FileViewer::Viewer::resize(width,height,scale);
+    }
+
+    void update_size() override{
+        QSize newsize;
+        if (zoom_level != 1)
+            return;
+
+        newsize = size();
+        switch (scale_type){
+        case FileViewer::HEIGHT:
+            newsize.scale(newsize.width(),
+                  boundry_height,
+                  Qt::KeepAspectRatio);
+            break;
+        case FileViewer::WIDTH:
+            newsize.scale(boundry_width,
+                  newsize.height(),
+                  Qt::KeepAspectRatio);
+            break;
+        case FileViewer::BOTH:
+            newsize.scale(boundry_width,
+                  boundry_height,
+                  Qt::KeepAspectRatio);
+            break;
+        case FileViewer::ORIGINAL:
+            newsize.scale(newsize.width(),
+                  newsize.height(),
+                  Qt::KeepAspectRatio);
+            break;
+        }
+
+        set_size(newsize);
+
+    }
+    void update_zoom(){
+        QSize newsize = size();
+        newsize.scale(m_label->width()*zoom_level,
+                      m_label->height()*zoom_level,
+                      Qt::KeepAspectRatio);
+        set_size(newsize);
+    }
+
+    void zoom_in() override{
+        if ((zoom_level += zoom_increment) >= 3)
+            zoom_level = 3;
+
+        update_zoom();
+
+    }
+
+    void zoom_out() override{
+        if ((zoom_level -= zoom_increment) <= 0)
+            zoom_level = zoom_increment;
+
+        update_zoom();
+
+    }
+};
+
+class Movie_Viewer : public Image_Viewer{
+    QMovie *movie = nullptr;
+    QSize orignal_size;
+public:
+    Movie_Viewer(QLabel *label) : Image_Viewer(label){
+
+    }
+    ~Movie_Viewer(){
+        if (movie != nullptr)
+            delete movie;
+    }
+    void set_file(char *path) override{
+         movie = new QMovie(path);
+
+        m_label->setMovie(movie);
+        movie->start();
+        orignal_size = movie->currentImage().size();
+
+    }
+    QSize size() override{
+        return orignal_size;
+    };
+
+    void set_size(QSize newsize) override{
+        if (movie == nullptr)
+            return;
+        movie->stop();
+        movie->setScaledSize(newsize);
+        movie->start();
+    };
+};
+
+
+class Cbz_Viewer : public Image_Viewer{
+    zip_reader reader;
+    int current_page = 0;
+public:
+    Cbz_Viewer(QLabel *label): Image_Viewer(label){}
+
+    void set_file(char *path) override{
+        reader.read_file(path);
+
+        if (reader.isValid)
+            read_page();
+        else
+            m_label->setText("error reading cbz file");
+    }
+
+    void read_page(){
+        QByteArray data = reader.get_file_data(current_page);
+        m_img.loadFromData(data);
+        update_size();
+    }
+
+    void update_size() override{
+        if (reader.isValid)
+            Image_Viewer::update_size();
+    }
+
+    void next_page() override{
+        if (!reader.isValid || current_page+1 >= reader.file_count())
+            return;
+        current_page++;
+        read_page();
+    }
+
+    void prev_page() override{
+        if (!reader.isValid || current_page <= 0)
+            return;
+        current_page--;
+        read_page();
+    }
+
+};
+
+class Text_Viewer : public FileViewer::Viewer{
+    int font_size = 12;
+public:
+    Text_Viewer(QLabel *label): FileViewer::Viewer(label)
+    {
+        QFont f("Arial", font_size);
+
+        m_label->setFont(f);
+        m_label->setWordWrap(true);
+        m_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    }
+
+    ~Text_Viewer(){
+        m_label->setText("");
+    }
+
+    void set_file(char *path) override
+    {
+        QFile file(path);
+        QString line;
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+            QTextStream stream(&file);
+            while (!stream.atEnd())
+                line.append(stream.readLine()+"\n");
+
+            m_label->setText(line);
+        }
+        file.close();
+
+    };
+
+    void zoom_in() override
+    {
+        font_size++;
+        QFont f("Arial", font_size);
+        m_label->setFont(f);
+    }
+
+    void zoom_out() override
+    {
+        if ((font_size--) == 0)
+            font_size = 1;
+        QFont f("Arial", font_size);
+        m_label->setFont(f);
+    }
+
+};
+
+class Unsupported_Viewer : public Text_Viewer{
+public:
+    Unsupported_Viewer(QLabel *label): Text_Viewer(label){}
+    void set_file(char *path) override{
+        Q_UNUSED(path)
+        m_label->setText("Unsupported filetype");
+    }
+};
+
 
 
 FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent) :
@@ -93,20 +356,16 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
+
+
+
 FileViewer::~FileViewer()
 {
 
-    if (movie != nullptr) {
-        delete movie;
-        movie = nullptr;
-    }
-    if (reader != nullptr){
-        delete reader;
-        reader = nullptr;
-    };
+    if (viewer != nullptr)
+        delete viewer;
 
     foreach(PyrosFile *pFile,m_files) Pyros_Close_File(pFile);
-    ui->mpv_player->stop();
     delete ui;
 }
 
@@ -118,8 +377,15 @@ void FileViewer::select_tag_bar()
 void FileViewer::set_file()
 {
     m_pFile = m_files.at(position);
-    ui->mpv_player->stop();
-    zoom_level = 1;
+
+    ui->cbz_buttons->setVisible(false);
+    ui->image_buttons->setVisible(false);
+    ui->stackedWidget->setCurrentIndex(0);
+
+    if (viewer != nullptr){
+        delete viewer;
+        viewer = nullptr;
+    }
 
     if (m_pFile == nullptr)
         return;
@@ -128,102 +394,45 @@ void FileViewer::set_file()
     QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
     ui->file_count_label->setText(filecount);
 
-    m_img = QPixmap();
 
-    if (movie != nullptr) {
-        delete movie;
-        movie = nullptr;
-    }
-    if (reader != nullptr){
-        delete reader;
-        reader = nullptr;
-    };
-
-    ui->cbz_buttons->setVisible(false);
-    ui->image_buttons->setVisible(false);
-    ui->stackedWidget->setCurrentIndex(0);
-    ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
     if (!strcmp(m_pFile->mime,"image/gif") &&
             !settings.value("treat_gifs_as_video",false).toBool()){
-        viewer_type = GIF;
         ui->image_buttons->setVisible(true);
-
-        movie = new QMovie(m_pFile->path);
-        connect(movie,&QMovie::error,this,&FileViewer::movie_error);
-
-        ui->img_label->setMovie(movie);
-        movie->start();
-        file_orignal_size = movie->currentImage().size();
-        set_scale();
+        viewer = new Movie_Viewer(ui->img_label);
 
     } else if (!qstrcmp(m_pFile->mime,"image/gif") ||
         !qstrncmp(m_pFile->mime,"audio/",6) ||
         !qstrncmp(m_pFile->mime,"video/",6)){
-        viewer_type = MPV;
         ui->stackedWidget->setCurrentIndex(1);
+        viewer = new Video_Viewer(ui->mpv_player);
 
-        ui->mpv_player->set_file(m_pFile->path);
     } else if (!qstrncmp(m_pFile->mime,"image/",6)){
-        viewer_type = IMAGE;
         ui->image_buttons->setVisible(true);
-        m_img = QPixmap(m_pFile->path);
+        viewer = new Image_Viewer(ui->img_label);
 
     } else if (!qstrcmp(m_pFile->mime,"application/zip") ||
                !qstrcmp(m_pFile->mime,"application/vnd.comicbook+zip")){
-        viewer_type = CBZ;
         ui->image_buttons->setVisible(true);
         ui->cbz_buttons->setVisible(true);
-        current_cbz_page = 0;
-        reader = new zip_reader(m_pFile->path);
-        if (reader->isValid){
-            QByteArray data = reader->get_file_data(0);
-            m_img.loadFromData(data);
-        } else {
-            ui->img_label->setText("error reading cbz file");
-        }
+        viewer = new Cbz_Viewer(ui->img_label);
 
     } else if (!qstrcmp(m_pFile->mime,"text/plain")){
-        viewer_type = TEXT;
+        viewer = new Text_Viewer(ui->img_label);
 
-        QFont f("Arial", font_size);
-
-        ui->img_label->setFont(f);
-        ui->img_label->setPixmap(m_img);
-        ui->img_label->setWordWrap(true);
-        ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-
-        QFile file(m_pFile->path);
-        QString line;
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
-            QTextStream stream(&file);
-            while (!stream.atEnd())
-                line.append(stream.readLine()+"\n");
-
-            ui->img_label->setText(line);
-        }
-        file.close();
     } else {
-        viewer_type = UNSUPPORTED;
-
-        QFont f("Arial", font_size);
-
-        ui->img_label->setFont(f);
-        ui->img_label->setPixmap(m_img);
-        ui->img_label->setWordWrap(true);
-        ui->img_label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-        ui->img_label->setText("Unsupported filetype");
-
+        viewer = new Unsupported_Viewer(ui->img_label);
     }
 
+    viewer->set_file(m_pFile->path);
     set_scale();
+
     ui->file_tags->setTagsFromFile(m_pFile);
 
 
 }
 
 void FileViewer::update_fit(const QString &text){
-    zoom_level = 1;
     if (text == "Fit Both")
         scale_type = SCALE_TYPE::BOTH;
     else if (text == "Fit Width")
@@ -237,90 +446,19 @@ void FileViewer::update_fit(const QString &text){
 }
 
 void FileViewer::zoom_in(){
-    if (viewer_type == IMAGE || viewer_type == GIF ||  viewer_type == CBZ ){
-        if ((zoom_level += zoom_increment) >= 3)
-            zoom_level = 3;
-        set_scale();
-    } else if (viewer_type == TEXT){
-        font_size++;
-        QFont f("Arial", font_size);
-        ui->img_label->setFont(f);
-    }
+    if (viewer != nullptr)
+        viewer->zoom_in();
 }
 
 void FileViewer::zoom_out(){
-    if (viewer_type == IMAGE || viewer_type == GIF ||  viewer_type == CBZ){
-        if ((zoom_level -= zoom_increment) <= 0)
-            zoom_level = zoom_increment;
-        set_scale();
-    } else if (viewer_type == TEXT){
-        if ((font_size--) == 0)
-            font_size = 1;
-        QFont f("Arial", font_size);
-        ui->img_label->setFont(f);
-    }
+    if (viewer != nullptr)
+        viewer->zoom_out();
 }
 
 void FileViewer::set_scale()
 {
-    QSize newsize;
-    switch (viewer_type) {
-    case CBZ:
-        if (reader == nullptr || !reader->isValid)
-            return;
-        [[fallthrough]];
-    case IMAGE:
-        newsize = m_img.size();
-        break;
-    case GIF:
-        newsize = file_orignal_size;
-        break;
-    default:
-        return;
-    }
-
-    switch (scale_type){
-    case SCALE_TYPE::HEIGHT:
-        newsize.scale(newsize.width()*zoom_level,
-                      ui->scrollArea->height()*zoom_level,
-                      Qt::KeepAspectRatio);
-        break;
-    case SCALE_TYPE::WIDTH:
-        newsize.scale(ui->scrollArea->width()*zoom_level,
-                      newsize.height()*zoom_level,
-                      Qt::KeepAspectRatio);
-        break;
-    case SCALE_TYPE::BOTH:
-        newsize.scale(ui->scrollArea->width()*zoom_level,
-                      ui->scrollArea->height()*zoom_level,
-                      Qt::KeepAspectRatio);
-        break;
-    case SCALE_TYPE::ORIGINAL:
-        newsize.scale(newsize.width()*zoom_level,
-                      newsize.height()*zoom_level,
-                      Qt::KeepAspectRatio);
-        break;
-    }
-    QPixmap scaledimg;
-    switch (viewer_type) {
-    case CBZ:
-        if (reader == nullptr || !reader->isValid)
-            break;
-        [[fallthrough]];
-    case IMAGE:
-        scaledimg = m_img.scaled(newsize,Qt::KeepAspectRatio,Qt::SmoothTransformation);
-        ui->img_label->setPixmap(scaledimg);
-        break;
-    case GIF:
-        if (movie == nullptr)
-            break;
-        movie->stop();
-        movie->setScaledSize(newsize);
-        movie->start();
-        break;
-    default:
-        break;
-    }
+    if (viewer != nullptr)
+        viewer->resize(ui->scrollArea->width(),ui->scrollArea->height(),scale_type);
 }
 
 void FileViewer::next_file()
@@ -376,11 +514,9 @@ void FileViewer::remove_tag(QVector<QByteArray> tags)
 
 bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 {
-    if (( viewer_type == GIF||viewer_type == IMAGE || viewer_type == CBZ) &&
-            event->type() == QEvent::Resize &&
+    if (event->type() == QEvent::Resize &&
             obj == ui->scrollArea) {
-        if (scale_type != SCALE_TYPE::ORIGINAL ||
-                zoom_level != 1){
+        if (scale_type != SCALE_TYPE::ORIGINAL){
             set_scale();
         }
     }
@@ -410,33 +546,18 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-void FileViewer::movie_error(QImageReader::ImageReaderError)
-{
-    QMovie *mov = ui->img_label->movie();
-    qDebug() << mov->lastErrorString();
-}
-
 void FileViewer::cbz_next_page()
 {
-    if (reader == nullptr || !reader->isValid || current_cbz_page+1 >= reader->file_count())
-        return;
-
-    current_cbz_page++;
-
-    QByteArray data = reader->get_file_data(current_cbz_page);
-    m_img.loadFromData(data);
-    set_scale();
+    viewer->next_page();
 }
 
 void FileViewer::cbz_prev_page()
 {
-    if (reader == nullptr || !reader->isValid || current_cbz_page <= 0)
-        return;
+    viewer->prev_page();
 
-    current_cbz_page--;
+}
 
-    QByteArray data = reader->get_file_data(current_cbz_page);
-    m_img.loadFromData(data);
-    set_scale();
-
+void FileViewer::set_file_info(QString string)
+{
+    ui->file_info->setText(string);
 }
