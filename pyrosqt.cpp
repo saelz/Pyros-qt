@@ -107,11 +107,18 @@ void PyrosQT::load_settings(){
     QApplication::setPalette(palette);
 }
 
+void PyrosQT::create_tab(QWidget *widget, QString label)
+{
+    ui->tabWidget->insertTab(ui->tabWidget->currentIndex()+1,widget,label);
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->currentIndex()+1);
+
+}
+
 void PyrosQT::new_import_tab()
 {
     FileImport *fi = new FileImport(ui->tabWidget);
-    ui->tabWidget->addTab(fi,"Import");
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+    create_tab(fi,"Import");
+
     connect(fi,&FileImport::new_search,this,&PyrosQT::new_search_tab_with_vector);
     connect(fi,&FileImport::new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
 }
@@ -135,8 +142,7 @@ void PyrosQT::new_search_tab_with_tags(QVector<QByteArray>tags)
 void PyrosQT::search_tab_init(SearchTab *st)
 {
 
-    ui->tabWidget->addTab(st,"Search");
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+    create_tab(st,"Search");
     connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
     connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
     connect(st,&SearchTab::create_new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
@@ -164,24 +170,21 @@ void PyrosQT::set_tab_title(QString title,QWidget *sender){
 void PyrosQT::new_viewer_tab(QVector<PyrosFile*> files,int inital_position)
 {
     FileViewer *fv = new FileViewer(files,inital_position,ui->tabWidget);
-    ui->tabWidget->addTab(fv,"Viewer");
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+    create_tab(fv,"Viewer");
     connect(fv,&FileViewer::new_search_with_selected_tags,this,&PyrosQT::new_search_tab_with_tags);
 }
 
 void PyrosQT::new_config_tab()
 {
     configtab *ct = new configtab();
-    ui->tabWidget->addTab(ct,"Config");
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+    create_tab(ct,"Config");
     connect(ct,&configtab::settings_changed,this,&PyrosQT::load_settings);
 }
 
 
 void PyrosQT::new_database_creation_tab(){
     DatabaseCreation *dc = new DatabaseCreation();
-    ui->tabWidget->addTab(dc,"New Database");
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-1);
+    create_tab(dc,"New Database");
     connect(dc,&DatabaseCreation::new_search,this,&PyrosQT::new_search_tab);
     connect(dc,&DatabaseCreation::delete_all_tabs,this,&PyrosQT::close_all_tabs);
 }

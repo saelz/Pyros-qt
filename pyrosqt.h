@@ -28,6 +28,9 @@ private:
 
 private slots:
     void load_settings();
+    void create_tab(QWidget *widget,QString label);
+
+
     void new_import_tab();
     void new_search_tab();
     void new_search_tab_with_vector(QVector<PyrosFile*>files);
