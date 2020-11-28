@@ -125,18 +125,27 @@ public:
 
     }
 
-    void zoom_in() override{
+    void zoom_in() override
+    {
         if ((zoom_level += zoom_increment) >= 3)
             zoom_level = 3;
 
         update_size();
     }
 
-    void zoom_out() override{
+    void zoom_out() override
+    {
         if ((zoom_level -= zoom_increment) <= 0)
             zoom_level = zoom_increment;
 
         update_size();
+    }
+
+    QString get_info() override
+    {
+        QSize imgsize = size();
+
+        return QString::number(imgsize.width())+"x"+QString::number(imgsize.height());
     }
 };
 
@@ -161,7 +170,7 @@ public:
     }
     QSize size() override{
         return orignal_size;
-    };
+    }
 
     void set_size(QSize newsize) override{
         if (movie == nullptr)
@@ -169,7 +178,15 @@ public:
         movie->stop();
         movie->setScaledSize(newsize);
         movie->start();
-    };
+    }
+
+    QString get_info() override
+    {
+        if (movie == nullptr)
+            return "";
+        return "Frames:"+QString::number(movie->frameCount())+
+                " "+Image_Viewer::get_info();
+    }
 };
 
 
@@ -213,6 +230,14 @@ public:
         read_page();
     }
 
+    QString get_info() override
+    {
+        if (!reader.isValid)
+            return "";
+
+        return "Page:"+QString::number(current_page+1)+"/"+QString::number(reader.file_count())+
+                " "+Image_Viewer::get_info();
+    }
 };
 
 class Text_Viewer : public FileViewer::Viewer{
@@ -261,6 +286,12 @@ public:
         m_label->setFont(f);
     }
 
+    QString get_info() override
+    {
+        QString count = m_label->text();
+        return "Word Count:"+QString::number(count.count(' '));
+    }
+
 };
 
 class Unsupported_Viewer : public Text_Viewer{
@@ -269,6 +300,11 @@ public:
     void set_file(char *path) override{
         Q_UNUSED(path)
         m_label->setText("Unsupported filetype");
+    }
+
+    QString get_info() override
+    {
+        return "";
     }
 };
 
@@ -419,6 +455,7 @@ void FileViewer::set_file()
     }
 
     viewer->set_file(m_pFile->path);
+    set_file_info(viewer->get_info());
     set_scale();
 
     ui->file_tags->setTagsFromFile(m_pFile);
@@ -542,14 +579,18 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
 
 void FileViewer::cbz_next_page()
 {
-    if (viewer != nullptr)
+    if (viewer != nullptr){
         viewer->next_page();
+        set_file_info(viewer->get_info());
+    }
 }
 
 void FileViewer::cbz_prev_page()
 {
-    if (viewer != nullptr)
+    if (viewer != nullptr){
         viewer->prev_page();
+        set_file_info(viewer->get_info());
+    }
 }
 
 void FileViewer::set_file_info(QString string)

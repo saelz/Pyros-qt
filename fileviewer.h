@@ -52,6 +52,8 @@ public:
 
         virtual void next_page(){};
         virtual void prev_page(){};
+
+        virtual QString get_info(){return "";}
     };
 
 private:
