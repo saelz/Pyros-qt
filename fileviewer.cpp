@@ -13,6 +13,7 @@
 #include <QComboBox>
 #include <QResizeEvent>
 #include <QSettings>
+#include <QScrollBar>
 
 
 FileViewer::Viewer::Viewer(QLabel *label) : m_label(label){}
@@ -582,6 +583,7 @@ void FileViewer::cbz_next_page()
     if (viewer != nullptr){
         viewer->next_page();
         set_file_info(viewer->get_info());
+        ui->scrollArea->verticalScrollBar()->setValue(0);
     }
 }
 
@@ -590,6 +592,7 @@ void FileViewer::cbz_prev_page()
     if (viewer != nullptr){
         viewer->prev_page();
         set_file_info(viewer->get_info());
+        ui->scrollArea->verticalScrollBar()->setValue(0);
     }
 }
 
