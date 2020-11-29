@@ -300,6 +300,11 @@ void FileView::resizeEvent(QResizeEvent *event){
     int old_columns = file_model->columnCount();
 
 
+    QRect rec = viewport()->rect();
+    QModelIndex center = indexAt(rec.center());
+    int val = file_model->indexToNum(center);
+
+
     file_model->setColumnCount(columns);
     for (int i = 0; i < columns; ++i) {
         setColumnWidth(i,event->size().width()%256 /columns+256);
@@ -307,8 +312,18 @@ void FileView::resizeEvent(QResizeEvent *event){
 
 
     QTableView::resizeEvent(event);
-    if (old_columns < columns)
+    if (old_columns < columns){
         launch_timer();
+    }
+
+    if (val != 0){
+        QScrollBar *vscroll = verticalScrollBar();
+        QModelIndex new_pos = file_model->index(val/file_model->columnCount(),val%file_model->columnCount());
+        if (center.row() != new_pos.row()){
+            int diff = center.row()-new_pos.row();
+            vscroll->setValue(vscroll->value()-(256*diff));
+        }
+    }
 
 }
 
