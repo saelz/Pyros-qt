@@ -183,7 +183,7 @@ void FileView::refresh(){
     PyrosTC *ptc = PyrosTC::get();
 
     PyrosTC::search_cb cb = [&](QVector<PyrosFile*> files){
-        file_model->clear();
+        clear();
         file_model->setFilesFromVector(files);
         emit new_files(file_model->files());
     };
@@ -195,12 +195,13 @@ void FileView::search(QVector<QByteArray> tags)
 {
     PyrosTC *ptc = PyrosTC::get();
 
-    file_model->clear();
+    clear();
     scrollToTop();
 
     m_tags += tags;
 
-    PyrosTC::search_cb cb = [&](QVector<PyrosFile*> files){
+    PyrosTC::search_cb cb = [&](QVector<PyrosFile*> files)
+    {
         file_model->setFilesFromVector(files);
         emit new_files(file_model->files());
     };
@@ -208,8 +209,9 @@ void FileView::search(QVector<QByteArray> tags)
     ptc->search(this,m_tags, cb);
 }
 
-void FileView::set_files_from_vector(QVector<PyrosFile*> &files){
-    file_model->clear();
+void FileView::set_files_from_vector(QVector<PyrosFile*> &files)
+{
+    clear();
 
     file_model->setFilesFromVector(files);
     emit new_files(file_model->files());
@@ -218,6 +220,13 @@ void FileView::set_files_from_vector(QVector<PyrosFile*> &files){
 void FileView::clear_tags(){
     file_model->clear();
     m_tags.clear();
+}
+
+void FileView::clear()
+{
+    selectionModel()->clear();
+    clear_tags();
+    file_model->clear();
 }
 
 void FileView::add_tag(QVector<QByteArray> tags)
@@ -261,10 +270,8 @@ void FileView::remove_tag_from_search(QVector<QByteArray> tags)
 {
     foreach(QByteArray tag,tags){
         for(int i = 0; i < m_tags.length(); i++){
-            if(!tag.compare(m_tags[i])){
-                //delete[] m_tags[i];
+            if(!tag.compare(m_tags[i]))
                 m_tags.remove(i);
-            }
         }
     }
 
@@ -298,11 +305,14 @@ void FileView::get_visible()
 void FileView::resizeEvent(QResizeEvent *event){
     int columns = event->size().width()/256;
     int old_columns = file_model->columnCount();
+    QScrollBar *vscroll = verticalScrollBar();
 
 
     QRect rec = viewport()->rect();
     QModelIndex center = indexAt(rec.center());
     int val = file_model->indexToNum(center);
+    QRect file_rec = visualRect(center);
+    int excess = (file_rec.y());
 
 
     file_model->setColumnCount(columns);
@@ -317,12 +327,9 @@ void FileView::resizeEvent(QResizeEvent *event){
     }
 
     if (val != 0){
-        QScrollBar *vscroll = verticalScrollBar();
         QModelIndex new_pos = file_model->index(val/file_model->columnCount(),val%file_model->columnCount());
-        if (center.row() != new_pos.row()){
-            int diff = center.row()-new_pos.row();
-            vscroll->setValue(vscroll->value()-(256*diff));
-        }
+        if (center.row() != new_pos.row())
+            vscroll->setValue(256*(new_pos.row())-excess);
     }
 
 }

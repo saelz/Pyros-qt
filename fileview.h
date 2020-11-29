@@ -35,11 +35,13 @@ signals:
 public slots:
     void search(QVector<QByteArray> tags);
     void set_files_from_vector(QVector<PyrosFile*> &files);
+    void clear();
     void add_tag(QVector<QByteArray> tags);
     void remove_tag(QVector <QByteArray> tags);
     void remove_tag_from_search(QVector<QByteArray> tags);
     void refresh();
     void invertSelection();
+
 private slots:
 
     void copy_path();
