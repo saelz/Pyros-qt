@@ -226,7 +226,6 @@ void FileView::clear_tags()
 void FileView::clear()
 {
     selectionModel()->clear();
-    clear_tags();
     file_model->clear();
 }
 
