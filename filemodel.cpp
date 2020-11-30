@@ -30,7 +30,13 @@ int FileModel::indexToNum(const QModelIndex &index) const
 
     return i;
 }
+QModelIndex FileModel::numToIndex(const int num) const
+{
+    if (num == 0)
+        return index(0,0);
 
+    return index(num/columnCount(),num%columnCount());
+}
 
 QVector<FileModel::file_item> FileModel::files() const
 {
@@ -336,11 +342,8 @@ void FileModel::displayThumbnail(int num)
             break;
         }
     }
-    QModelIndex current;
-    if (i == 0)
-        current = index(0,0);
-    else
-        current = index(i/m_columnCount,i%m_columnCount);
+    QModelIndex current = numToIndex(i);
+
     emit dataChanged(current,current);
 }
 

@@ -58,6 +58,7 @@ public:
 
     void remove_file(const QModelIndex &index);
     int indexToNum(const QModelIndex &index) const;
+    QModelIndex numToIndex(const int num) const;
     void startThumbnailer(QVector<QModelIndex> *visible_files);
     void load_thumbnails(QModelIndex topLeft,int rows);
 

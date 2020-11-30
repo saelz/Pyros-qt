@@ -217,7 +217,8 @@ void FileView::set_files_from_vector(QVector<PyrosFile*> &files)
     emit new_files(file_model->files());
 }
 
-void FileView::clear_tags(){
+void FileView::clear_tags()
+{
     file_model->clear();
     m_tags.clear();
 }
@@ -305,33 +306,47 @@ void FileView::get_visible()
 void FileView::resizeEvent(QResizeEvent *event){
     int columns = event->size().width()/256;
     int old_columns = file_model->columnCount();
-    QScrollBar *vscroll = verticalScrollBar();
 
 
     QRect rec = viewport()->rect();
     QModelIndex center = indexAt(rec.center());
-    int val = file_model->indexToNum(center);
+    int center_file_index = file_model->indexToNum(center);
     QRect file_rec = visualRect(center);
     int excess = (file_rec.y());
 
 
+    QItemSelectionModel *select = selectionModel();
+    QModelIndexList indexes = select->selectedIndexes();
+    QVector<int> file_indexes;
+
+    foreach(QModelIndex index,indexes)
+        file_indexes.append(file_model->indexToNum(index));
+
+
     file_model->setColumnCount(columns);
-    for (int i = 0; i < columns; ++i) {
+    for (int i = 0; i < columns; ++i)
         setColumnWidth(i,event->size().width()%256 /columns+256);
-    }
 
 
     QTableView::resizeEvent(event);
-    if (old_columns < columns){
+    if (old_columns < columns)
         launch_timer();
-    }
 
-    if (val != 0){
-        QModelIndex new_pos = file_model->index(val/file_model->columnCount(),val%file_model->columnCount());
-        if (center.row() != new_pos.row())
-            vscroll->setValue(256*(new_pos.row())-excess);
-    }
+    if (old_columns != columns){
+        //updates scroll bar
+        QScrollBar *vscroll = verticalScrollBar();
+        if (vscroll->value() > 0){
+            QModelIndex new_pos = file_model->numToIndex(center_file_index);
+            if (center.row() != new_pos.row())
+                vscroll->setValue(256*(new_pos.row())-excess);
+        }
 
+        //updates file selection
+        select->clear();
+        foreach(int index,file_indexes){
+            select->select(file_model->numToIndex(index),QItemSelectionModel::Select);
+        }
+    }
 }
 
 void FileView::launch_timer(){
