@@ -10,6 +10,8 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QErrorMessage>
+#include <QMouseEvent>
+#include <QTabBar>
 
 PyrosQT::PyrosQT(QWidget *parent)
     : QMainWindow(parent)
@@ -42,6 +44,8 @@ PyrosQT::PyrosQT(QWidget *parent)
     connect(ui->actionOpen_Database,  &QAction::triggered,this, &PyrosQT::open_database);
 
     connect(ui->tabWidget,&QTabWidget::tabCloseRequested,this, &PyrosQT::remove_tab);
+
+    ui->tabWidget->installEventFilter(this);
 }
 
 PyrosQT::~PyrosQT()
@@ -220,4 +224,16 @@ void PyrosQT::closeEvent(QCloseEvent *event)
 {
     close_all_tabs();
     QMainWindow::closeEvent(event);
+}
+
+bool PyrosQT::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress &&
+            obj == ui->tabWidget){
+        QMouseEvent *mouse_event = static_cast<QMouseEvent*>(event);
+        if (mouse_event->button() == Qt::MiddleButton)
+            remove_tab(ui->tabWidget->tabBar()->tabAt(mouse_event->pos()));
+    }
+
+    return QMainWindow::eventFilter(obj,event);
 }
