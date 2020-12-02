@@ -69,9 +69,9 @@ FileView::FileView(QWidget *parent) :
     contextMenu = new QMenu(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    contextMenu->addAction("Delete File",   this,&FileView::remove_file);
-    contextMenu->addAction("Hide File",     this,&FileView::hide_file);
     contextMenu->addAction("Copy file path",this,&FileView::copy_path);
+    contextMenu->addAction("Hide File",     this,&FileView::hide_file);
+    contextMenu->addAction("Delete File",   this,&FileView::remove_file);
 
     connect(this, &FileView::customContextMenuRequested, this, &FileView::onCustomContextMenu);
     connect(this,&FileView::new_files,this, &FileView::get_visible);
