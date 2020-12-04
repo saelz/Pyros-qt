@@ -20,14 +20,14 @@ void PyrosWorker::add_tags(PyrosDB *db,QVector<QByteArray> hashes, QVector<QByte
     foreach(QByteArray hash,hashes)
         Pyros_Add_Tag(db,hash,(char**)ctags.data(),ctags.size());
 
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::add_tags_to_file(PyrosDB *db,QByteArray hash, QVector<QByteArray>tags){
     QVector<const char*> ctags  = QVBA_to_QVc(tags);
 
     Pyros_Add_Tag(db,hash,(char**)ctags.data(),ctags.size());
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::search(PyrosDB *db, QVector<QByteArray> tags){
@@ -50,7 +50,7 @@ void PyrosWorker::remove_tags(PyrosDB *db,QVector<QByteArray> hashes, QVector<QB
         foreach(QByteArray tag,tags)
                 Pyros_Remove_Tag_From_Hash(db,hash,tag);
 
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::remove_tags_from_file(PyrosDB *db,QByteArray hash, QVector<QByteArray>tags){
@@ -58,7 +58,7 @@ void PyrosWorker::remove_tags_from_file(PyrosDB *db,QByteArray hash, QVector<QBy
     foreach(QByteArray tag,tags)
         Pyros_Remove_Tag_From_Hash(db,hash,tag);
 
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::import(PyrosDB *db, QVector<QByteArray> files,bool use_tag_files,QVector<QByteArray> import_tags){
@@ -82,7 +82,7 @@ void PyrosWorker::import(PyrosDB *db, QVector<QByteArray> files,bool use_tag_fil
                             (char**)cimport_tags.data(),cimport_tags.length(),
                             use_tag_files,true,
                             add_callback,this);
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 
     for(size_t i = 0; i < hashes->length;i++){
         qDebug("H%s\n",(char*)hashes->list[i]);
@@ -110,13 +110,13 @@ void PyrosWorker::get_tags_from_hash(PyrosDB *db, QByteArray hash){
 
 void PyrosWorker::delete_file(PyrosDB *db, PyrosFile*pFile){
     Pyros_Remove_File(db,pFile);
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::delete_files(PyrosDB *db, QVector<PyrosFile*>files){
     foreach(PyrosFile*pFile,files)
         Pyros_Remove_File(db,pFile);
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::ext_func(PyrosDB* db,QVector<QByteArray> tags, QVector<QByteArray> sub_tags,PyrosTC::PyrosExtFunc ExtFunc){
@@ -126,7 +126,7 @@ void PyrosWorker::ext_func(PyrosDB* db,QVector<QByteArray> tags, QVector<QByteAr
         }
     }
 
-    Pyros_Execute(db);
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::close_db(PyrosDB *db){
@@ -136,8 +136,8 @@ void PyrosWorker::close_db(PyrosDB *db){
 void PyrosWorker::remove_ext(PyrosDB*db,QVector<QByteArray> tags){
     QVector<const char*> ctags  = QVBA_to_QVc(tags);
     for(int i = 1; i < ctags.count();i+=2)
-        Pyros_Remove_Ext_Tag(db,ctags.at(i-1),ctags.at(i));
-    Pyros_Execute(db);
+        Pyros_Remove_Tag_Relationship(db,ctags.at(i-1),ctags.at(i));
+    Pyros_Commit(db);
 }
 
 void PyrosWorker::get_all_tags(PyrosDB *db){

@@ -25,7 +25,7 @@ public:
 
     void setTagType(int type);
 
-    int tag_type = PYROS_FILE_EXT;
+    int tag_type = PYROS_FILE_RELATIONSHIP;
     TagTreeModel *tag_model;
 
 private:

@@ -47,7 +47,7 @@ void DatabaseCreation::create_database(){
         PyrosTC* ptc = PyrosTC::get();
         ptc->close_db();
         PyrosDB *db = Pyros_Create_Database(path.data(),hashtype);
-        Pyros_Execute(db);
+        Pyros_Commit(db);
         Pyros_Close_Database(db);
 
         settings.setValue("db",path);

@@ -99,7 +99,7 @@ void TagView::add_parent(){
     QVector<QByteArray> selected_tags = get_selected_tags();
     QVector<QByteArray> ext_tags = create_tag_dialog("Parent");
     ptc->add_parent(selected_tags,ext_tags);
-    if (tag_type == PYROS_FILE_EXT){
+    if (tag_type == PYROS_FILE_RELATIONSHIP){
         foreach (QByteArray tag,ext_tags)
             add_tag_as_child(TagItem::NORMAL_TAG,tag);
     }
@@ -109,7 +109,7 @@ void TagView::add_child(){
     QVector<QByteArray> selected_tags = get_selected_tags();
     QVector<QByteArray> ext_tags = create_tag_dialog("Child");
     ptc->add_child(selected_tags,ext_tags);
-    if (tag_type == PYROS_TAG_EXT){
+    if (tag_type == PYROS_SEARCH_RELATIONSHIP){
         foreach (QByteArray tag,ext_tags)
             add_tag_as_child(TagItem::NORMAL_TAG,tag);
     }
@@ -207,14 +207,14 @@ bool TagView::loadModelFromTag(QByteArray tag,const QModelIndex index,PyrosDB *p
         if (!tag.compare("*"))
             tags = nullptr;
         else
-            tags = Pyros_Get_Ext_Tags_Structured(pyrosDB,tag.data(),tag_type);
+            tags = Pyros_Get_Related_Tags(pyrosDB,tag.data(),tag_type);
 
 
         if (tags == nullptr || tags->length == 0){
             PyrosTag *pt = new PyrosTag;
             TagItem::TAG_TYPE type;
 
-            if (tag_type == PYROS_FILE_EXT){
+            if (tag_type == PYROS_FILE_RELATIONSHIP){
                 type = TagItem::NEW_TAG;
             }else{
                 if(tag.contains('*') || tag.contains('?') ||
