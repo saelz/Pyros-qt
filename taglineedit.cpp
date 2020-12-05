@@ -13,7 +13,7 @@
 
 
 void TagCompleter::update(QString text)   {
-    QString new_text;
+    QString comparison_text;
 
     if (text.isEmpty() || text.isNull()){
         popup()->hide();
@@ -26,18 +26,25 @@ void TagCompleter::update(QString text)   {
             return;
         }
 
-        new_text = text.mid(1);
+        comparison_text = text.mid(1);
     } else {
-        new_text = text;
+        comparison_text = text;
     }
 
     if (caseSensitivity() == Qt::CaseInsensitive)
-        new_text = new_text.toLower();
+        comparison_text = comparison_text.toLower();
 
     QStringList filtered;
     foreach(QString t,m_list)
-        if (t.startsWith(new_text))
+        if (t.startsWith(comparison_text))
             filtered.append(t);
+
+    if (filtered.length() == 1){
+        if (filtered.at(0) == comparison_text){
+            popup()->hide();
+            return;
+        }
+    }
 
     m_model.setStringList(filtered);
     complete();
