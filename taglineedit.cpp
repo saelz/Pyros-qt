@@ -132,6 +132,13 @@ void TagLineEdit::update_text_color(const QString &text){
     QSettings settings;
     QString color_prefix = "color: ";
 
+    if (text.startsWith('-')){
+        QColor color = settings.value("special-tagcolor/invalid",
+                      QColorConstants::Red).value<QColor>();
+        setStyleSheet(color_prefix+color.name());
+        return;
+    }
+
     settings.beginGroup("tagcolor");
     setStyleSheet("");
     QStringList colored_tags = settings.allKeys();
