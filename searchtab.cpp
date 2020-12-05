@@ -40,6 +40,7 @@ void SearchTab::init()
     ui->setupUi(this);
 
     ui->search_tags->setTagType(PYROS_SEARCH_RELATIONSHIP);
+    ui->searchbar->set_relation_type(PYROS_SEARCH_RELATIONSHIP);
 
     QAction *refresh_bind = new QAction("refresh",this);
     QAction *search_bind = new QAction("insert search",this);
