@@ -25,7 +25,6 @@ SearchTab::SearchTab(QVector<QByteArray> &tags,QWidget *parent) :
     ui(new Ui::SearchTab)
 {
     init();
-    create_title(tags);
     ui->search_tags->add_tags(tags);
     ui->file_view->search(tags);
 }

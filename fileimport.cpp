@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QFileDialog>
+#include <QMenu>
 #include <QStandardItemModel>
 
 QString FileImport::starting_dir = QDir::home().path();
@@ -18,6 +19,12 @@ FileImport::FileImport(QWidget *parent) :
     QStandardItemModel *model = new QStandardItemModel(0,1);
     ui->selected_files->setModel(model);
 
+    filecontextMenu = new QMenu(this);
+    ui->selected_files->setContextMenuPolicy(Qt::CustomContextMenu);
+    filecontextMenu->addAction("Remove File",this,&FileImport::remove_selected_files);
+
+    connect(ui->selected_files, &QListView::customContextMenuRequested, this, &FileImport::create_file_context_menu);
+
     connect(ui->select_button,   &QPushButton::released,this,&FileImport::add_files);
     connect(ui->add_files_button,&QPushButton::released,this,&FileImport::import_files);
 
@@ -30,7 +37,33 @@ FileImport::FileImport(QWidget *parent) :
 
 FileImport::~FileImport()
 {
+    delete filecontextMenu;
     delete ui;
+}
+
+void FileImport::create_file_context_menu(const QPoint &point)
+{
+    QModelIndex index = ui->selected_files->indexAt(point);
+    if (index.isValid()) {
+        filecontextMenu->exec(ui->selected_files->viewport()->mapToGlobal(point));
+    }
+}
+
+
+void
+FileImport::remove_selected_files(){
+    QItemSelectionModel *select = ui->selected_files->selectionModel();
+    QModelIndexList indexes = select->selectedIndexes();
+    QAbstractItemModel *model = ui->selected_files->model();
+
+    std::sort(indexes.begin(), indexes.end(), std::less<QModelIndex>());
+
+    for (int i = indexes.length()-1; i >= 0;i--){
+        QModelIndex index = indexes.at(i);
+        model->removeRow(index.row());
+    }
+
+
 }
 
 void FileImport::add_tags(QVector<QByteArray> tags){
@@ -82,7 +115,6 @@ void FileImport::import_files()
         const QModelIndex index = model->index(i,0);
         const QByteArray  file = model->data(index).toByteArray();
 
-        qDebug() << file << "\n";
         files.push_back(file);
     }
 

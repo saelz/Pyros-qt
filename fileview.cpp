@@ -152,7 +152,7 @@ void FileView::remove_file()
     foreach(index,indexes){
         PyrosFile *file = file_model->file(index);
         if (file != NULL)
-            files.append(file);
+            files.append(Pyros_Duplicate_File(file));
     }
 
     if (files.length() >= 1)
