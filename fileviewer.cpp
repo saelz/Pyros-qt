@@ -290,7 +290,8 @@ public:
     QString get_info() override
     {
         QString count = m_label->text();
-        return "Word Count:"+QString::number(count.count(' '));
+
+        return "Word Count:"+QString::number(count.count(' ')+1);
     }
 
 };
