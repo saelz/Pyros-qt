@@ -225,11 +225,6 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
     if (indexes.count() > 1){
         ui->data_current_file->setStyleSheet("QLabel {color : cyan; }");
         ui->data_current_file->setText(QString::number(indexes.count()) +" /");
-
-        foreach(QModelIndex iindex,indexes){
-            PyrosFile *pf = ui->file_view->file(iindex);
-            qDebug("%s",pf->hash);
-        }
     } else {
         ui->data_current_file->setStyleSheet("");
         ui->data_current_file->setText(QString::number(ui->file_view->file_model->indexToNum(last_file)+1) +" /");
