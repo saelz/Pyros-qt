@@ -82,7 +82,6 @@ void SearchTab::init()
 
     connect(ui->file_view, &FileView::activated, this, &SearchTab::create_new_viewer_tab);
     connect(ui->file_view, &FileView::new_files, this, &SearchTab::set_file_count);
-    connect(ui->file_view->selectionModel(), &QItemSelectionModel::currentChanged ,this, &SearchTab::set_tag_view);
     connect(ui->file_view->selectionModel(), &QItemSelectionModel::selectionChanged ,this, &SearchTab::set_bottom_bar);
 
     connect(ui->file_tags,&TagView::new_search_with_selected_tags,this,&SearchTab::create_new_search_with_tags);
@@ -154,32 +153,6 @@ void SearchTab::create_new_viewer_tab(const QModelIndex &inital_index)
 }
 
 
-void SearchTab::set_tag_view(const QModelIndex &current, const QModelIndex &previous)
-{
-
-    Q_UNUSED(previous)
-    if (current.isValid()){
-        PyrosFile *pFile = ui->file_view->file(current);
-        ui->file_tags->setTagsFromFile(pFile);
-
-        if (pFile != nullptr){
-            QSettings settings;
-            QDateTime timestamp;
-            QLocale locale = this->locale();
-            timestamp.setTime_t(pFile->import_time);
-
-            ui->data_file_mime->setText(pFile->mime);
-            ui->data_file_size->setText(locale.formattedDataSize(pFile->file_size));
-            ui->data_file_time->setText(timestamp.toString(settings.value("timestamp_format","MM/dd/yy").toString()));
-        }
-    } else{
-        ui->file_tags->clear();
-        clear_file_data();
-    }
-
-
-}
-
 void SearchTab::clear()
 {
 
@@ -224,17 +197,44 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
     QModelIndexList indexes = select->selectedIndexes();
 
 
-    if (indexes.count() == 0)
+    if (indexes.count() == 0){
+        ui->file_tags->clear();
+        clear_file_data();
         return;
+    }
 
-    QModelIndex  index = indexes.last();
+    QModelIndex  last_file = indexes.last();
+
+
+    PyrosFile *last_pFile = ui->file_view->file(last_file);
+    if (last_pFile != nullptr){
+        QSettings settings;
+        QDateTime timestamp;
+        QLocale locale = this->locale();
+        timestamp.setTime_t(last_pFile->import_time);
+
+        ui->data_file_mime->setText(last_pFile->mime);
+        ui->data_file_size->setText(locale.formattedDataSize(last_pFile->file_size));
+        ui->data_file_time->setText(timestamp.toString(settings.value("timestamp_format","MM/dd/yy").toString()));
+        ui->file_tags->setTagsFromFile(last_pFile);
+    } else {
+        ui->file_tags->clear();
+        clear_file_data();
+    }
 
     if (indexes.count() > 1){
         ui->data_current_file->setStyleSheet("QLabel {color : cyan; }");
         ui->data_current_file->setText(QString::number(indexes.count()) +" /");
+
+        foreach(QModelIndex iindex,indexes){
+            PyrosFile *pf = ui->file_view->file(iindex);
+            qDebug("%s",pf->hash);
+        }
     } else {
         ui->data_current_file->setStyleSheet("");
-        ui->data_current_file->setText(QString::number(ui->file_view->file_model->indexToNum(index)+1) +" /");
+        ui->data_current_file->setText(QString::number(ui->file_view->file_model->indexToNum(last_file)+1) +" /");
+
+
     }
 
 }

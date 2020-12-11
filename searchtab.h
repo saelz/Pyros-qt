@@ -34,7 +34,6 @@ private:
 private slots:
     void set_file_count(QVector<FileModel::file_item>);
     void create_new_viewer_tab(const QModelIndex &index);
-    void set_tag_view(const QModelIndex &current, const QModelIndex &previous);
     void clear();
     void clear_file_data();
     void select_search_bar();
