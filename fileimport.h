@@ -33,6 +33,8 @@ private slots:
     void add_files();
     void import_files();
     void remove_selected_files();
+    void dropEvent(QDropEvent* event);
+    void dragEnterEvent(QDragEnterEvent* event);
 
     void create_file_context_menu(const QPoint &point);
 signals:

@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QStandardItemModel>
+#include <QDropEvent>
 
 QString FileImport::starting_dir = QDir::home().path();
 
@@ -33,6 +34,8 @@ FileImport::FileImport(QWidget *parent) :
 
     connect(ui->import_tags, &TagView::removeTag,this, &FileImport::remove_tags);
     connect(ui->import_tags, &TagView::new_search_with_selected_tags,this, &FileImport::new_search_with_tags);
+
+    setAcceptDrops(true);
 }
 
 FileImport::~FileImport()
@@ -77,6 +80,29 @@ void FileImport::remove_tags(QVector<QByteArray> tags){
                 m_import_tags.remove(i);
             }
         }
+    }
+}
+
+void FileImport::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void FileImport::dropEvent(QDropEvent* event)
+{
+    const QMimeData* mimeData = event->mimeData();
+
+    if (mimeData->hasUrls()){
+        foreach(QUrl url,mimeData->urls()){
+            QAbstractItemModel *model = ui->selected_files->model();
+
+            if (url.isLocalFile()){
+                model->insertRows(0,1,QModelIndex());
+                model->setData(model->index(0,0),url.path());
+            }
+        }
+        event->acceptProposedAction();
     }
 }
 
