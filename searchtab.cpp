@@ -206,7 +206,14 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
     QModelIndex  last_file = indexes.last();
 
 
-    PyrosFile *last_pFile = ui->file_view->file(last_file);
+    PyrosFile *last_pFile = nullptr;
+    for	(int i = indexes.length()-1;i >= 0;i--){
+        QModelIndex  last_valid_file = indexes.at(i);
+        last_pFile = ui->file_view->file(last_valid_file);
+        if (last_pFile != nullptr)
+            break;
+    }
+
     if (last_pFile != nullptr){
         QSettings settings;
         QDateTime timestamp;

@@ -97,7 +97,8 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 
         setText(tag_history.at(hist_location));
     } else {
-        completer->update(text());
+        if (completer != nullptr)
+            completer->update(text());
     }
 }
 

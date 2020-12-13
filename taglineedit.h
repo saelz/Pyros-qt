@@ -38,7 +38,7 @@ private:
     void keyPressEvent(QKeyEvent *) override;
     QVector<QByteArray> tag_history;
     int hist_location = 0;
-    TagCompleter *completer;
+    TagCompleter *completer = nullptr;
     int relation_type = PYROS_TAG_RELATION_FLAGS::PYROS_FILE_RELATIONSHIP;
 
 

@@ -94,14 +94,15 @@ void FileImport::dropEvent(QDropEvent* event)
     const QMimeData* mimeData = event->mimeData();
 
     if (mimeData->hasUrls()){
+        QAbstractItemModel *model = ui->selected_files->model();
         foreach(QUrl url,mimeData->urls()){
-            QAbstractItemModel *model = ui->selected_files->model();
 
             if (url.isLocalFile()){
                 model->insertRows(0,1,QModelIndex());
                 model->setData(model->index(0,0),url.path());
             }
         }
+        ui->add_files_button->setEnabled(true);
         event->acceptProposedAction();
     }
 }

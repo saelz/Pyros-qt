@@ -56,6 +56,7 @@ class FileDelegate : public QStyledItemDelegate {
       rect.setHeight(k.height());
       painter->drawRect(rect);
     }
+
 };
 
 FileView::FileView(QWidget *parent) :
