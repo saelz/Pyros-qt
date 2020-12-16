@@ -167,6 +167,10 @@ void PyrosQT::remove_tab_current()
 
 void PyrosQT::set_tab_title(QString title,QWidget *sender){
     int index = ui->tabWidget->indexOf(sender);
+    int max_title = 20;
+    if (title.length() > max_title)
+        title = title.left(max_title-3)+"...";
+
     ui->tabWidget->setTabText(index,title);
 
 }
