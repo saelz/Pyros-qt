@@ -67,9 +67,8 @@ TagLineEdit::TagLineEdit(QWidget *parent) :
                 this, &TagLineEdit::update_completion);
         connect(completer, QOverload<const QString &>::of(&QCompleter::highlighted),
                 this, &TagLineEdit::update_completion);
-
-
     };
+
     ptc->get_all_tags(this,cb);
 
     tag_history.append("");

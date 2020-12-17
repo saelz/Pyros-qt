@@ -148,17 +148,16 @@ void TagView::remove_tag()
     QItemSelectionModel *select = selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
 
-    QVector<QByteArray> tags;
+    QVector<QByteArray> tags = get_selected_tags();
+    emit removeTag(tags);
 
     QAbstractItemModel *model = this->model();
     std::sort(indexes.begin(), indexes.end(), std::less<QModelIndex>());
     for (int i = indexes.length()-1; i >= 0;i--){
         QModelIndex index = indexes.at(i);
-        QByteArray tag = model->data(index,Qt::EditRole).toByteArray();
-        tags.push_back(tag);
-        model->removeRow(index.row(),index.parent());
+        if (index.parent() == rootIndex())
+            model->removeRow(index.row(),index.parent());
     }
-    emit removeTag(tags);
 
 
 }

@@ -7,10 +7,9 @@
 TagTreeModel::TagTreeModel(const QString &tag,QObject *parent)
     : QAbstractItemModel(parent)
 {
-   QVariant rootData(tag);
+    QVariant rootData(tag);
 
     rootItem = new TagItem(rootData);
-
 }
 
 TagTreeModel::~TagTreeModel()
@@ -26,7 +25,7 @@ int TagTreeModel::columnCount(const QModelIndex &parent) const
 
 QVariant TagTreeModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() )
+    if (!index.isValid())
         return QVariant();
 
     TagItem *item = getItem(index);
@@ -40,8 +39,6 @@ QVariant TagTreeModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
-
-
 }
 
 TagItem *TagTreeModel::getItem(const QModelIndex &index) const
