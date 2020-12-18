@@ -39,13 +39,6 @@ void TagCompleter::update(QString text)   {
         if (t.startsWith(comparison_text))
             filtered.append(t);
 
-    if (filtered.length() == 1){
-        if (filtered.at(0) == comparison_text){
-            popup()->hide();
-            return;
-        }
-    }
-
     m_model.setStringList(filtered);
     complete();
 }
@@ -94,7 +87,8 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
         if ((--hist_location) < 0)
             hist_location = 0;
 
-        setText(tag_history.at(hist_location));
+        if (hist_location != 0)
+            setText(tag_history.at(hist_location));
     } else {
         if (completer != nullptr)
             completer->update(text());
