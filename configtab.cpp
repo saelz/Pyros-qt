@@ -27,32 +27,23 @@ configtab::configtab(QWidget *parent) :
     // GENERAL PAGE
     QSettings settings;
     ui->theme->setCurrentText(settings.value("theme","Default").toString());
-    ui->use_tag_history->setChecked(settings.value("use_tag_history",true).toBool());
-    ui->use_video_play_with_gifs->setChecked(settings.value("treat_gifs_as_video",false).toBool());
-    ui->timestamp_format->setText(settings.value("timestamp_format","MM/dd/yy").toString());
+
+    init_settings_entry("use-tag-history",ui->use_tag_history,true);
+    init_settings_entry("use-tag-history",ui->use_tag_history,true);
+    init_settings_entry("treat-gifs-as-video",ui->use_video_play_with_gifs,false);
+    init_settings_entry("timestamp-format",ui->timestamp_format,"MM/dd/yy");
 
     // TAG PAGE
-    settings.beginGroup("tagcolor");
-    QStringList colored_tags = settings.allKeys();
-    foreach(QString colored_prefix,colored_tags){
-        QColor color = settings.value(colored_prefix).value<QColor>();
-        tag_colors.append(new color_entry(ui->tag_color_box,"Tag",colored_prefix,color.name()));
-    }
-    settings.endGroup();
+    create_color_entries(ui->tag_color_box,"tagcolor","Tag",settings);
+
 
     // FILE PAGE
-    settings.beginGroup("filecolor");
-    colored_tags = settings.allKeys();
-    foreach(QString colored_prefix,colored_tags){
-        QColor color = settings.value(colored_prefix).value<QColor>();
-        file_colors.append(new color_entry(ui->file_border_box,"Mime/Type",colored_prefix,color.name()));
-    }
+    create_color_entries(ui->file_border_box,"filecolor","Mime/Type",settings);
 
-    ui->use_internal_image_thumbnailer->setChecked(settings.value("use-interal-image-thumbnailer",true).toBool());
-    ui->use_internal_cbz_thumbnailer->setChecked(settings.value("use-interal-cbz-thumbnailer",true).toBool());
-    ui->use_external_thumbnailers->setChecked(settings.value("use-exernal-thumbnailer",true).toBool());
+    init_settings_entry("use-interal-image-thumbnailer",ui->use_internal_image_thumbnailer,true);
+    init_settings_entry("use-interal-cbz-thumbnailer",ui->use_internal_cbz_thumbnailer,true);
+    init_settings_entry("use-exernal-thumbnailer",ui->use_external_thumbnailers,true);
 
-    settings.endGroup();
     set_general_page();
 }
 
@@ -66,6 +57,34 @@ configtab::~configtab()
     for(int i = 0;i < tag_colors.count();i++)
         if (!tag_colors[i].isNull())
             delete tag_colors[i].data();
+}
+
+
+void configtab::create_color_entries(QVBoxLayout *layout,
+                                     QString setting_gourp,QString placeholder,
+                                     QSettings &settings)
+{
+    settings.beginGroup(setting_gourp);
+    QStringList entries = settings.allKeys();
+    foreach(QString colored_prefix,entries){
+        QColor color = settings.value(colored_prefix).value<QColor>();
+        tag_colors.append(new color_entry(layout,placeholder,colored_prefix,color.name()));
+    }
+    settings.endGroup();
+
+}
+
+void configtab::init_settings_entry(QString setting_name,QLineEdit *widget,QString default_str)
+{
+    QSettings settings;
+    widget->setText(settings.value(setting_name,default_str).toString());
+    settings_items.append({widget,setting_name,STRING});
+}
+void configtab::init_settings_entry(QString setting_name,QCheckBox *widget,bool default_state)
+{
+    QSettings settings;
+    widget->setChecked(settings.value(setting_name,default_state).toBool());
+    settings_items.append({widget,setting_name,BOOL});
 }
 
 void configtab::enable_all_buttons()
@@ -101,14 +120,19 @@ void configtab::set_general_page()
 void configtab::apply()
 {
     QSettings settings;
-    const QString theme = ui->theme->currentText();
-    settings.setValue("theme",theme);
-    settings.setValue("use_tag_history",ui->use_tag_history->checkState());
-    settings.setValue("treat_gifs_as_video",ui->use_video_play_with_gifs->checkState());
-    settings.setValue("timestamp_format",ui->timestamp_format->text());
-    settings.setValue("use-interal-image-thumbnailer",ui->use_internal_image_thumbnailer->checkState());
-    settings.setValue("use-interal-cbz-thumbnailer",ui->use_internal_cbz_thumbnailer->checkState());
-    settings.setValue("use-exernal-thumbnailer",ui->use_external_thumbnailers->checkState());
+    settings.setValue("theme",ui->theme->currentText());
+
+    foreach(settings_item item,settings_items){
+        QVariant value;
+        if (item.type == STRING){
+            QLineEdit *lineedit = qobject_cast<QLineEdit *>(item.widget);
+            value = lineedit->text();
+        } else if (item.type == BOOL){
+            QCheckBox *checkbox = qobject_cast<QCheckBox *>(item.widget);
+            value = checkbox->checkState();
+        }
+        settings.setValue(item.setting_name,value);
+    }
 
     settings.beginGroup("tagcolor");
     apply_color_entries(settings,tag_colors);
@@ -137,6 +161,7 @@ void configtab::new_color_tag()
 {
         tag_colors.append(new color_entry(ui->tag_color_box,"Tag"));
 }
+
 void configtab::new_file_border()
 {
         file_colors.append(new color_entry(ui->file_border_box,"Mime/Type"));
@@ -164,8 +189,7 @@ color_entry::color_entry(QVBoxLayout *parent,QString placeholder,
         update_color(hex.remove(0,1));
 }
 
-void
-color_entry::update_color(const QString &text)
+void color_entry::update_color(const QString &text)
 {
     if (text.length() != 3 && text.length() != 6){
         entry->setStyleSheet("");
