@@ -61,7 +61,7 @@ configtab::~configtab()
 
 
 void configtab::create_color_entries(QVBoxLayout *layout,
-                                     QString setting_gourp,QString placeholder,QVector<QPointer<color_entry>> list,
+                                     QString setting_gourp,QString placeholder,QVector<QPointer<color_entry>> &list,
                                      QSettings &settings)
 {
     settings.beginGroup(setting_gourp);
