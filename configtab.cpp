@@ -34,11 +34,11 @@ configtab::configtab(QWidget *parent) :
     init_settings_entry("timestamp-format",ui->timestamp_format,"MM/dd/yy");
 
     // TAG PAGE
-    create_color_entries(ui->tag_color_box,"tagcolor","Tag",settings);
+    create_color_entries(ui->tag_color_box,"tagcolor","Tag",tag_colors,settings);
 
 
     // FILE PAGE
-    create_color_entries(ui->file_border_box,"filecolor","Mime/Type",settings);
+    create_color_entries(ui->file_border_box,"filecolor","Mime/Type",file_colors,settings);
 
     init_settings_entry("use-interal-image-thumbnailer",ui->use_internal_image_thumbnailer,true);
     init_settings_entry("use-interal-cbz-thumbnailer",ui->use_internal_cbz_thumbnailer,true);
@@ -61,14 +61,14 @@ configtab::~configtab()
 
 
 void configtab::create_color_entries(QVBoxLayout *layout,
-                                     QString setting_gourp,QString placeholder,
+                                     QString setting_gourp,QString placeholder,QVector<QPointer<color_entry>> list,
                                      QSettings &settings)
 {
     settings.beginGroup(setting_gourp);
     QStringList entries = settings.allKeys();
     foreach(QString colored_prefix,entries){
         QColor color = settings.value(colored_prefix).value<QColor>();
-        tag_colors.append(new color_entry(layout,placeholder,colored_prefix,color.name()));
+        list.append(new color_entry(layout,placeholder,colored_prefix,color.name()));
     }
     settings.endGroup();
 

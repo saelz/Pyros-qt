@@ -55,7 +55,7 @@ public:
 private:
     Ui::configtab *ui;
 
-    void create_color_entries(QVBoxLayout *layout, QString setting_gourp,QString placeholder, QSettings &settings);
+    void create_color_entries(QVBoxLayout *layout, QString setting_gourp,QString placeholder,QVector<QPointer<color_entry>> list, QSettings &settings);
 
     void init_settings_entry(QString setting_name,QLineEdit *widget,QString default_str);
     void init_settings_entry(QString setting_name,QCheckBox *widget, bool default_state);
