@@ -31,6 +31,7 @@ private:
 
 signals:
     void new_files(QVector<FileModel::file_item> files);
+    void files_removed(QVector<QByteArray>);
 
 public slots:
     void search(QVector<QByteArray> tags);
@@ -41,6 +42,7 @@ public slots:
     void remove_tag_from_search(QVector<QByteArray> tags);
     void refresh();
     void invertSelection();
+    void hide_files_by_hash(QVector<QByteArray> hashes);
 
 private slots:
 

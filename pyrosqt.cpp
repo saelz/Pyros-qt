@@ -28,6 +28,8 @@ PyrosQT::PyrosQT(QWidget *parent)
     new_itab->setShortcut(QKeySequence("CTRL+i"));
     close_tab->setShortcut(QKeySequence("CTRL+w"));
 
+    connect(this,&PyrosQT::files_removed,this,&PyrosQT::hide_files);
+
     connect(new_stab, &QAction::triggered,this, &PyrosQT::new_search_tab);
     connect(new_itab, &QAction::triggered,this, &PyrosQT::new_import_tab);
     connect(close_tab,&QAction::triggered,this, &PyrosQT::remove_tab_current);
@@ -150,6 +152,9 @@ void PyrosQT::search_tab_init(SearchTab *st)
     connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
     connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
     connect(st,&SearchTab::create_new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
+
+    connect(st,&SearchTab::file_deleted,this,&PyrosQT::files_removed);
+    connect(this,&PyrosQT::files_removed,st,&SearchTab::hide_files_by_hash);
 }
 
 void PyrosQT::remove_tab(int index)
@@ -180,6 +185,9 @@ void PyrosQT::new_viewer_tab(QVector<PyrosFile*> files,int inital_position)
     FileViewer *fv = new FileViewer(files,inital_position,ui->tabWidget);
     create_tab(fv,"Viewer");
     connect(fv,&FileViewer::new_search_with_selected_tags,this,&PyrosQT::new_search_tab_with_tags);
+
+    connect(fv,&FileViewer::file_deleted,this,&PyrosQT::files_removed);
+    connect(this,&PyrosQT::files_removed,fv,&FileViewer::hide_files);
 }
 
 void PyrosQT::new_config_tab()

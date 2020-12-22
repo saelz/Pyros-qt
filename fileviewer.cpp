@@ -518,6 +518,10 @@ void FileViewer::delete_file()
     if (pFile == nullptr || m_files.size() == 0)
         return;
 
+    QVector<QByteArray> file_hashes;
+    file_hashes.append(pFile->hash);
+
+
     ptc->delete_file(pFile);
     m_files.removeAt(position);
     if (position >= m_files.size())
@@ -526,6 +530,7 @@ void FileViewer::delete_file()
         position = 0;
 
     set_file();
+    emit file_deleted(file_hashes);
 
 }
 
@@ -578,7 +583,6 @@ bool FileViewer::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-
 void FileViewer::cbz_next_page()
 {
     if (viewer != nullptr){
@@ -600,4 +604,26 @@ void FileViewer::cbz_prev_page()
 void FileViewer::set_file_info(QString string)
 {
     ui->file_info->setText(string);
+}
+
+void FileViewer::hide_files(QVector<QByteArray> hashes){
+    for (int i  = m_files.length()-1;i >= 0;i--) {
+        PyrosFile *file = m_files.at(i);
+        if (file == nullptr)
+            continue;
+
+        for (int j  = hashes.length()-1;j >= 0;j--) {
+            if (!hashes.at(j).compare(file->hash)){
+                m_files.removeAt(i);
+                if (position >= m_files.size())
+                    position--;
+                if (position < 0)
+                    position = 0;
+                hashes.removeAt(j);
+            }
+        }
+
+    }
+
+    set_file();
 }

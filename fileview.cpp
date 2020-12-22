@@ -149,16 +149,42 @@ void FileView::remove_file()
 
     PyrosTC *ptc = PyrosTC::get();
     QVector<PyrosFile*> files;
+    QVector<QByteArray> hashes;
 
     foreach(index,indexes){
         PyrosFile *file = file_model->file(index);
-        if (file != NULL)
+        if (file != NULL){
             files.append(Pyros_Duplicate_File(file));
+            hashes.append(file->hash);
+        }
     }
 
-    if (files.length() >= 1)
-        ptc->delete_file(files);
     hide_file();
+
+    if (files.length() >= 1){
+        ptc->delete_file(files);
+        emit files_removed(hashes);
+    }
+}
+
+void FileView::hide_files_by_hash(QVector<QByteArray> hashes){
+    int old_row_count = file_model->rowCount();
+    QVector<FileModel::file_item> files = file_model->files();
+
+    for (int i  = files.length()-1;i >= 0;i--) {
+        PyrosFile *file = files.at(i).pFile;
+        if (file == nullptr)
+            continue;
+        for (int j  = hashes.length()-1;j >= 0;j--) {
+            if (!hashes.at(j).compare(file->hash)){
+                file_model->remove_file(file_model->numToIndex(i));
+                hashes.removeAt(j);
+            }
+        }
+    }
+
+    emit new_files(file_model->files());
+    file_model->remove_excess_rows(old_row_count);
 }
 
 void FileView::hide_file()

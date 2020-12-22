@@ -80,6 +80,9 @@ void SearchTab::init()
 
     connect(ui->file_tags,&TagView::removeTag,ui->file_view,&FileView::remove_tag);
 
+    connect(ui->file_view, &FileView::files_removed, this, &SearchTab::file_deleted);
+    connect(this, &SearchTab::hide_files_by_hash, ui->file_view,&FileView::hide_files_by_hash);
+
     connect(ui->file_view, &FileView::activated, this, &SearchTab::create_new_viewer_tab);
     connect(ui->file_view, &FileView::new_files, this, &SearchTab::set_file_count);
     connect(ui->file_view->selectionModel(), &QItemSelectionModel::selectionChanged ,this, &SearchTab::set_bottom_bar);

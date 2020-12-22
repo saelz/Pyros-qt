@@ -42,9 +42,11 @@ private slots:
     void set_bottom_bar(const QItemSelection &selected, const QItemSelection &deselected);
 
 signals:
+    void file_deleted(QVector<QByteArray>);
     void set_title(QString ,QWidget *);
     void create_viewer_tab(QVector<PyrosFile*>,int);
     void create_new_search_with_tags(QVector<QByteArray> tags);
+    void hide_files_by_hash(QVector<QByteArray> hashes);
 
 };
 
