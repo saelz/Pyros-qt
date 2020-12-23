@@ -35,6 +35,7 @@ TagView::TagView(QWidget *parent) :
     connect(this, &TagView::customContextMenuRequested, this, &TagView::onCustomContextMenu);
 }
 
+
 TagView::~TagView()
 {
     delete contextMenu;
@@ -325,7 +326,28 @@ void TagView::setTagType(int type)
     tag_type = type;
 }
 
-void TagView::create_search_with_selected_tags(){
+void TagView::append_search_options_to_contenxt_menu()
+{
+    contextMenu->addAction("Add tag to search",      this, &TagView::add_selected_tags_to_search);
+    contextMenu->addAction("Filter tag from search", this, &TagView::filter_selected_tags_from_search);
+}
+
+void TagView::create_search_with_selected_tags()
+{
     QVector<QByteArray> selected_tags = get_selected_tags();
     emit new_search_with_selected_tags(selected_tags);
+}
+
+void TagView::add_selected_tags_to_search()
+{
+    QVector<QByteArray> selected_tags = get_selected_tags();
+    emit add_tag_to_current_search(selected_tags);
+
+}
+void TagView::filter_selected_tags_from_search()
+{
+    QVector<QByteArray> selected_tags = get_selected_tags();
+    for (int i = 0; i < selected_tags.count(); i++)
+        selected_tags[i].prepend('-');
+    emit add_tag_to_current_search(selected_tags);
 }

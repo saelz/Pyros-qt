@@ -25,6 +25,8 @@ public:
 
     void setTagType(int type);
 
+    void append_search_options_to_contenxt_menu();
+
     int tag_type = PYROS_FILE_RELATIONSHIP;
     TagTreeModel *tag_model;
 
@@ -34,6 +36,7 @@ private:
     QSortFilterProxyModel *sort_model;
 
     void add_tag_as_child(TagItem::TAG_TYPE type,QString tag);
+
 public slots:
     void add_tags(QVector<QByteArray> tags);
     void remove_tag();
@@ -51,10 +54,12 @@ private slots:
     void onCustomContextMenu(const QPoint &point);
     void create_search_with_selected_tags();
 
-
+    void add_selected_tags_to_search();
+    void filter_selected_tags_from_search();
 signals:
     void removeTag(QVector <QByteArray>);
     void new_search_with_selected_tags(QVector <QByteArray>);
+    void add_tag_to_current_search(QVector<QByteArray>);
 };
 
 #endif // TAGVIEW_H

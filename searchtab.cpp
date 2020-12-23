@@ -42,6 +42,8 @@ void SearchTab::init()
     ui->search_tags->setTagType(PYROS_SEARCH_RELATIONSHIP);
     ui->searchbar->set_relation_type(PYROS_SEARCH_RELATIONSHIP);
 
+    ui->file_tags->append_search_options_to_contenxt_menu();
+
     QAction *refresh_bind = new QAction("refresh",this);
     QAction *search_bind = new QAction("insert search",this);
     QAction *tagbar_bind = new QAction("insert tagbar",this);
@@ -79,6 +81,8 @@ void SearchTab::init()
     connect(ui->tag_bar, &TagLineEdit::tag_entered,ui->file_view, &FileView::add_tag);
 
     connect(ui->file_tags,&TagView::removeTag,ui->file_view,&FileView::remove_tag);
+    connect(ui->file_tags,&TagView::add_tag_to_current_search,ui->search_tags,&TagView::add_tags);
+    connect(ui->file_tags,&TagView::add_tag_to_current_search,ui->file_view,&FileView::search);
 
     connect(ui->file_view, &FileView::files_removed, this, &SearchTab::file_deleted);
     connect(this, &SearchTab::hide_files_by_hash, ui->file_view,&FileView::hide_files_by_hash);
