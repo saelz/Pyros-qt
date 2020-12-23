@@ -229,6 +229,21 @@ PyrosTC::PyrosTC()
 
 }
 
+QByteArray PyrosTC::escape_glob_characters(QByteArray tag){
+    QString escaped_tag;
+    foreach (QChar c ,tag){
+        if (c == '*' || c == '?' || c == '[' || c == ']'){
+            escaped_tag.append('[');
+            escaped_tag.append(c);
+            escaped_tag.append(']');
+
+        } else {
+            escaped_tag.append(c);
+        }
+    }
+    return escaped_tag.toUtf8();
+}
+
 QByteArray PyrosTC::db_path()
 {
     if (db == nullptr)

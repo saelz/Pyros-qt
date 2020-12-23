@@ -153,20 +153,10 @@ void TagLineEdit::update_completion(const QString &t){
     if (this->text().startsWith('-'))
         new_text = '-';
 
-    if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_GLOB){
-        foreach (QChar c ,t){
-            if (c == '*' || c == '?' || c == '[' || c == ']'){
-                new_text += '[';
-                new_text += c;
-                new_text += ']';
-
-            } else {
-                new_text += c;
-            }
-        }
-    } else {
+    if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_GLOB)
+        new_text += PyrosTC::escape_glob_characters(t.toUtf8());
+    else
         new_text += t;
-    }
 
     setText(new_text);
 }
