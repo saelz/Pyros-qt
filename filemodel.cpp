@@ -178,6 +178,11 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
     return QVariant();
 }
 
+void FileModel::delete_thumbnail(QByteArray filepath){
+    QFile file (filepath+".256");
+    file.remove();
+}
+
 QVariant FileModel::internal_image_thumbnailer(thumbnail_item item,QByteArray& thumbpath){
     QPixmap pix;
     if (pix.load(item.path)){
@@ -280,42 +285,59 @@ FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
     return item;
 }
 
+void FileModel::load_thumbnails(QModelIndexList indexes)
+{
+    QVector<thumbnail_item> items;
+    foreach(QModelIndex index,indexes){
+            PyrosFile *pFile = file(index);
+
+            if (pFile != nullptr){
+                m_files[indexToNum(index)].thumbnail = QVariant();
+                items.append({indexToNum(index),
+                              QVariant(),pFile->path,pFile->mime});
+            }
+    }
+
+    if (thumbnailer->isRunning()) {
+        thumbnailer->cancel();
+        thumbnailer->waitForFinished();
+    }
+
+    thumbnailer->setFuture(QtConcurrent::mapped(items,generateThumbnail));
+}
+
+void FileModel::append_thumbnail_items(QVector<thumbnail_item> &items,int start_row,int end_row,int column_count)
+{
+    for(int i = start_row; i <= end_row;i++){
+        for	(int j = 0; j <= column_count;j++){
+            QModelIndex current = index(i,j);
+            PyrosFile *pFile = file(current);
+            if (pFile == nullptr ||
+                    m_files[indexToNum(current)].thumbnail != QVariant())
+                continue;
+            items.append({indexToNum(current),QVariant(),pFile->path,pFile->mime});
+        }
+    }
+}
+
 void FileModel::load_thumbnails(QModelIndex topLeft,int rows)
 {
     if (!topLeft.isValid())
         return;
 
-    int i,j;
-    QModelIndex current;
     QVector<thumbnail_item> items;
     if (last_index == topLeft)
         return;
+
     last_index = topLeft;
     int row_end = topLeft.row()+rows+3;
 
-    for	(i = topLeft.row(); i <= row_end;i++){
-        for	(j = 0; j <= m_columnCount;j++){
-            current = index(i,j);
-            PyrosFile *pFile = file(current);
-            if (pFile == nullptr ||
-                    m_files[indexToNum(current)].thumbnail != QVariant())
-                continue;
-            items.append({indexToNum(current),QVariant(),pFile->path,pFile->mime});
-        }
-    }
+    append_thumbnail_items(items,topLeft.row(),row_end,m_columnCount);
 
     if (items.length() == 0)
         return;
-    for	(i = row_end; i <= row_end+2;i++){
-        for	(j = 0; j <= m_columnCount;j++){
-            current = index(i,j);
-            PyrosFile *pFile = file(current);
-            if (pFile == nullptr ||
-                    m_files[indexToNum(current)].thumbnail != QVariant())
-                continue;
-            items.append({indexToNum(current),QVariant(),pFile->path,pFile->mime});
-        }
-    }
+
+    append_thumbnail_items(items,row_end,row_end+2,m_columnCount);
 
 
     if (thumbnailer->isRunning()) {
@@ -323,11 +345,7 @@ void FileModel::load_thumbnails(QModelIndex topLeft,int rows)
         thumbnailer->waitForFinished();
     }
 
-
-
     thumbnailer->setFuture(QtConcurrent::mapped(items,generateThumbnail));
-
-
 }
 
 void FileModel::displayThumbnail(int num)

@@ -37,6 +37,8 @@ public:
     static QVariant internal_cbz_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
     static QVariant external_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
 
+    static void delete_thumbnail(QByteArray filepath);
+
     static FileModel::thumbnail_item generateThumbnail (thumbnail_item item);
 
     QVector<file_item> files() const;
@@ -59,8 +61,10 @@ public:
     void remove_file(const QModelIndex &index);
     int indexToNum(const QModelIndex &index) const;
     QModelIndex numToIndex(const int num) const;
+
     void startThumbnailer(QVector<QModelIndex> *visible_files);
     void load_thumbnails(QModelIndex topLeft,int rows);
+    void load_thumbnails(QModelIndexList indexes);
 
     void setColumnCount(int columns);
     void remove_excess_rows(int old_row_count);
@@ -74,6 +78,8 @@ private:
     QModelIndex last_index = QModelIndex();
 
     QVector<file_item> m_files;
+
+    void append_thumbnail_items(QVector<thumbnail_item> &items,int start_row,int end_row,int column_count);
 
     QFutureWatcher<thumbnail_item> *thumbnailer;
     void load_thumbnailers();

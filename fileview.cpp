@@ -70,9 +70,10 @@ FileView::FileView(QWidget *parent) :
     contextMenu = new QMenu(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    contextMenu->addAction("Copy file path",this,&FileView::copy_path);
-    contextMenu->addAction("Hide File",     this,&FileView::hide_file);
-    contextMenu->addAction("Delete File",   this,&FileView::remove_file);
+    contextMenu->addAction("Copy file path",      this,&FileView::copy_path);
+    contextMenu->addAction("Hide file",           this,&FileView::hide_file);
+    contextMenu->addAction("Regenerate thumbnail",this,&FileView::regenerate_thumbnail);
+    contextMenu->addAction("Delete file",         this,&FileView::remove_file);
 
     connect(this, &FileView::customContextMenuRequested, this, &FileView::onCustomContextMenu);
     connect(this,&FileView::new_files,this, &FileView::get_visible);
@@ -326,6 +327,18 @@ void FileView::get_visible()
     QModelIndex topLeft = indexAt(rec.topLeft());
 
     file_model->load_thumbnails(topLeft,height()/256);
+}
+
+void FileView::regenerate_thumbnail()
+{
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+
+    foreach(QModelIndex index,indexes){
+        PyrosFile *pFile = file(index);
+        if (pFile != nullptr)
+            FileModel::delete_thumbnail(file_model->file(index)->path);
+    }
+    file_model->load_thumbnails(indexes);
 }
 
 

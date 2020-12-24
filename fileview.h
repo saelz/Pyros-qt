@@ -16,7 +16,6 @@ public:
     FileView(QWidget *parent = nullptr);
     ~FileView();
 
-    //void set_search_from_vector(PyrosDB *pyrosDB, QVector<char*> *hashes);
     void clear_tags();
     PyrosFile *file(const QModelIndex &index);
     QVector<PyrosFile*> files();
@@ -52,6 +51,7 @@ private slots:
     void onCustomContextMenu(const QPoint &point);
 
     void get_visible();
+    void regenerate_thumbnail();
 
     void resizeEvent(QResizeEvent *event) override;
     void launch_timer();

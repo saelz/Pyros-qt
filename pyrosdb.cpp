@@ -1,4 +1,5 @@
 #include "pyrosdb.h"
+#include "filemodel.h"
 
 #include <QtDebug>
 #include <QSettings>
@@ -110,6 +111,7 @@ void PyrosWorker::get_tags_from_hash(PyrosDB *db, QByteArray hash){
 
 void PyrosWorker::delete_file(PyrosDB *db, PyrosFile*pFile){
     Pyros_Remove_File(db,pFile);
+    FileModel::delete_thumbnail(pFile->path);
     Pyros_Close_File(pFile);
     Pyros_Commit(db);
 }
@@ -117,6 +119,7 @@ void PyrosWorker::delete_file(PyrosDB *db, PyrosFile*pFile){
 void PyrosWorker::delete_files(PyrosDB *db, QVector<PyrosFile*>files){
     foreach(PyrosFile*pFile,files){
         Pyros_Remove_File(db,pFile);
+        FileModel::delete_thumbnail(pFile->path);
         Pyros_Close_File(pFile);
     }
     Pyros_Commit(db);
