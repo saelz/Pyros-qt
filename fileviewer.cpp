@@ -419,7 +419,7 @@ void FileViewer::set_file()
         viewer = nullptr;
     }
 
-    if (m_pFile == nullptr)
+    if (m_pFile == nullptr || m_files.count() <= 0)
         return;
 
     QSettings settings;
