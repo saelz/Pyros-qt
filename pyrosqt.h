@@ -3,6 +3,7 @@
 
 
 #include <QMainWindow>
+#include <QPointer>
 
 
 class QAbstractItemModel;
@@ -28,11 +29,14 @@ signals:
 
 private:
     Ui::PyrosQT *ui;
+    QPointer<QWidget> last_tab;
+    QPointer<QWidget> current_tab;
 
 private slots:
     void load_settings();
     void create_tab(QWidget *widget,QString label);
 
+    void tab_changed(int index);
 
     void new_import_tab();
     void new_search_tab();

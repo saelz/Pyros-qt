@@ -39,13 +39,14 @@ PyrosQT::PyrosQT(QWidget *parent)
     addAction(close_tab);
 
     initalize_config();
-    connect(ui->actionImport_Files,   &QAction::triggered,this, &PyrosQT::new_import_tab);
-    connect(ui->actionNew_Search,     &QAction::triggered,this, &PyrosQT::new_search_tab);
-    connect(ui->actionSettings,       &QAction::triggered,this, &PyrosQT::new_config_tab);
-    connect(ui->actionNew_Database,   &QAction::triggered,this, &PyrosQT::new_database_creation_tab);
-    connect(ui->actionOpen_Database,  &QAction::triggered,this, &PyrosQT::open_database);
+    connect(ui->actionImport_Files,  &QAction::triggered,this, &PyrosQT::new_import_tab);
+    connect(ui->actionNew_Search,    &QAction::triggered,this, &PyrosQT::new_search_tab);
+    connect(ui->actionSettings,      &QAction::triggered,this, &PyrosQT::new_config_tab);
+    connect(ui->actionNew_Database,  &QAction::triggered,this, &PyrosQT::new_database_creation_tab);
+    connect(ui->actionOpen_Database, &QAction::triggered,this, &PyrosQT::open_database);
 
     connect(ui->tabWidget,&QTabWidget::tabCloseRequested,this, &PyrosQT::remove_tab);
+    connect(ui->tabWidget,&QTabWidget::currentChanged,this,&PyrosQT::tab_changed);
 
     ui->tabWidget->installEventFilter(this);
 }
@@ -67,8 +68,8 @@ void PyrosQT::initalize_config(){
         settings.setValue("video",QColorConstants::Green);
         settings.setValue("image/gif",QColorConstants::Green);
         settings.setValue("audio",QColorConstants::Blue);
-        settings.setValue("application/zip",QColor("#cc7722"));
-        settings.setValue("application/vnd.comicbook+zip",QColor("#cc7722"));
+        settings.setValue("application/zip",QColor(204,77,22));
+        settings.setValue("application/vnd.comicbook+zip",QColor(204,77,22));
         settings.endGroup();
 
         settings.beginGroup("tagcolor");
@@ -120,6 +121,15 @@ void PyrosQT::create_tab(QWidget *widget, QString label)
 
 }
 
+void PyrosQT::tab_changed(int index)
+{
+    if (!current_tab.isNull())
+        last_tab = current_tab;
+
+    current_tab = ui->tabWidget->widget(index);
+
+}
+
 void PyrosQT::new_import_tab()
 {
     FileImport *fi = new FileImport(ui->tabWidget);
@@ -159,7 +169,11 @@ void PyrosQT::search_tab_init(SearchTab *st)
 
 void PyrosQT::remove_tab(int index)
 {
+    int cur_index = ui->tabWidget->currentIndex();
     QWidget *widget = ui->tabWidget->widget(index);
+
+    if (!last_tab.isNull() && cur_index == index)
+        ui->tabWidget->setCurrentWidget(last_tab);
     ui->tabWidget->removeTab(index);
     delete widget;
 
