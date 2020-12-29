@@ -1,3 +1,4 @@
+
 #include "fileview.h"
 #include "pyrosqt.h"
 #include "pyrosdb.h"
@@ -171,18 +172,37 @@ void FileView::remove_file()
 void FileView::hide_files_by_hash(QVector<QByteArray> hashes){
     int old_row_count = file_model->rowCount();
     QVector<FileModel::file_item> files = file_model->files();
+    QItemSelectionModel *select = selectionModel();
+    QModelIndexList indexes = select->selectedIndexes();
+
+    select->clear();
 
     for (int i  = files.length()-1;i >= 0;i--) {
         PyrosFile *file = files.at(i).pFile;
         if (file == nullptr)
             continue;
+
         for (int j  = hashes.length()-1;j >= 0;j--) {
             if (!hashes.at(j).compare(file->hash)){
                 file_model->remove_file(file_model->numToIndex(i));
                 hashes.removeAt(j);
+
+                for (int k  = indexes.length()-1;k >= 0;k--) {
+                    int cur_index_num = file_model->indexToNum(indexes[k]);
+                    if (cur_index_num == i)
+                        indexes.removeAt(k);
+                    else if (cur_index_num > i)
+                        indexes.replace(k,file_model->numToIndex(cur_index_num-1));
+                }
+
+                break;
             }
         }
     }
+
+    foreach(QModelIndex index,indexes)
+        select->select(index,QItemSelectionModel::Select);
+
 
     emit new_files(file_model->files());
     file_model->remove_excess_rows(old_row_count);
@@ -286,7 +306,7 @@ void FileView::remove_tag(QVector<QByteArray> tags)
     QVector<QByteArray> files;
 
     foreach(QModelIndex index, indexes) {
-       PyrosFile *file = file_model->file(index);
+        PyrosFile *file = file_model->file(index);
         if (file != nullptr)
             files.push_back(file->hash);
 
