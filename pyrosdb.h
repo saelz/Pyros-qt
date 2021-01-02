@@ -20,7 +20,7 @@ class PyrosTC : public QObject{
 public:
     ~PyrosTC();
     static PyrosTC* get();
-    static QByteArray escape_glob_characters(QByteArray tag);
+    static QByteArray escape_glob_characters(QString tag);
 
     typedef std::function<void(QVector<PyrosFile*>)> search_cb;
     typedef std::function<void(QVector<PyrosTag*>)> tag_cb;

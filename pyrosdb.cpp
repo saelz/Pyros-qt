@@ -232,7 +232,7 @@ PyrosTC::PyrosTC()
 
 }
 
-QByteArray PyrosTC::escape_glob_characters(QByteArray tag){
+QByteArray PyrosTC::escape_glob_characters(QString tag){
     QString escaped_tag;
     foreach (QChar c ,tag){
         if (c == '*' || c == '?' || c == '[' || c == ']'){

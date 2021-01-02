@@ -154,9 +154,9 @@ void TagLineEdit::update_completion(const QString &t){
         new_text = '-';
 
     if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_GLOB)
-        new_text += PyrosTC::escape_glob_characters(t.toUtf8());
+        new_text.append(PyrosTC::escape_glob_characters(t.toUtf8()));
     else
-        new_text += t;
+        new_text.append(t);
 
     setText(new_text);
 }
