@@ -91,7 +91,7 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>575</width>
+                <width>583</width>
                 <height>296</height>
                </rect>
               </property>
@@ -159,7 +159,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="resources.qrc">
              <normaloff>:/data/icons/left_arrow.svg</normaloff>:/data/icons/left_arrow.svg</iconset>
            </property>
           </widget>
@@ -173,7 +173,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="resources.qrc">
              <normaloff>:/data/icons/right_arrow.svg</normaloff>:/data/icons/right_arrow.svg</iconset>
            </property>
           </widget>
@@ -187,7 +187,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="resources.qrc">
              <normaloff>:/data/icons/plus.svg</normaloff>:/data/icons/plus.svg</iconset>
            </property>
           </widget>
@@ -201,7 +201,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="resources.qrc">
              <normaloff>:/data/icons/minus.svg</normaloff>:/data/icons/minus.svg</iconset>
            </property>
           </widget>
@@ -316,7 +316,7 @@
          <item>
           <widget class="QPushButton" name="delete_button">
            <property name="text">
-            <string>Delet</string>
+            <string>Delete</string>
            </property>
           </widget>
          </item>
@@ -346,6 +346,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -333,6 +333,8 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     QAction *delete_bind;
     QAction *zoom_in_bind;
     QAction *zoom_out_bind;
+    QAction *next_page_bind;
+    QAction *prev_page_bind;
 
     next_bind = new QAction("Next File",this);
     prev_bind = new QAction("Prev File",this);
@@ -340,6 +342,8 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     delete_bind = new QAction("delete",this);
     zoom_in_bind = new QAction("zoom in",this);
     zoom_out_bind = new QAction("zoom out",this);
+    next_page_bind = new QAction("next page",this);
+    prev_page_bind = new QAction("prev page",this);
 
     next_bind->setShortcut(QKeySequence("CTRL+n"));
     prev_bind->setShortcut(QKeySequence("CTRL+p"));
@@ -349,6 +353,8 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     prev_bind->setShortcut(QKeySequence("CTRL+p"));
     zoom_in_bind->setShortcut(QKeySequence("CTRL++"));
     zoom_out_bind->setShortcut(QKeySequence("CTRL+-"));
+    next_page_bind->setShortcut(QKeySequence(">"));
+    prev_page_bind->setShortcut(QKeySequence("<"));
 
     connect(next_bind,   &QAction::triggered,this, &FileViewer::next_file);
     connect(prev_bind,   &QAction::triggered,this, &FileViewer::prev_file);
@@ -356,6 +362,8 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(delete_bind, &QAction::triggered,this, &FileViewer::delete_file);
     connect(zoom_in_bind, &QAction::triggered,this, &FileViewer::zoom_in);
     connect(zoom_out_bind, &QAction::triggered,this, &FileViewer::zoom_out);
+    connect(next_page_bind, &QAction::triggered,this, &FileViewer::cbz_next_page);
+    connect(prev_page_bind, &QAction::triggered,this, &FileViewer::cbz_prev_page);
 
     //connect insert_bind
     addAction(next_bind);
@@ -364,6 +372,8 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     addAction(delete_bind);
     addAction(zoom_in_bind);
     addAction(zoom_out_bind);
+    addAction(next_page_bind);
+    addAction(prev_page_bind);
 
     connect(ui->fit_combo_box, &QComboBox::currentTextChanged,this, &FileViewer::update_fit);
 
@@ -413,6 +423,7 @@ void FileViewer::set_file()
     ui->cbz_buttons->setVisible(false);
     ui->image_buttons->setVisible(false);
     ui->stackedWidget->setCurrentIndex(0);
+    ui->file_tags->clear();
 
     if (viewer != nullptr){
         delete viewer;
