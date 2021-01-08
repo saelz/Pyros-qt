@@ -6,19 +6,17 @@
 
 class QHBoxLayout;
 class QVBoxLayout;
+class QBoxLayout;
 class QSettings;
 class QLineEdit;
 class QPushButton;
 class QCheckBox;
-
-namespace Ui {
-class configtab;
-}
+class QStackedWidget;
 
 class color_entry : public QObject{
     Q_OBJECT
 public:
-    color_entry(QVBoxLayout *parent,QString placeholder,
+    color_entry(QBoxLayout *parent,QString placeholder,
             QString item = "",QString hex = "");
     ~color_entry();
     QHBoxLayout *hbox;
@@ -36,6 +34,14 @@ class configtab : public QWidget
     enum settings_type{
         BOOL,
         STRING,
+        COMBO,
+    };
+
+    struct color_entry_button{
+        QPushButton *button;
+        QVBoxLayout *entry_container;
+        QString placeholder;
+        QVector <QPointer<color_entry>>   *entries;
     };
 
     struct settings_item{
@@ -48,24 +54,38 @@ class configtab : public QWidget
     QVector<QPointer<color_entry>> file_colors;
     QVector<QPointer<color_entry>> tag_colors;
 
+    QVector<color_entry_button> entry_buttons;
+    QVector<QPushButton *> config_buttons;
+    QStackedWidget *pages;
+    QVBoxLayout *button_column;
+
+    int header_size = 19;
+    int sub_header_size = 14;
+    int font_size = 12;
+
 public:
     explicit configtab(QWidget *parent = nullptr);
     ~configtab();
 
 private:
-    Ui::configtab *ui;
 
-    void create_color_entries(QVBoxLayout *layout, QString setting_gourp,QString placeholder,QVector<QPointer<color_entry>> &list, QSettings &settings);
+    QVBoxLayout *new_page(QString title);
+    void set_page();
+    void create_header(QBoxLayout *layout,QString text,int size);
+    void create_color_entries(QBoxLayout *layout,QString header, QString setting_group,QString placeholder,QVector<QPointer<color_entry>> &list);
 
-    void init_settings_entry(QString setting_name,QLineEdit *widget,QString default_str);
-    void init_settings_entry(QString setting_name,QCheckBox *widget, bool default_state);
-    void enable_all_buttons();
-    void set_tag_page();
-    void set_file_page();
-    void set_general_page();
+    void new_color_entry();
+
+    void create_checkbox_settings_entry(QBoxLayout *layout,QString
+                               display_text,QString setting_name,
+                               bool default_state);
+    void create_settings_entry(QBoxLayout *layout,
+                               QString display_text,QString setting_name,
+                               QString default_str);
+    void create_settings_entry(QBoxLayout *layout,
+                               QString display_text,QString setting_name,
+                               QStringList combo_items);
     void apply();
-    void new_color_tag();
-    void new_file_border();
     void apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entires);
 
 signals:

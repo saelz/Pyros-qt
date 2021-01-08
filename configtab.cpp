@@ -1,56 +1,80 @@
 #include "configtab.h"
-#include "ui_configtab.h"
 
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QLabel>
+#include <QComboBox>
+#include <QCheckBox>
 #include <QSettings>
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <QColorDialog>
+#include <QScrollArea>
 #include <QDebug>
-
-
-
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 
 configtab::configtab(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::configtab)
+    QWidget(parent)
 {
-    ui->setupUi(this);
-    connect(ui->tags_button,   &QPushButton::clicked,this,&configtab::set_tag_page);
-    connect(ui->files_button,  &QPushButton::clicked,this,&configtab::set_file_page);
-    connect(ui->general_button,&QPushButton::clicked,this,&configtab::set_general_page);
-    connect(ui->apply_button,  &QPushButton::clicked,this,&configtab::apply);
 
-    connect(ui->more_tag_color_button,   &QPushButton::clicked,this,&configtab::new_color_tag);
-    connect(ui->more_file_border_button, &QPushButton::clicked,this,&configtab::new_file_border);
+    QVBoxLayout *page_layout;
 
-    // GENERAL PAGE
-    QSettings settings;
-    ui->theme->setCurrentText(settings.value("theme","Default").toString());
+    QVBoxLayout *vbox = new QVBoxLayout();
+    QHBoxLayout *hbox = new QHBoxLayout();
+    QHBoxLayout *button_layout = new QHBoxLayout();
+    QPushButton *apply_button = new QPushButton("Apply");
 
-    init_settings_entry("use-tag-history",ui->use_tag_history,true);
-    init_settings_entry("use-tag-history",ui->use_tag_history,true);
-    init_settings_entry("treat-gifs-as-video",ui->use_video_play_with_gifs,false);
-    init_settings_entry("timestamp-format",ui->timestamp_format,"MM/dd/yy");
-
-    // TAG PAGE
-    create_color_entries(ui->tag_color_box,"tagcolor","Tag",tag_colors,settings);
+    button_column = new QVBoxLayout();
+    pages =  new QStackedWidget();
 
 
-    // FILE PAGE
-    create_color_entries(ui->file_border_box,"filecolor","Mime/Type",file_colors,settings);
+    vbox->addLayout(hbox);
+    vbox->addLayout(button_layout);
+    button_layout->insertStretch(-1);
+    button_layout->addWidget(apply_button);
 
-    init_settings_entry("use-interal-image-thumbnailer",ui->use_internal_image_thumbnailer,true);
-    init_settings_entry("use-interal-cbz-thumbnailer",ui->use_internal_cbz_thumbnailer,true);
-    init_settings_entry("use-exernal-thumbnailer",ui->use_external_thumbnailers,true);
+    hbox->addLayout(button_column);
+    hbox->addWidget(pages);
 
-    set_general_page();
+
+    page_layout = new_page("General");
+    {
+        create_settings_entry(page_layout,"Theme","theme",{"Default" ,"Dark Theme"});
+        create_checkbox_settings_entry(page_layout,"Use tag history","use_tag_history",true);
+        create_checkbox_settings_entry(page_layout,"Use video player for gifs","treat_gifs_as_video",false);
+        create_settings_entry(page_layout,"Timestamp format","timestamp_format","MM/dd/yy");
+        page_layout->insertStretch(-1);
+    }
+
+    page_layout = new_page("Tags");
+    {
+        create_color_entries(page_layout,"Tag Color","tagcolor","Tag",tag_colors);
+        page_layout->insertStretch(-1);
+    }
+
+    page_layout = new_page("Files");
+    {
+        create_color_entries(page_layout,"File Border Color","filecolor","Mime/Type",file_colors);
+        create_header(page_layout,"Thumbnails",sub_header_size);
+        create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer","use_interal_image-thumbnailer",true);
+        create_checkbox_settings_entry(page_layout,"Use interal cbz/zip thumbnailer","use_interal_cbz-thumbnailer",true);
+        create_checkbox_settings_entry(page_layout,"Use external thumbnailers from /usr/share/thumbnailers/","use_exernal_thumbnailer",true);
+
+        page_layout->insertStretch(-1);
+    }
+
+    button_column->insertStretch(-1);
+    config_buttons[0]->click();
+
+    setLayout(vbox);
+
+    connect(apply_button,  &QPushButton::clicked,this,&configtab::apply);
 }
 
 configtab::~configtab()
 {
-    delete ui;
-
     for(int i = 0;i < file_colors.count();i++)
         if (!file_colors[i].isNull())
             delete file_colors[i].data();
@@ -60,67 +84,160 @@ configtab::~configtab()
 }
 
 
-void configtab::create_color_entries(QVBoxLayout *layout,
-                                     QString setting_gourp,QString placeholder,QVector<QPointer<color_entry>> &list,
-                                     QSettings &settings)
+QVBoxLayout *configtab::new_page(QString title)
 {
-    settings.beginGroup(setting_gourp);
+    QPushButton *button = new QPushButton(title);
+    QScrollArea *scroll_area = new QScrollArea();
+    QVBoxLayout *layout = new QVBoxLayout();
+
+    button->setFlat(true);
+    connect(button,&QPushButton::clicked,this,&configtab::set_page);
+
+    config_buttons.push_back(button);
+    button_column->addWidget(button);
+    pages->addWidget(scroll_area);
+    scroll_area->setLayout(layout);
+    scroll_area->setFrameShadow(QFrame::Sunken);
+    scroll_area->setFrameStyle(QFrame::StyledPanel);
+
+    create_header(layout,title,header_size);
+
+    return layout;
+}
+
+void configtab::set_page()
+{
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+
+    for (int i = 0; i < config_buttons.length(); i++) {
+        if (config_buttons[i] == button){
+            config_buttons[i]->setEnabled(false);
+            pages->setCurrentIndex(i);
+        } else {
+            config_buttons[i]->setEnabled(true);
+        }
+    }
+}
+
+
+void configtab::create_header(QBoxLayout *layout,QString text, int size)
+{
+    QLabel *header = new QLabel(text);
+    QFont font = QFont();
+    font.setPointSize(size);
+    header->setFont(font);
+    layout->addWidget(header);
+    layout->insertSpacing(-1,10);
+
+}
+
+void configtab::create_color_entries(QBoxLayout *layout,QString header,
+                                     QString setting_group,QString placeholder,QVector<QPointer<color_entry>> &list)
+{
+    QFrame *frame = new QFrame();
+    QVBoxLayout *main_layout = new QVBoxLayout();
+    QVBoxLayout *entry_container = new QVBoxLayout();
+    QHBoxLayout *button_container = new QHBoxLayout();
+    QPushButton *add_button = new QPushButton("+");
+
+    create_header(main_layout,header,sub_header_size);
+    frame->setFrameStyle(QFrame::StyledPanel);
+    frame->setFrameShadow(QFrame::Raised);
+    layout->addWidget(frame);
+    frame->setLayout(main_layout);
+    main_layout->addLayout(entry_container);
+    button_container->addStretch(-1);
+    button_container->addWidget(add_button);
+    main_layout->addLayout(button_container);
+
+    entry_buttons.append({add_button,entry_container,placeholder,&list});
+    connect(add_button,&QPushButton::clicked,this,&configtab::new_color_entry);
+
+    QSettings settings;
+    settings.beginGroup(setting_group);
     QStringList entries = settings.allKeys();
     foreach(QString colored_prefix,entries){
         QColor color = settings.value(colored_prefix).value<QColor>();
-        list.append(new color_entry(layout,placeholder,colored_prefix,color.name()));
+        list.append(new color_entry(entry_container,placeholder,colored_prefix,color.name()));
     }
     settings.endGroup();
 
 }
 
-void configtab::init_settings_entry(QString setting_name,QLineEdit *widget,QString default_str)
+void configtab::new_color_entry()
+{
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+
+    foreach(color_entry_button entry_button,entry_buttons){
+        if (entry_button.button == button){
+            entry_button.entries->append(new color_entry(entry_button.entry_container,entry_button.placeholder));
+        }
+    }
+
+}
+
+void configtab::create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,QString setting_name,bool default_state)
 {
     QSettings settings;
-    widget->setText(settings.value(setting_name,default_str).toString());
-    settings_items.append({widget,setting_name,STRING});
+    QCheckBox *checkbox = new QCheckBox(display_text);
+    QFont font = QFont();
+    font.setPointSize(font_size);
+
+    checkbox->setFont(font);
+    checkbox->setChecked(settings.value(setting_name,default_state).toBool());
+
+    settings_items.append({checkbox,setting_name,BOOL});
+    layout->addWidget(checkbox);
 }
-void configtab::init_settings_entry(QString setting_name,QCheckBox *widget,bool default_state)
+
+void configtab::create_settings_entry(QBoxLayout *layout,QString display_text,QString setting_name,QString default_text)
 {
     QSettings settings;
-    widget->setChecked(settings.value(setting_name,default_state).toBool());
-    settings_items.append({widget,setting_name,BOOL});
+    QHBoxLayout *container = new QHBoxLayout();
+    QLabel *label = new QLabel(display_text+":");
+    QLineEdit *text_box = new QLineEdit();
+    QFont font = QFont();
+    font.setPointSize(font_size);
+
+    container->addWidget(label);
+    container->addStretch(-1);
+    container->addWidget(text_box);
+    label->setFont(font);
+    text_box->setText(settings.value(setting_name,default_text).toString());
+
+    settings_items.append({text_box,setting_name,STRING});
+    layout->addLayout(container);
 }
 
-void configtab::enable_all_buttons()
+
+void configtab::create_settings_entry(QBoxLayout *layout,
+                      QString display_text,QString setting_name,
+                      QStringList combo_items)
 {
-    ui->tags_button->setEnabled(true);
-    ui->files_button->setEnabled(true);
-    ui->general_button->setEnabled(true);
+    QSettings settings;
+    QHBoxLayout *container = new QHBoxLayout();
+    QLabel *label = new QLabel(display_text+":");
+    QComboBox *combobox = new QComboBox();
+    QFont font = QFont();
+    font.setPointSize(font_size);
 
-}
+    container->addWidget(label);
+    container->addStretch(-1);
+    container->addWidget(combobox);
+    label->setFont(font);
 
-void configtab::set_tag_page()
-{
-    ui->stackedWidget->setCurrentIndex(2);
-    enable_all_buttons();
-    ui->tags_button->setEnabled(false);
+    QString selected_item = settings.value(setting_name,combo_items[0]).toString();
+    combobox->addItems(combo_items);
+    combobox->setCurrentText(selected_item);
 
-}
+    settings_items.append({combobox,setting_name,COMBO});
+    layout->addLayout(container);
 
-void configtab::set_file_page()
-{
-    ui->stackedWidget->setCurrentIndex(1);
-    enable_all_buttons();
-    ui->files_button->setEnabled(false);
-}
-
-void configtab::set_general_page()
-{
-    ui->stackedWidget->setCurrentIndex(0);
-    enable_all_buttons();
-    ui->general_button->setEnabled(false);
 }
 
 void configtab::apply()
 {
     QSettings settings;
-    settings.setValue("theme",ui->theme->currentText());
 
     foreach(settings_item item,settings_items){
         QVariant value;
@@ -130,6 +247,9 @@ void configtab::apply()
         } else if (item.type == BOOL){
             QCheckBox *checkbox = qobject_cast<QCheckBox *>(item.widget);
             value = checkbox->checkState();
+        } else if (item.type == COMBO){
+            QComboBox *checkbox = qobject_cast<QComboBox *>(item.widget);
+            value = checkbox->currentText();
         }
         settings.setValue(item.setting_name,value);
     }
@@ -152,22 +272,11 @@ void configtab::apply_color_entries(QSettings &settings,QVector<QPointer<color_e
             continue;
         color_entry *entry = entries[i].data();
         QColor c = "#"+entry->color->text();
-        qDebug() << entry->entry->text() << entry->color->text();
         settings.setValue(entry->entry->text(),c);
     }
 }
 
-void configtab::new_color_tag()
-{
-        tag_colors.append(new color_entry(ui->tag_color_box,"Tag"));
-}
-
-void configtab::new_file_border()
-{
-        file_colors.append(new color_entry(ui->file_border_box,"Mime/Type"));
-}
-
-color_entry::color_entry(QVBoxLayout *parent,QString placeholder,
+color_entry::color_entry(QBoxLayout *parent,QString placeholder,
                QString item,QString hex)
 {
 

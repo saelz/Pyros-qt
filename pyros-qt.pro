@@ -53,7 +53,6 @@ HEADERS += \
 LIBS += -lpyros -lmpv
 
 FORMS += \
-    configtab.ui \
     databasecreation.ui \
     fileimport.ui \
     fileviewer.ui \

@@ -32,7 +32,7 @@ int FileModel::indexToNum(const QModelIndex &index) const
 }
 QModelIndex FileModel::numToIndex(const int num) const
 {
-    if (num == 0)
+    if (num == 0 || columnCount() == 0)
         return index(0,0);
 
     return index(num/columnCount(),num%columnCount());

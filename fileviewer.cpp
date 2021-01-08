@@ -326,24 +326,14 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
 
     set_file();
 
-
-    QAction *next_bind;
-    QAction *prev_bind;
-    QAction *insert_bind;
-    QAction *delete_bind;
-    QAction *zoom_in_bind;
-    QAction *zoom_out_bind;
-    QAction *next_page_bind;
-    QAction *prev_page_bind;
-
-    next_bind = new QAction("Next File",this);
-    prev_bind = new QAction("Prev File",this);
-    insert_bind = new QAction("Insert",this);
-    delete_bind = new QAction("delete",this);
-    zoom_in_bind = new QAction("zoom in",this);
-    zoom_out_bind = new QAction("zoom out",this);
-    next_page_bind = new QAction("next page",this);
-    prev_page_bind = new QAction("prev page",this);
+    QAction *next_bind = new QAction("Next File",this);
+    QAction *prev_bind = new QAction("Prev File",this);
+    QAction *insert_bind = new QAction("Insert",this);
+    QAction *delete_bind = new QAction("delete",this);
+    QAction *zoom_in_bind = new QAction("zoom in",this);
+    QAction *zoom_out_bind = new QAction("zoom out",this);
+    QAction *next_page_bind = new QAction("next page",this);
+    QAction *prev_page_bind = new QAction("prev page",this);
 
     next_bind->setShortcut(QKeySequence("CTRL+n"));
     prev_bind->setShortcut(QKeySequence("CTRL+p"));
@@ -365,7 +355,6 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(next_page_bind, &QAction::triggered,this, &FileViewer::cbz_next_page);
     connect(prev_page_bind, &QAction::triggered,this, &FileViewer::cbz_prev_page);
 
-    //connect insert_bind
     addAction(next_bind);
     addAction(prev_bind);
     addAction(insert_bind);
