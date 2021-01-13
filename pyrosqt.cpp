@@ -88,7 +88,7 @@ void PyrosQT::initalize_config(){
 
 void PyrosQT::load_settings(){
     QSettings settings;
-    QString theme = settings.value("theme","Default").toString();
+    QString theme = configtab::setting_value(configtab::THEME).toString();
     QPalette palette = QPalette();
 
     if (theme == "Default"){
@@ -206,9 +206,9 @@ void PyrosQT::new_viewer_tab(QVector<PyrosFile*> files,int inital_position)
 
 void PyrosQT::new_config_tab()
 {
-    configtab *ct = new configtab();
-    create_tab(ct,"Config");
-    connect(ct,&configtab::settings_changed,this,&PyrosQT::load_settings);
+    configtab *conft = new configtab();
+    create_tab(conft,"Config");
+    connect(conft,&configtab::settings_changed,this,&PyrosQT::load_settings);
 }
 
 

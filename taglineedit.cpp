@@ -1,5 +1,6 @@
 #include "pyrosdb.h"
 #include "taglineedit.h"
+#include "configtab.h"
 
 #include <QCompleter>
 #include <QAction>
@@ -11,6 +12,7 @@
 #include <pyros.h>
 
 
+using ct = configtab;
 
 void TagCompleter::update(QString text)   {
     QString comparison_text;
@@ -48,7 +50,6 @@ void TagCompleter::update(QString text)   {
 TagLineEdit::TagLineEdit(QWidget *parent) :
     QLineEdit(parent)
 {
-    QSettings settings;
     PyrosTC *ptc = PyrosTC::get();
 
     PyrosTC::all_tags_cb cb= [&](QStringList tags){
@@ -109,7 +110,7 @@ void TagLineEdit::process_tag()
     QList<QByteArray> l = tag.split('\n');
     QVector<QByteArray> tags = l.toVector();
 
-    if (settings.value("use_tag_history",true).toBool()){
+    if (ct::setting_value(ct::TAG_HISTORY).toBool()){
         foreach(QByteArray hist_tag, tags){
             if ( tag_history.count() > 1){
                 if (hist_tag != tag_history.at(1))

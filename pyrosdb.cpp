@@ -169,7 +169,6 @@ PyrosTC::~PyrosTC(){
 PyrosTC::PyrosTC()
 {
     db = nullptr;
-    QSettings settings;
 
     qRegisterMetaType<QVector<QByteArray>>("QVecByteArray");
     qRegisterMetaType<QVector<PyrosFile*>>("QVecPyrosFileptr");

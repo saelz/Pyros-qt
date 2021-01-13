@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPointer>
+#include <QVariant>
 
 class QHBoxLayout;
 class QVBoxLayout;
@@ -67,7 +68,25 @@ public:
     explicit configtab(QWidget *parent = nullptr);
     ~configtab();
 
+    enum Setting{
+        TAG_HISTORY = 0,
+        GIFS_AS_VIDEO,
+        TIMESTAMP,
+        THEME,
+        USE_INTERNAL_IMAGE_THUMBNAILER,
+        USE_CBZ_THUMBNAILER,
+        USE_EXTERNAL_THUMBNAILER,
+    };
+
+    static QVariant setting_value(Setting setting);
+    static QString setting_name(Setting setting);
+
 private:
+    struct setting{
+        QString name;
+        QVariant default_val;
+    };
+    static const setting settings[7];
 
     QVBoxLayout *new_page(QString title);
     void set_page();
@@ -76,15 +95,9 @@ private:
 
     void new_color_entry();
 
-    void create_checkbox_settings_entry(QBoxLayout *layout,QString
-                               display_text,QString setting_name,
-                               bool default_state);
-    void create_settings_entry(QBoxLayout *layout,
-                               QString display_text,QString setting_name,
-                               QString default_str);
-    void create_settings_entry(QBoxLayout *layout,
-                               QString display_text,QString setting_name,
-                               QStringList combo_items);
+    void create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
+    void create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
+    void create_combo_settings_entry(QBoxLayout *layout, QString display_text,Setting set, QStringList combo_items);
     void apply();
     void apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entires);
 

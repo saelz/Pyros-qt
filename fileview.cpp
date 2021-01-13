@@ -2,6 +2,7 @@
 #include "fileview.h"
 #include "pyrosqt.h"
 #include "pyrosdb.h"
+#include "configtab.h"
 
 #include <QWindow>
 #include <QStatusBar>
@@ -17,6 +18,7 @@
 
 #include <iostream>
 
+using ct = configtab;
 
 class FileDelegate : public QStyledItemDelegate {
   public:

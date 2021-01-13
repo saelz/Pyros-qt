@@ -14,6 +14,15 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+const configtab::setting configtab::settings[] = {
+    {"use_tag_history",true},
+    {"treat_gifs_as_video",false},
+    {"timestamp_format","MM/dd/yy"},
+    {"theme","Default"},
+    {"use_interal_image-thumbnailer",true},
+    {"use_interal_cbz-thumbnailer",true},
+    {"use_exernal_thumbnailer",true},
+};
 
 configtab::configtab(QWidget *parent) :
     QWidget(parent)
@@ -41,10 +50,10 @@ configtab::configtab(QWidget *parent) :
 
     page_layout = new_page("General");
     {
-        create_settings_entry(page_layout,"Theme","theme",{"Default" ,"Dark Theme"});
-        create_checkbox_settings_entry(page_layout,"Use tag history","use_tag_history",true);
-        create_checkbox_settings_entry(page_layout,"Use video player for gifs","treat_gifs_as_video",false);
-        create_settings_entry(page_layout,"Timestamp format","timestamp_format","MM/dd/yy");
+        create_combo_settings_entry(page_layout,"Theme",THEME,{"Default" ,"Dark Theme"});
+        create_checkbox_settings_entry(page_layout,"Use tag history",TAG_HISTORY);
+        create_checkbox_settings_entry(page_layout,"Use video player for gifs",GIFS_AS_VIDEO);
+        create_lineedit_settings_entry(page_layout,"Timestamp format",TIMESTAMP);
         page_layout->insertStretch(-1);
     }
 
@@ -58,9 +67,9 @@ configtab::configtab(QWidget *parent) :
     {
         create_color_entries(page_layout,"File Border Color","filecolor","Mime/Type",file_colors);
         create_header(page_layout,"Thumbnails",sub_header_size);
-        create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer","use_interal_image-thumbnailer",true);
-        create_checkbox_settings_entry(page_layout,"Use interal cbz/zip thumbnailer","use_interal_cbz-thumbnailer",true);
-        create_checkbox_settings_entry(page_layout,"Use external thumbnailers from /usr/share/thumbnailers/","use_exernal_thumbnailer",true);
+        create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
+        create_checkbox_settings_entry(page_layout,"Use interal cbz/zip thumbnailer",USE_CBZ_THUMBNAILER);
+        create_checkbox_settings_entry(page_layout,"Use external thumbnailers from /usr/share/thumbnailers/",USE_EXTERNAL_THUMBNAILER);
 
         page_layout->insertStretch(-1);
     }
@@ -70,7 +79,7 @@ configtab::configtab(QWidget *parent) :
 
     setLayout(vbox);
 
-    connect(apply_button,  &QPushButton::clicked,this,&configtab::apply);
+    connect(apply_button, &QPushButton::clicked,this,&configtab::apply);
 }
 
 configtab::~configtab()
@@ -83,6 +92,16 @@ configtab::~configtab()
             delete tag_colors[i].data();
 }
 
+QVariant configtab::setting_value(Setting setting)
+{
+    QSettings set;
+    return set.value(settings[setting].name,settings[setting].default_val);
+}
+
+QString configtab::setting_name(Setting setting)
+{
+    return settings[setting].name;
+}
 
 QVBoxLayout *configtab::new_page(QString title)
 {
@@ -176,23 +195,21 @@ void configtab::new_color_entry()
 
 }
 
-void configtab::create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,QString setting_name,bool default_state)
+void configtab::create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set)
 {
-    QSettings settings;
     QCheckBox *checkbox = new QCheckBox(display_text);
     QFont font = QFont();
     font.setPointSize(font_size);
 
     checkbox->setFont(font);
-    checkbox->setChecked(settings.value(setting_name,default_state).toBool());
+    checkbox->setChecked(setting_value(set).toBool());
 
-    settings_items.append({checkbox,setting_name,BOOL});
+    settings_items.append({checkbox,setting_name(set),BOOL});
     layout->addWidget(checkbox);
 }
 
-void configtab::create_settings_entry(QBoxLayout *layout,QString display_text,QString setting_name,QString default_text)
+void configtab::create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set)
 {
-    QSettings settings;
     QHBoxLayout *container = new QHBoxLayout();
     QLabel *label = new QLabel(display_text+":");
     QLineEdit *text_box = new QLineEdit();
@@ -203,18 +220,15 @@ void configtab::create_settings_entry(QBoxLayout *layout,QString display_text,QS
     container->addStretch(-1);
     container->addWidget(text_box);
     label->setFont(font);
-    text_box->setText(settings.value(setting_name,default_text).toString());
+    text_box->setText(setting_value(set).toString());
 
-    settings_items.append({text_box,setting_name,STRING});
+    settings_items.append({text_box,setting_name(set),STRING});
     layout->addLayout(container);
 }
 
 
-void configtab::create_settings_entry(QBoxLayout *layout,
-                      QString display_text,QString setting_name,
-                      QStringList combo_items)
+void configtab::create_combo_settings_entry(QBoxLayout *layout,QString display_text,Setting set,QStringList combo_items)
 {
-    QSettings settings;
     QHBoxLayout *container = new QHBoxLayout();
     QLabel *label = new QLabel(display_text+":");
     QComboBox *combobox = new QComboBox();
@@ -226,11 +240,11 @@ void configtab::create_settings_entry(QBoxLayout *layout,
     container->addWidget(combobox);
     label->setFont(font);
 
-    QString selected_item = settings.value(setting_name,combo_items[0]).toString();
+    QString selected_item = setting_value(set).toString();
     combobox->addItems(combo_items);
     combobox->setCurrentText(selected_item);
 
-    settings_items.append({combobox,setting_name,COMBO});
+    settings_items.append({combobox,setting_name(set),COMBO});
     layout->addLayout(container);
 
 }

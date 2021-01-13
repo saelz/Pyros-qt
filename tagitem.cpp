@@ -1,5 +1,8 @@
 #include "tagitem.h"
+#include "configtab.h"
 #include <QSettings>
+
+using ct = configtab;
 
 TagItem::TagItem(const QVariant &data, TagItem *parent)
     : tag(data),

@@ -3,6 +3,10 @@
 
 #include "searchtab.h"
 #include "ui_searchtab.h"
+#include "configtab.h"
+
+
+using ct = configtab;
 
 SearchTab::SearchTab(QWidget *parent) :
     QWidget(parent),
@@ -229,7 +233,7 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
 
         ui->data_file_mime->setText(last_pFile->mime);
         ui->data_file_size->setText(locale.formattedDataSize(last_pFile->file_size));
-        ui->data_file_time->setText(timestamp.toString(settings.value("timestamp_format","MM/dd/yy").toString()));
+        ui->data_file_time->setText(timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString()));
         ui->file_tags->setTagsFromFile(last_pFile);
     } else {
         ui->file_tags->clear();

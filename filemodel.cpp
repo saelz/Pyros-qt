@@ -1,5 +1,6 @@
 #include "filemodel.h"
 #include "zip_reader.h"
+#include "configtab.h"
 
 #include <QPixmap>
 #include <QImage>
@@ -7,6 +8,8 @@
 #include <functional>
 #include <QProcess>
 #include <QPainter>
+
+using ct = configtab;
 
 QVector<struct FileModel::external_thumbnailer> FileModel::loaded_thumbnailers;
 
@@ -266,15 +269,15 @@ FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
     if (pix1.load(imgPath)){
         item.thumbnail = pix1;
     } else {
-        if (settings.value("use-interal-image-thumbnailer",true).toBool() &&item.mime.startsWith("image/")){
+        if (ct::setting_value(ct::USE_INTERNAL_IMAGE_THUMBNAILER).toBool() &&item.mime.startsWith("image/")){
             item.thumbnail = FileModel::internal_image_thumbnailer(item,imgPath);
 
-        } else if (settings.value("use-interal-cbz-thumbnailer",true).toBool() &&
+        } else if (ct::setting_value(ct::USE_CBZ_THUMBNAILER).toBool() &&
                (!item.mime.compare("application/vnd.comicbook+zip") ||
                 !item.mime.compare("application/zip"))){
             item.thumbnail = FileModel::internal_cbz_thumbnailer(item,imgPath);
 
-        } else if (settings.value("use-exernal-thumbnailer",true).toBool()){
+        } else if (ct::setting_value(ct::USE_EXTERNAL_THUMBNAILER).toBool()){
             item.thumbnail = FileModel::external_thumbnailer(item,imgPath);
         }
 

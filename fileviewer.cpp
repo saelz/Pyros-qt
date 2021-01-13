@@ -6,6 +6,7 @@
 
 #include "tagtreemodel.h"
 #include "zip_reader.h"
+#include "configtab.h"
 
 #include <QImageReader>
 #include <QMovie>
@@ -15,6 +16,7 @@
 #include <QSettings>
 #include <QScrollBar>
 
+using ct = configtab;
 
 FileViewer::Viewer::Viewer(QLabel *label) : m_label(label){}
 
@@ -429,7 +431,7 @@ void FileViewer::set_file()
 
 
     if (!strcmp(m_pFile->mime,"image/gif") &&
-            !settings.value("treat_gifs_as_video",false).toBool()){
+            !ct::setting_value(ct::GIFS_AS_VIDEO).toBool()){
         ui->image_buttons->setVisible(true);
         viewer = new Movie_Viewer(ui->img_label);
 
