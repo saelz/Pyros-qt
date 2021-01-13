@@ -19,24 +19,14 @@ PyrosQT::PyrosQT(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QAction *new_stab = new QAction("New Search Tab",this);
-    QAction *new_itab = new QAction("New Import Tab",this);
-    QAction *close_tab = new QAction("Close Tab",this);
-
-
-    new_stab->setShortcut(QKeySequence("CTRL+t"));
-    new_itab->setShortcut(QKeySequence("CTRL+i"));
-    close_tab->setShortcut(QKeySequence("CTRL+w"));
-
-    connect(this,&PyrosQT::files_removed,this,&PyrosQT::hide_files);
+    QAction *new_stab = configtab::create_binding(configtab::KEY_NEW_SEARCH,"New Search Tab",this);
+    QAction *new_itab = configtab::create_binding(configtab::KEY_NEW_IMPORT,"New Import Tab",this);
+    QAction *close_tab = configtab::create_binding(configtab::KEY_CLOSE_TAB,"Close Tab",this);
 
     connect(new_stab, &QAction::triggered,this, &PyrosQT::new_search_tab);
     connect(new_itab, &QAction::triggered,this, &PyrosQT::new_import_tab);
     connect(close_tab,&QAction::triggered,this, &PyrosQT::remove_tab_current);
 
-    addAction(new_itab);
-    addAction(new_stab);
-    addAction(close_tab);
 
     initalize_config();
     connect(ui->actionImport_Files,  &QAction::triggered,this, &PyrosQT::new_import_tab);

@@ -91,7 +91,6 @@ FileView::FileView(QWidget *parent) :
 FileView::~FileView()
 {
 
-    //for( char *t : m_tags) delete[] t;
     delete file_model;
     delete contextMenu;
     delete fd;

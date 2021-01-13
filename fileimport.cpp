@@ -2,12 +2,15 @@
 #include "searchtab.h"
 #include "ui_fileimport.h"
 #include "pyrosdb.h"
+#include "configtab.h"
 
 #include <QDebug>
 #include <QFileDialog>
 #include <QMenu>
 #include <QStandardItemModel>
 #include <QDropEvent>
+
+using ct = configtab;
 
 QString FileImport::starting_dir = QDir::home().path();
 
@@ -16,6 +19,9 @@ FileImport::FileImport(QWidget *parent) :
     ui(new Ui::FileImport)
 {
     ui->setupUi(this);
+
+    QAction *insert_bind = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"Insert",this);
+    connect(insert_bind, &QAction::triggered,this, &FileImport::select_tag_bar);
 
     QStandardItemModel *model = new QStandardItemModel(0,1);
     ui->selected_files->setModel(model);
@@ -159,3 +165,7 @@ void FileImport::import_files()
 
 }
 
+void FileImport::select_tag_bar()
+{
+    ui->lineEdit->setFocus(Qt::OtherFocusReason);
+}

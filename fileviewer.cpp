@@ -328,25 +328,15 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
 
     set_file();
 
-    QAction *next_bind = new QAction("Next File",this);
-    QAction *prev_bind = new QAction("Prev File",this);
-    QAction *insert_bind = new QAction("Insert",this);
-    QAction *delete_bind = new QAction("delete",this);
-    QAction *zoom_in_bind = new QAction("zoom in",this);
-    QAction *zoom_out_bind = new QAction("zoom out",this);
-    QAction *next_page_bind = new QAction("next page",this);
-    QAction *prev_page_bind = new QAction("prev page",this);
 
-    next_bind->setShortcut(QKeySequence("CTRL+n"));
-    prev_bind->setShortcut(QKeySequence("CTRL+p"));
-    insert_bind->setShortcut(QKeySequence("i"));
-    delete_bind->setShortcut(QKeySequence("CTRL+del"));
-    next_bind->setShortcut(QKeySequence("CTRL+n"));
-    prev_bind->setShortcut(QKeySequence("CTRL+p"));
-    zoom_in_bind->setShortcut(QKeySequence("CTRL++"));
-    zoom_out_bind->setShortcut(QKeySequence("CTRL+-"));
-    next_page_bind->setShortcut(QKeySequence(">"));
-    prev_page_bind->setShortcut(QKeySequence("<"));
+    QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
+    QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",this);
+    QAction *insert_bind = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"Insert",this);
+    QAction *delete_bind = ct::create_binding(ct::KEY_DELETE_FILE,"Delete",this);
+    QAction *zoom_in_bind = ct::create_binding(ct::KEY_ZOOM_IN,"Zoom in",this);
+    QAction *zoom_out_bind = ct::create_binding(ct::KEY_ZOOM_OUT,"Zoom out",this);
+    QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",this);
+    QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",this);
 
     connect(next_bind,   &QAction::triggered,this, &FileViewer::next_file);
     connect(prev_bind,   &QAction::triggered,this, &FileViewer::prev_file);
@@ -357,14 +347,6 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(next_page_bind, &QAction::triggered,this, &FileViewer::cbz_next_page);
     connect(prev_page_bind, &QAction::triggered,this, &FileViewer::cbz_prev_page);
 
-    addAction(next_bind);
-    addAction(prev_bind);
-    addAction(insert_bind);
-    addAction(delete_bind);
-    addAction(zoom_in_bind);
-    addAction(zoom_out_bind);
-    addAction(next_page_bind);
-    addAction(prev_page_bind);
 
     connect(ui->fit_combo_box, &QComboBox::currentTextChanged,this, &FileViewer::update_fit);
 

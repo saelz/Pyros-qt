@@ -37,6 +37,8 @@ private slots:
     void dragEnterEvent(QDragEnterEvent* event);
 
     void create_file_context_menu(const QPoint &point);
+
+    void select_tag_bar();
 signals:
     void new_search(QVector<PyrosFile*>);
     void delete_self(QWidget*);

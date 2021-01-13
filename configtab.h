@@ -45,6 +45,8 @@ class configtab : public QWidget
         QVector <QPointer<color_entry>>   *entries;
     };
 
+
+
     struct settings_item{
         QWidget *widget;
         QString setting_name;
@@ -76,17 +78,41 @@ public:
         USE_INTERNAL_IMAGE_THUMBNAILER,
         USE_CBZ_THUMBNAILER,
         USE_EXTERNAL_THUMBNAILER,
+        KEY_NEW_SEARCH,
+        KEY_NEW_IMPORT,
+        KEY_FOCUS_TAG_BAR,
+        KEY_INVERT_SELECTION,
+        KEY_FOCUS_SEARCH_BAR,
+        KEY_FOCUS_FILE_GRID,
+        KEY_NEXT_FILE,
+        KEY_PREV_FILE,
+        KEY_ZOOM_IN,
+        KEY_ZOOM_OUT,
+        KEY_NEXT_PAGE,
+        KEY_PREV_PAGE,
+        KEY_DELETE_FILE,
+        KEY_CLOSE_TAB,
+        KEY_REFRESH,
     };
 
     static QVariant setting_value(Setting setting);
     static QString setting_name(Setting setting);
+    static QAction *create_binding(Setting setting,QString name,QWidget *widget);
 
 private:
+    struct binding{
+        const QPointer<QAction> action;
+        Setting set;
+    };
+
     struct setting{
         QString name;
         QVariant default_val;
     };
-    static const setting settings[7];
+
+    static const setting settings[];
+
+    static QVector<binding> active_bindings;
 
     QVBoxLayout *new_page(QString title);
     void set_page();
@@ -99,6 +125,7 @@ private:
     void create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
     void create_combo_settings_entry(QBoxLayout *layout, QString display_text,Setting set, QStringList combo_items);
     void apply();
+    void update_bindings();
     void apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entires);
 
 signals:

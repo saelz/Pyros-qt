@@ -48,29 +48,17 @@ void SearchTab::init()
 
     ui->file_tags->append_search_options_to_contenxt_menu();
 
-    QAction *refresh_bind = new QAction("refresh",this);
-    QAction *search_bind = new QAction("insert search",this);
-    QAction *tagbar_bind = new QAction("insert tagbar",this);
-    QAction *invert_bind = new QAction("invert tagbox",this);
-    QAction *fileview_bind = new QAction("select fileview",this);
-
-    refresh_bind->setShortcut(QKeySequence("CTRL+r"));
-    search_bind->setShortcut(QKeySequence("a"));
-    tagbar_bind->setShortcut(QKeySequence("i"));
-    invert_bind->setShortcut(QKeySequence("SHIFT+i"));
-    fileview_bind->setShortcut(QKeySequence("CTRL+f"));
+    QAction *refresh_bind  = ct::create_binding(ct::KEY_REFRESH,"refresh",this);
+    QAction *search_bind   = ct::create_binding(ct::KEY_FOCUS_SEARCH_BAR,"insert search",this);
+    QAction *tagbar_bind   = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"insert tagbar",this);
+    QAction *invert_bind   = ct::create_binding(ct::KEY_INVERT_SELECTION,"invert tagbox",this);
+    QAction *fileview_bind = ct::create_binding(ct::KEY_FOCUS_FILE_GRID,"select fileview",this);
 
     connect(refresh_bind, &QAction::triggered,ui->file_view, &FileView::refresh);
     connect(search_bind,  &QAction::triggered,this, &SearchTab::select_search_bar);
     connect(tagbar_bind,  &QAction::triggered,this, &SearchTab::select_tag_bar);
     connect(invert_bind,  &QAction::triggered,ui->file_view, &FileView::invertSelection);
     connect(fileview_bind,&QAction::triggered,this, &SearchTab::select_file_view);
-
-    addAction(refresh_bind);
-    addAction(search_bind);
-    addAction(tagbar_bind);
-    addAction(invert_bind);
-    addAction(fileview_bind);
 
     connect(ui->search_button, &QPushButton::released,ui->searchbar, &TagLineEdit::process_tag);
 

@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QAction>
 
 const configtab::setting configtab::settings[] = {
     {"use_tag_history",true},
@@ -22,7 +23,24 @@ const configtab::setting configtab::settings[] = {
     {"use_interal_image-thumbnailer",true},
     {"use_interal_cbz-thumbnailer",true},
     {"use_exernal_thumbnailer",true},
+    {"keybind/new-search-tab","CTRL+t"},
+    {"keybind/new-import-tab","CTRL+i"},
+    {"keybind/focus-tag-bar","i"},
+    {"keybind/invert-selection","SHIFT+i"},
+    {"keybind/focus-search-bar","a"},
+    {"keybind/focus-file-grid","CTRL+f"},
+    {"keybind/next-file","CTRL+n"},
+    {"keybind/prev-file","CTRL+p"},
+    {"keybind/zoom-in","CTRL++"},
+    {"keybind/zoom-out","CTRL+-"},
+    {"keybind/next-page",">"},
+    {"keybind/prev-page","<"},
+    {"keybind/delete-file","CTRL+del"},
+    {"keybind/close-tab","CTRL+w"},
+    {"keybind/refresh","CTRL+r"}
 };
+
+QVector<configtab::binding> configtab::active_bindings;
 
 configtab::configtab(QWidget *parent) :
     QWidget(parent)
@@ -73,6 +91,31 @@ configtab::configtab(QWidget *parent) :
 
         page_layout->insertStretch(-1);
     }
+    page_layout = new_page("Key Binds");
+    {
+        create_lineedit_settings_entry(page_layout,"New Search tab",KEY_NEW_SEARCH);
+        create_lineedit_settings_entry(page_layout,"New Import tab",KEY_NEW_IMPORT);
+        create_lineedit_settings_entry(page_layout,"Focus tag bar",KEY_FOCUS_TAG_BAR);
+        create_lineedit_settings_entry(page_layout,"Delete file",KEY_DELETE_FILE);
+        create_lineedit_settings_entry(page_layout,"Close Tab",KEY_CLOSE_TAB);
+
+        create_header(page_layout,"Search",sub_header_size);
+        create_lineedit_settings_entry(page_layout,"Invert file selection",KEY_INVERT_SELECTION);
+        create_lineedit_settings_entry(page_layout,"Focus search bar",KEY_FOCUS_SEARCH_BAR);
+        create_lineedit_settings_entry(page_layout,"Focus file grid",KEY_FOCUS_FILE_GRID);
+        create_lineedit_settings_entry(page_layout,"Refresh",KEY_REFRESH);
+
+        create_header(page_layout,"File Viewer",sub_header_size);
+        create_lineedit_settings_entry(page_layout,"Next file",KEY_NEXT_FILE);
+        create_lineedit_settings_entry(page_layout,"Previous file",KEY_PREV_FILE);
+        create_lineedit_settings_entry(page_layout,"Zoom in",KEY_ZOOM_IN);
+        create_lineedit_settings_entry(page_layout,"Zoom out",KEY_ZOOM_OUT);
+        create_lineedit_settings_entry(page_layout,"Next page",KEY_NEXT_PAGE);
+        create_lineedit_settings_entry(page_layout,"Previous page",KEY_PREV_PAGE);
+
+        page_layout->insertStretch(-1);
+    }
+
 
     button_column->insertStretch(-1);
     config_buttons[0]->click();
@@ -101,6 +144,15 @@ QVariant configtab::setting_value(Setting setting)
 QString configtab::setting_name(Setting setting)
 {
     return settings[setting].name;
+}
+
+QAction *configtab::create_binding(Setting set,QString name,QWidget *widget)
+{
+    QAction *action = new QAction(name,widget);
+    action->setShortcut(QKeySequence(setting_value(set).toString()));
+    widget->addAction(action);
+    active_bindings.push_back({action,set});
+    return action;
 }
 
 QVBoxLayout *configtab::new_page(QString title)
@@ -145,8 +197,9 @@ void configtab::create_header(QBoxLayout *layout,QString text, int size)
     QFont font = QFont();
     font.setPointSize(size);
     header->setFont(font);
+    layout->insertSpacing(-1,8);
     layout->addWidget(header);
-    layout->insertSpacing(-1,10);
+    layout->insertSpacing(-1,3);
 
 }
 
@@ -217,8 +270,8 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout,QString displa
     font.setPointSize(font_size);
 
     container->addWidget(label);
-    container->addStretch(-1);
     container->addWidget(text_box);
+    //container->addStretch(-1);
     label->setFont(font);
     text_box->setText(setting_value(set).toString());
 
@@ -275,8 +328,21 @@ void configtab::apply()
     apply_color_entries(settings,file_colors);
     settings.endGroup();
 
+    update_bindings();
 
     emit settings_changed();
+}
+
+void configtab::update_bindings()
+{
+    for (int i = active_bindings.length()-1; i >= 0; i--) {
+        if (active_bindings[i].action.isNull()){
+            active_bindings.remove(i);
+        } else {
+            active_bindings[i].action->setShortcut(QKeySequence(setting_value(active_bindings[i].set).toString()));
+        }
+    }
+
 }
 
 void configtab::apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entries){
