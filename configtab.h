@@ -13,6 +13,7 @@ class QLineEdit;
 class QPushButton;
 class QCheckBox;
 class QStackedWidget;
+class QValidator;
 
 class color_entry : public QObject{
     Q_OBJECT
@@ -31,46 +32,8 @@ public slots:
 class configtab : public QWidget
 {
     Q_OBJECT
-
-    enum settings_type{
-        BOOL,
-        STRING,
-        COMBO,
-    };
-
-    struct color_entry_button{
-        QPushButton *button;
-        QVBoxLayout *entry_container;
-        QString placeholder;
-        QVector <QPointer<color_entry>>   *entries;
-    };
-
-
-
-    struct settings_item{
-        QWidget *widget;
-        QString setting_name;
-        settings_type type;
-    };
-    QVector<settings_item> settings_items;
-
-    QVector<QPointer<color_entry>> file_colors;
-    QVector<QPointer<color_entry>> tag_colors;
-
-    QVector<color_entry_button> entry_buttons;
-    QVector<QPushButton *> config_buttons;
-    QStackedWidget *pages;
-    QVBoxLayout *button_column;
-
-    int header_size = 19;
-    int sub_header_size = 14;
-    int font_size = 12;
-
 public:
-    explicit configtab(QWidget *parent = nullptr);
-    ~configtab();
-
-    enum Setting{
+        enum Setting{
         TAG_HISTORY = 0,
         GIFS_AS_VIDEO,
         TIMESTAMP,
@@ -93,7 +56,49 @@ public:
         KEY_DELETE_FILE,
         KEY_CLOSE_TAB,
         KEY_REFRESH,
+        THUMBNAIL_SIZE,
     };
+private:
+
+    enum settings_type{
+        BOOL,
+        STRING,
+        COMBO,
+    };
+
+    struct color_entry_button{
+        QPushButton *button;
+        QVBoxLayout *entry_container;
+        QString placeholder;
+        QVector <QPointer<color_entry>>   *entries;
+    };
+
+
+
+    struct settings_item{
+        QWidget *widget;
+        settings_type type;
+        Setting setting;
+    };
+    QVector<settings_item> settings_items;
+
+    QVector<QPointer<color_entry>> file_colors;
+    QVector<QPointer<color_entry>> tag_colors;
+
+    QVector<color_entry_button> entry_buttons;
+    QVector<QPushButton *> config_buttons;
+    QStackedWidget *pages;
+    QVBoxLayout *button_column;
+
+    int header_size = 19;
+    int sub_header_size = 14;
+    int font_size = 12;
+
+public:
+    explicit configtab(QWidget *parent = nullptr);
+    ~configtab();
+
+
 
     static QVariant setting_value(Setting setting);
     static QString setting_name(Setting setting);
@@ -108,6 +113,7 @@ private:
     struct setting{
         QString name;
         QVariant default_val;
+        QValidator*validator;
     };
 
     static const setting settings[];

@@ -347,7 +347,7 @@ void FileView::get_visible()
     QRect rec = viewport()->rect();
     QModelIndex topLeft = indexAt(rec.topLeft());
 
-    file_model->load_thumbnails(topLeft,height()/256);
+    file_model->load_thumbnails(topLeft,height()/ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
 }
 
 void FileView::regenerate_thumbnail()
@@ -357,14 +357,14 @@ void FileView::regenerate_thumbnail()
     foreach(QModelIndex index,indexes){
         PyrosFile *pFile = file(index);
         if (pFile != nullptr)
-            FileModel::delete_thumbnail(file_model->file(index)->path);
+            FileModel::delete_thumbnail(file_model->file(index)->hash);
     }
     file_model->load_thumbnails(indexes);
 }
 
 
 void FileView::resizeEvent(QResizeEvent *event){
-    int columns = event->size().width()/256;
+    int columns = event->size().width()/ct::setting_value(ct::THUMBNAIL_SIZE).toInt();
     int old_columns = file_model->columnCount();
 
 
@@ -385,7 +385,7 @@ void FileView::resizeEvent(QResizeEvent *event){
 
     file_model->setColumnCount(columns);
     for (int i = 0; i < columns; ++i)
-        setColumnWidth(i,event->size().width()%256 /columns+256);
+        setColumnWidth(i,event->size().width()%ct::setting_value(ct::THUMBNAIL_SIZE).toInt() /columns+ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
 
 
     QTableView::resizeEvent(event);
@@ -398,7 +398,7 @@ void FileView::resizeEvent(QResizeEvent *event){
         if (vscroll->value() > 0){
             QModelIndex new_pos = file_model->numToIndex(center_file_index);
             if (center.row() != new_pos.row())
-                vscroll->setValue(256*(new_pos.row())-excess);
+                vscroll->setValue(ct::setting_value(ct::THUMBNAIL_SIZE).toInt()*(new_pos.row())-excess);
         }
 
         //updates file selection

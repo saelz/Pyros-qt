@@ -54,6 +54,15 @@ void SearchTab::init()
     QAction *invert_bind   = ct::create_binding(ct::KEY_INVERT_SELECTION,"invert tagbox",this);
     QAction *fileview_bind = ct::create_binding(ct::KEY_FOCUS_FILE_GRID,"select fileview",this);
 
+    QHeaderView *vheader = ui->file_view->verticalHeader();
+    QHeaderView *hheader = ui->file_view->horizontalHeader();
+
+    vheader->setMinimumSectionSize(ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
+    vheader->setDefaultSectionSize(ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
+
+    hheader->setMinimumSectionSize(ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
+    hheader->setDefaultSectionSize(ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
+
     connect(refresh_bind, &QAction::triggered,ui->file_view, &FileView::refresh);
     connect(search_bind,  &QAction::triggered,this, &SearchTab::select_search_bar);
     connect(tagbar_bind,  &QAction::triggered,this, &SearchTab::select_tag_bar);

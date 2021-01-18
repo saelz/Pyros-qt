@@ -37,7 +37,7 @@ public:
     static QVariant internal_cbz_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
     static QVariant external_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
 
-    static void delete_thumbnail(QByteArray filepath);
+    static void delete_thumbnail(QByteArray hash);
 
     static FileModel::thumbnail_item generateThumbnail (thumbnail_item item);
 

@@ -1,6 +1,7 @@
 #include "filemodel.h"
 #include "zip_reader.h"
 #include "configtab.h"
+#include "pyrosdb.h"
 
 #include <QPixmap>
 #include <QImage>
@@ -35,10 +36,13 @@ int FileModel::indexToNum(const QModelIndex &index) const
 }
 QModelIndex FileModel::numToIndex(const int num) const
 {
-    if (num == 0 || columnCount() == 0)
-        return index(0,0);
+    int cols = columnCount();
 
-    return index(num/columnCount(),num%columnCount());
+    if (num > 0 && cols > 0)
+        return index(num/cols,num%cols);
+
+    return index(0,0);
+
 }
 
 QVector<FileModel::file_item> FileModel::files() const
@@ -162,7 +166,7 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
                 cmd.replace("%i",item.path);
                 cmd.replace("%u",item.path);
                 cmd.replace("%o",thumbpath);
-                cmd.replace("%s","256");
+                cmd.replace("%s",ct::setting_value(ct::THUMBNAIL_SIZE).toString());
 
                 QStringList cmd_list = cmd.split(' ');
                 cmd = cmd_list.at(0);
@@ -181,9 +185,16 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
     return QVariant();
 }
 
-void FileModel::delete_thumbnail(QByteArray filepath){
-    QFile file (filepath+".256");
-    file.remove();
+void FileModel::delete_thumbnail(QByteArray hash){
+    QString database_path = PyrosTC::get()->db_path()+"/db/"+hash.left(2)+"/";
+    QDir directory(database_path);
+    QStringList nameFilter(hash+".*.thumb");
+    QStringList thumbnails = directory.entryList(nameFilter);
+
+    foreach(QString filepath,thumbnails){
+        QFile file(database_path+filepath);
+        file.remove();
+    }
 }
 
 QVariant FileModel::internal_image_thumbnailer(thumbnail_item item,QByteArray& thumbpath){
@@ -191,9 +202,9 @@ QVariant FileModel::internal_image_thumbnailer(thumbnail_item item,QByteArray& t
     if (pix.load(item.path)){
         QPixmap newPix;
         if (pix.height() > pix.width())
-            newPix = pix.scaledToHeight(256,Qt::SmoothTransformation);
+            newPix = pix.scaledToHeight(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
         else
-            newPix = pix.scaledToWidth(256,Qt::SmoothTransformation);
+            newPix = pix.scaledToWidth(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
 
         newPix.save(thumbpath, "PNG");
         return QVariant(newPix);
@@ -226,7 +237,7 @@ QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thu
         if (!img.loadFromData(data))
             continue;
 
-        img = img.scaledToHeight(256,Qt::SmoothTransformation);
+        img = img.scaledToHeight(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
         if (!img.isNull()){
             if (top_file_width == -1)
                 top_file_width = img.width();
@@ -234,12 +245,12 @@ QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thu
         }
     }
 
-    QImage surface = QImage(256,256,QImage::Format_ARGB32_Premultiplied);
+    QImage surface = QImage(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),QImage::Format_ARGB32_Premultiplied);
     surface.fill(Qt::transparent);
     QPainter p(&surface);
     p.setCompositionMode(QPainter::CompositionMode_Source);
 
-    hspacing = 256-top_file_width;
+    hspacing = ct::setting_value(ct::THUMBNAIL_SIZE).toInt()-top_file_width;
     if (pages.length() > 1)
         hspacing /= pages.length()-1;
 
@@ -262,9 +273,9 @@ QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thu
 FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
     QPixmap pix1;
 
-    QByteArray imgPath(item.path);
-    QSettings settings;
-    imgPath += ".256";
+    QByteArray imgPath(item.path+".");
+    imgPath += ct::setting_value(ct::THUMBNAIL_SIZE).toString().toUtf8();
+    imgPath += ".thumb";
 
     if (pix1.load(imgPath)){
         item.thumbnail = pix1;

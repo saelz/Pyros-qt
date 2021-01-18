@@ -16,29 +16,31 @@
 #include <QAction>
 
 const configtab::setting configtab::settings[] = {
-    {"use_tag_history",true},
-    {"treat_gifs_as_video",false},
-    {"timestamp_format","MM/dd/yy"},
-    {"theme","Default"},
-    {"use_interal_image-thumbnailer",true},
-    {"use_interal_cbz-thumbnailer",true},
-    {"use_exernal_thumbnailer",true},
-    {"keybind/new-search-tab","CTRL+t"},
-    {"keybind/new-import-tab","CTRL+i"},
-    {"keybind/focus-tag-bar","i"},
-    {"keybind/invert-selection","SHIFT+i"},
-    {"keybind/focus-search-bar","a"},
-    {"keybind/focus-file-grid","CTRL+f"},
-    {"keybind/next-file","CTRL+n"},
-    {"keybind/prev-file","CTRL+p"},
-    {"keybind/zoom-in","CTRL++"},
-    {"keybind/zoom-out","CTRL+-"},
-    {"keybind/next-page",">"},
-    {"keybind/prev-page","<"},
-    {"keybind/delete-file","CTRL+del"},
-    {"keybind/close-tab","CTRL+w"},
-    {"keybind/refresh","CTRL+r"}
+    {"use_tag_history",true,nullptr},
+    {"treat_gifs_as_video",false,nullptr},
+    {"timestamp_format","MM/dd/yy",nullptr},
+    {"theme","Default",nullptr},
+    {"use_interal_image-thumbnailer",true,nullptr},
+    {"use_interal_cbz-thumbnailer",true,nullptr},
+    {"use_exernal_thumbnailer",true,nullptr},
+    {"keybind/new-search-tab","CTRL+t",nullptr},
+    {"keybind/new-import-tab","CTRL+i",nullptr},
+    {"keybind/focus-tag-bar","i",nullptr},
+    {"keybind/invert-selection","SHIFT+i",nullptr},
+    {"keybind/focus-search-bar","a",nullptr},
+    {"keybind/focus-file-grid","CTRL+f",nullptr},
+    {"keybind/next-file","CTRL+n",nullptr},
+    {"keybind/prev-file","CTRL+p",nullptr},
+    {"keybind/zoom-in","CTRL++",nullptr},
+    {"keybind/zoom-out","CTRL+-",nullptr},
+    {"keybind/next-page",">",nullptr},
+    {"keybind/prev-page","<",nullptr},
+    {"keybind/delete-file","CTRL+del",nullptr},
+    {"keybind/close-tab","CTRL+w",nullptr},
+    {"keybind/refresh","CTRL+r",nullptr},
+    {"thumbnail_size","256",new QIntValidator(25, 999)},
 };
+
 
 QVector<configtab::binding> configtab::active_bindings;
 
@@ -85,6 +87,7 @@ configtab::configtab(QWidget *parent) :
     {
         create_color_entries(page_layout,"File Border Color","filecolor","Mime/Type",file_colors);
         create_header(page_layout,"Thumbnails",sub_header_size);
+        create_lineedit_settings_entry(page_layout,"Thumbnail size",THUMBNAIL_SIZE);
         create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
         create_checkbox_settings_entry(page_layout,"Use interal cbz/zip thumbnailer",USE_CBZ_THUMBNAILER);
         create_checkbox_settings_entry(page_layout,"Use external thumbnailers from /usr/share/thumbnailers/",USE_EXTERNAL_THUMBNAILER);
@@ -138,7 +141,13 @@ configtab::~configtab()
 QVariant configtab::setting_value(Setting setting)
 {
     QSettings set;
-    return set.value(settings[setting].name,settings[setting].default_val);
+    QVariant value = set.value(settings[setting].name,settings[setting].default_val);
+    QString data = value.toString();
+    int pos = 0;
+    if (settings[setting].validator == nullptr || settings[setting].validator->validate(data,pos) == QValidator::Acceptable)
+        return value;
+    else
+        return settings[setting].default_val;
 }
 
 QString configtab::setting_name(Setting setting)
@@ -257,7 +266,7 @@ void configtab::create_checkbox_settings_entry(QBoxLayout *layout,QString displa
     checkbox->setFont(font);
     checkbox->setChecked(setting_value(set).toBool());
 
-    settings_items.append({checkbox,setting_name(set),BOOL});
+    settings_items.append({checkbox,BOOL,set});
     layout->addWidget(checkbox);
 }
 
@@ -275,7 +284,7 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout,QString displa
     label->setFont(font);
     text_box->setText(setting_value(set).toString());
 
-    settings_items.append({text_box,setting_name(set),STRING});
+    settings_items.append({text_box,STRING,set});
     layout->addLayout(container);
 }
 
@@ -297,7 +306,7 @@ void configtab::create_combo_settings_entry(QBoxLayout *layout,QString display_t
     combobox->addItems(combo_items);
     combobox->setCurrentText(selected_item);
 
-    settings_items.append({combobox,setting_name(set),COMBO});
+    settings_items.append({combobox,COMBO,set});
     layout->addLayout(container);
 
 }
@@ -318,7 +327,15 @@ void configtab::apply()
             QComboBox *checkbox = qobject_cast<QComboBox *>(item.widget);
             value = checkbox->currentText();
         }
-        settings.setValue(item.setting_name,value);
+
+        int pos = 0;
+        QString str = value.toString();
+        QValidator *validator = this->settings[item.setting].validator;
+
+        if (validator == nullptr || validator->validate(str,pos) == QValidator::Acceptable)
+            settings.setValue(setting_name(item.setting),value);
+        else
+            qDebug() << "Invalid value" << str.toUtf8() << "for setting" << setting_name(item.setting) << '\n';
     }
 
     settings.beginGroup("tagcolor");
