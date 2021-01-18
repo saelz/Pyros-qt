@@ -39,6 +39,7 @@ const configtab::setting configtab::settings[] = {
     {"keybind/close-tab","CTRL+w",nullptr},
     {"keybind/refresh","CTRL+r",nullptr},
     {"thumbnail_size","256",new QIntValidator(25, 999)},
+    {"cbz_thumbnail_pages","3",new QIntValidator(1, 5)}
 };
 
 
@@ -90,6 +91,7 @@ configtab::configtab(QWidget *parent) :
         create_lineedit_settings_entry(page_layout,"Thumbnail size",THUMBNAIL_SIZE);
         create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
         create_checkbox_settings_entry(page_layout,"Use interal cbz/zip thumbnailer",USE_CBZ_THUMBNAILER);
+        create_lineedit_settings_entry(page_layout,"Number of pages to show in cbz/zip thumbnail",CBZ_THUMB_PAGE_COUNT);
         create_checkbox_settings_entry(page_layout,"Use external thumbnailers from /usr/share/thumbnailers/",USE_EXTERNAL_THUMBNAILER);
 
         page_layout->insertStretch(-1);

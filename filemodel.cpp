@@ -220,7 +220,7 @@ QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thu
         return QVariant();
 
     QVector<QPixmap> pages;
-    int page_count = (reader.file_count() < 3) ? reader.file_count() : 3;
+    int page_count = (reader.file_count() < ct::setting_value(ct::CBZ_THUMB_PAGE_COUNT).toInt()) ? reader.file_count() : ct::setting_value(ct::CBZ_THUMB_PAGE_COUNT).toInt();
 
     int top_file_width = -1;
     int vspacing = 10;

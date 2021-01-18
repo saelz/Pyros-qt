@@ -57,6 +57,7 @@ public:
         KEY_CLOSE_TAB,
         KEY_REFRESH,
         THUMBNAIL_SIZE,
+        CBZ_THUMB_PAGE_COUNT,
     };
 private:
 
