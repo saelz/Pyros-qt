@@ -1,10 +1,14 @@
 #include "zip_reader.h"
 
+#ifdef ENABLE_ZLIB
 #include <zlib.h>
+#endif
 
 #include <QByteArray>
 #include <QFile>
 #include <QtEndian>
+#include <QCoreApplication>
+#include <QtDebug>
 
 zip_reader::zip_reader(){}
 zip_reader::zip_reader(QByteArray file)
@@ -12,13 +16,14 @@ zip_reader::zip_reader(QByteArray file)
     read_file(file);
 }
 
-QByteArray zip_reader::get_string_at(QFile &file,qint64 position,int string_len)
+QByteArray zip_reader::get_bytes_at(QFile &file,qint64 position,int string_len)
 {
     file.seek(position);
     char *string = new char[string_len];
     if (file.read(string,string_len) < 0){
         isValid = false;
-        qDebug("Error reading data at 0x%llx",position);
+        qWarning("Error reading data at 0x%llx",position);
+        delete[] string;
         return QByteArray();
     }
 
@@ -77,7 +82,7 @@ void zip_reader::read_file(QByteArray path)
     qint64 header_start = 0;
 
     if (!file.open(QIODevice::ReadOnly)){
-        qDebug("Unable to open file %s",path.data());
+        qWarning("Unable to open file %s",path.data());
         isValid = false;
         return;
     }
@@ -102,22 +107,26 @@ void zip_reader::read_file(QByteArray path)
 
         zfile.header_position = get_number<unsigned>(file,header_start+file_location);
 
-        zfile.filename = get_string_at(file,header_start+filename_location,filename_len);
+        zfile.filename = get_bytes_at(file,header_start+filename_location,filename_len);
 
         if (!isValid)
             goto error;
 
         if (starting_disk > 0){
-            qDebug("multi disk zips are not supported");
+            qWarning("multi disk zips are not supported");
+#ifdef ENABLE_ZLIB
+        } else if (zfile.compression_type != 0 && zfile.compression_type != 8 ){
+            qWarning("only zip files that are compressed using DEFLATE or are uncompressed are supported");
+#else
+        } else if (zfile.compression_type == 8){
+            qWarning() << QCoreApplication::arguments().at(0) << "not compiled with zlib support";
         } else if (zfile.compression_type != 0){
-            qDebug("only zip files that are uncompressed are supported");
+            qWarning("only zip files that are uncompressed are supported");
+#endif
         } else if (zfile.compressed_size == 0){
-            //qDebug("skipping zero length file\n");
         } else {
             m_files.append(zfile);
         }
-
-        //qDebug("SIZE:%u->%u,TYPE:%u,POS:%u\n%s",zfile.compressed_size,zfile.uncompressed_size,zfile.compression_type,zfile.header_position,zfile.filename.data());
 
         header_start += filename_len+extra_len+comment_len;
 
@@ -130,7 +139,7 @@ void zip_reader::read_file(QByteArray path)
     return;
 error:
     file.close();
-    qDebug("an error has ocurred while reading file %s",path.data());
+    qWarning("an error has ocurred while reading file %s",path.data());
 }
 
 int zip_reader::file_count()
@@ -139,7 +148,53 @@ int zip_reader::file_count()
         return 0;
     return m_files.length();
 }
+#ifdef ENABLE_ZLIB
+QByteArray zip_reader::uncompress(const QByteArray &data)
+{
+    z_stream stream;
+    QByteArray result;
+    int ret;
+    char buffer[buff_size];
 
+    stream.zalloc = Z_NULL;
+    stream.zfree  = Z_NULL;
+    stream.opaque = Z_NULL;
+
+    stream.avail_in = data.size();
+    stream.next_in = (Bytef*)data.data();
+
+    ret = inflateInit2(&stream,15+32);
+    if (ret != Z_OK)
+        return QByteArray();
+
+    do{
+        stream.avail_out = buff_size;
+        stream.next_out  = (Bytef*)buffer;
+
+        ret = inflate(&stream,Z_NO_FLUSH);
+        if (ret != Z_OK){
+            qDebug("ERROR");
+            switch (ret) {
+            case Z_DATA_ERROR:
+                qDebug("Invalid compressed data");
+                break;
+            case Z_MEM_ERROR:
+                qDebug("Not enough memory");
+                break;
+            }
+            isValid = false;
+            inflateEnd(&stream);
+            return QByteArray();
+        }
+
+        result.append(buffer,buff_size - stream.avail_out);
+
+    } while (stream.avail_out == 0);
+
+    inflateEnd(&stream);
+    return result;
+}
+#endif
 
 QByteArray zip_reader::get_file_data(int i)
 {
@@ -154,8 +209,8 @@ QByteArray zip_reader::get_file_data(int i)
         isValid = false;
         return QByteArray();
     }
-    QByteArray filename;
-    QByteArray header = get_string_at(file,zfile.header_position,4);
+
+    QByteArray header = get_bytes_at(file,zfile.header_position,4);
     if (qstrncmp(header,LF_HEADER,4))
         goto error;
 
@@ -163,18 +218,30 @@ QByteArray zip_reader::get_file_data(int i)
     filename_len = get_number<unsigned short>(file,zfile.header_position+lf_filename_len);
     extra_len = get_number<unsigned short>(file,zfile.header_position+lf_extra_len);
 
-    //filename = get_string_at(file,zfile.header_position+lf_filename,filename_len);
-    data = get_string_at(file,zfile.header_position+lf_filename+filename_len+extra_len,zfile.compressed_size);
+    data = get_bytes_at(file,zfile.header_position+lf_filename+filename_len+extra_len,zfile.compressed_size);
     if (!isValid)
         goto error;
-    //qDebug("filenamelen:%d,%s",filename_len,filename.data());
+
+    if (zfile.compression_type == 8){
+#ifdef ENABLE_ZLIB
+        //zlib header
+        data.prepend(0x01);//FLG
+        data.prepend(0x78);//CMF
+
+        data = uncompress(data);
+#else
+        isValid = false;
+        file.close();
+        return QByteArray();
+#endif
+    }
 
 
     file.close();
     return data;
 
 error:
-    qDebug("Invalid file header");
+    qWarning("Invalid file header");
     isValid = false;
     file.close();
     return QByteArray();
