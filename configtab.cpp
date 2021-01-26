@@ -354,6 +354,35 @@ void configtab::apply()
     emit settings_changed();
 }
 
+QVector<configtab::color_setting> configtab::get_tag_colors()
+{
+    return get_colors("tagcolor");
+}
+QVector<configtab::color_setting> configtab::get_file_colors()
+{
+    return get_colors("filecolor");
+}
+
+QVector<configtab::color_setting> configtab::get_colors(QString group)
+{
+    QVector<color_setting> colors;
+    QSettings settings;
+
+    settings.beginGroup(group);
+    QStringList colored_tags = settings.allKeys();
+    foreach(QString colored_prefix,colored_tags){
+        color_setting color;
+        QString color_hex = settings.value(colored_prefix).toString();
+
+        color.starts_with = colored_prefix;
+        color.color = QColor(color_hex);
+        colors.append(color);
+    }
+
+    settings.endGroup();
+    return colors;
+}
+
 void configtab::update_bindings()
 {
     for (int i = active_bindings.length()-1; i >= 0; i--) {
@@ -372,8 +401,7 @@ void configtab::apply_color_entries(QSettings &settings,QVector<QPointer<color_e
         if (entries[i].isNull())
             continue;
         color_entry *entry = entries[i].data();
-        QColor c = "#"+entry->color->text();
-        settings.setValue(entry->entry->text(),c);
+        settings.setValue(entry->entry->text(),"#"+entry->color->text());
     }
 }
 

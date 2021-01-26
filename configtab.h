@@ -101,10 +101,17 @@ public:
     ~configtab();
 
 
+    struct color_setting{
+        QString starts_with;
+        QColor color;
+    };
 
     static QVariant setting_value(Setting setting);
     static QString setting_name(Setting setting);
     static QAction *create_binding(Setting setting,QString name,QWidget *widget);
+    static QVector<color_setting> get_tag_colors();
+    static QVector<color_setting> get_file_colors();
+
 
 private:
     struct binding{
@@ -135,6 +142,8 @@ private:
     void apply();
     void update_bindings();
     void apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entires);
+
+    static QVector<configtab::color_setting> get_colors(QString group);
 
 signals:
     void settings_changed();

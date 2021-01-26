@@ -86,15 +86,13 @@ bool TagItem::setData(int column, const QVariant &value)
 
     if (column == TAG_COLUMN){
         const QString tag_text = value.toString();
+        QVector<ct::color_setting> tag_colors = ct::get_tag_colors();
         fg_color = settings.value("special-tagcolor/default").value<QColor>();
-        settings.beginGroup("tagcolor");
-        QStringList colored_tags = settings.allKeys();
-        foreach(QString colored_prefix,colored_tags){
-            if (tag_text.startsWith(colored_prefix)){
-                fg_color = settings.value(colored_prefix).value<QColor>();
-            }
-        }
-        settings.endGroup();
+
+        foreach(ct::color_setting tag_color,tag_colors)
+            if (tag_text.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
+                fg_color = tag_color.color;
+
         tag = value;
     } else if(column == TYPE_COLUMN){
         if (value.toInt() < 0 || value.toInt() >= TAG_TYPE_COUNT)
@@ -107,7 +105,7 @@ bool TagItem::setData(int column, const QVariant &value)
                                       QColorConstants::Red).value<QColor>();
         else if (value.toInt() == NEW_TAG)
             fg_color = settings.value("special-tagcolor/new",
-                                      QColor("#fec033")).value<QColor>();
+                                      QColor(254,192,51)).value<QColor>();
 
         type = (enum TAG_TYPE)value.toInt();
     }

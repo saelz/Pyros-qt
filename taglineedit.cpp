@@ -134,16 +134,12 @@ void TagLineEdit::update_text_color(const QString &text){
         return;
     }
 
-    settings.beginGroup("tagcolor");
+    QVector<ct::color_setting> tag_colors = ct::get_tag_colors();
+
     setStyleSheet("");
-    QStringList colored_tags = settings.allKeys();
-    foreach(QString colored_prefix,colored_tags){
-        if (text.startsWith(colored_prefix,Qt::CaseInsensitive)){
-            QColor color = settings.value(colored_prefix).value<QColor>();
-            setStyleSheet(color_prefix+color.name());
-        }
-    }
-    settings.endGroup();
+    foreach(ct::color_setting tag_color,tag_colors)
+        if (text.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
+            setStyleSheet(color_prefix+tag_color.color.name());
 
 }
 

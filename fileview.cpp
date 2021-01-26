@@ -31,21 +31,20 @@ class FileDelegate : public QStyledItemDelegate {
       QStyledItemDelegate::paint(painter, option, index);
       PyrosFile *pFile = model->file(index);
 
-      QSettings settings;
       if (pFile == nullptr)
           return;
-      settings.beginGroup("filecolor");
-      QStringList colored_tags = settings.allKeys();
+
       QString text = pFile->mime;
       QColor color;
-      foreach(QString colored_prefix,colored_tags){
-          if (text.startsWith(colored_prefix,Qt::CaseInsensitive)){
-              color = settings.value(colored_prefix).value<QColor>();
-          }
-      }
+
+      QVector<ct::color_setting> file_colors = ct::get_file_colors();
+      foreach(ct::color_setting tag_color,file_colors)
+          if (text.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
+              color = tag_color.color;
+
       if (!color.isValid())
           return;
-      settings.endGroup();
+
       painter->setPen(color);
 
       QPixmap k = model->data(index,Qt::DecorationRole).value<QPixmap>();
@@ -90,11 +89,9 @@ FileView::FileView(QWidget *parent) :
 
 FileView::~FileView()
 {
-
     delete file_model;
     delete contextMenu;
     delete fd;
-
 }
 
 void FileView::onCustomContextMenu(const QPoint &point)
