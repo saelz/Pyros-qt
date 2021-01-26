@@ -39,7 +39,8 @@ const configtab::setting configtab::settings[] = {
     {"keybind/close-tab","CTRL+w",nullptr},
     {"keybind/refresh","CTRL+r",nullptr},
     {"thumbnail_size","256",new QIntValidator(25, 999)},
-    {"cbz_thumbnail_pages","3",new QIntValidator(1, 5)}
+    {"cbz_thumbnail_pages","3",new QIntValidator(1, 5)},
+    {"keybind/focus-file-viewer","CTRL+f",nullptr},
 };
 
 
@@ -111,6 +112,7 @@ configtab::configtab(QWidget *parent) :
         create_lineedit_settings_entry(page_layout,"Refresh",KEY_REFRESH);
 
         create_header(page_layout,"File Viewer",sub_header_size);
+        create_lineedit_settings_entry(page_layout,"Focus file viewer",KEY_FOCUS_FILE_VIEWER);
         create_lineedit_settings_entry(page_layout,"Next file",KEY_NEXT_FILE);
         create_lineedit_settings_entry(page_layout,"Previous file",KEY_PREV_FILE);
         create_lineedit_settings_entry(page_layout,"Zoom in",KEY_ZOOM_IN);

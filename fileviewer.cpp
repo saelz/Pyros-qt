@@ -337,6 +337,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     QAction *zoom_out_bind = ct::create_binding(ct::KEY_ZOOM_OUT,"Zoom out",this);
     QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",this);
     QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",this);
+    QAction *focus_file_viewer = ct::create_binding(ct::KEY_FOCUS_FILE_VIEWER,"Focus file viewer",this);
 
     connect(next_bind,   &QAction::triggered,this, &FileViewer::next_file);
     connect(prev_bind,   &QAction::triggered,this, &FileViewer::prev_file);
@@ -346,6 +347,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(zoom_out_bind, &QAction::triggered,this, &FileViewer::zoom_out);
     connect(next_page_bind, &QAction::triggered,this, &FileViewer::cbz_next_page);
     connect(prev_page_bind, &QAction::triggered,this, &FileViewer::cbz_prev_page);
+    connect(focus_file_viewer, &QAction::triggered,this, &FileViewer::select_file_viewer);
 
 
     connect(ui->fit_combo_box, &QComboBox::currentTextChanged,this, &FileViewer::update_fit);
@@ -387,6 +389,11 @@ FileViewer::~FileViewer()
 void FileViewer::select_tag_bar()
 {
     ui->tag_bar->setFocus(Qt::OtherFocusReason);
+}
+
+void FileViewer::select_file_viewer()
+{
+    ui->scrollArea->setFocus(Qt::OtherFocusReason);
 }
 
 void FileViewer::set_file()

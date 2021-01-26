@@ -58,6 +58,7 @@ public:
         KEY_REFRESH,
         THUMBNAIL_SIZE,
         CBZ_THUMB_PAGE_COUNT,
+        KEY_FOCUS_FILE_VIEWER,
     };
 private:
 

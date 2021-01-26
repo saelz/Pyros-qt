@@ -78,6 +78,7 @@ private slots:
     void set_scale();
 
     void select_tag_bar();
+    void select_file_viewer();
     void next_file();
     void prev_file();
     void delete_file();
