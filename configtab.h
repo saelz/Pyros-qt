@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPointer>
 #include <QVariant>
+#include <QFrame>
 
 class QHBoxLayout;
 class QVBoxLayout;
@@ -15,18 +16,33 @@ class QCheckBox;
 class QStackedWidget;
 class QValidator;
 
-class color_entry : public QObject{
+class SettingArrayList : public QFrame{
     Q_OBJECT
-public:
-    color_entry(QBoxLayout *parent,QString placeholder,
-            QString item = "",QString hex = "");
-    ~color_entry();
-    QHBoxLayout *hbox;
-    QLineEdit *entry;
-    QLineEdit *color;
-    QPushButton *delete_button;
-public slots:
+private:
+    QString array_name;
+    struct Key{
+        QString name;
+        QString placeholder;
+        bool isColor;
+    };
+    struct Entry{
+        QVector<QLineEdit*> data;
+        QPushButton *delete_button;
+    };
+
+    QVector<Entry> entries;
+    QVBoxLayout *entry_container;
+
     void update_color(const QString &text);
+
+    QVector<Key> keys;
+
+public:
+    SettingArrayList(QWidget *parent,QString array_name,QVector<Key> keys);
+public slots:
+    void add_entry(int existing_entry = -1);
+    void delete_entry();
+    void apply();
 };
 
 class configtab : public QWidget
@@ -68,26 +84,15 @@ private:
         COMBO,
     };
 
-    struct color_entry_button{
-        QPushButton *button;
-        QVBoxLayout *entry_container;
-        QString placeholder;
-        QVector <QPointer<color_entry>>   *entries;
-    };
-
-
-
     struct settings_item{
         QWidget *widget;
         settings_type type;
         Setting setting;
     };
     QVector<settings_item> settings_items;
+    QVector<SettingArrayList*> setting_array_items;
 
-    QVector<QPointer<color_entry>> file_colors;
-    QVector<QPointer<color_entry>> tag_colors;
 
-    QVector<color_entry_button> entry_buttons;
     QVector<QPushButton *> config_buttons;
     QStackedWidget *pages;
     QVBoxLayout *button_column;
@@ -125,6 +130,8 @@ private:
         QValidator*validator;
     };
 
+
+
     static const setting settings[];
 
     static QVector<binding> active_bindings;
@@ -132,16 +139,12 @@ private:
     QVBoxLayout *new_page(QString title);
     void set_page();
     void create_header(QBoxLayout *layout,QString text,int size);
-    void create_color_entries(QBoxLayout *layout,QString header, QString setting_group,QString placeholder,QVector<QPointer<color_entry>> &list);
-
-    void new_color_entry();
 
     void create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
     void create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
     void create_combo_settings_entry(QBoxLayout *layout, QString display_text,Setting set, QStringList combo_items);
     void apply();
     void update_bindings();
-    void apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entires);
 
     static QVector<configtab::color_setting> get_colors(QString group);
 

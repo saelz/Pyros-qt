@@ -54,20 +54,27 @@ void PyrosQT::initalize_config(){
     QSettings settings;
 
     if (settings.value("db","") == ""){
-        settings.beginGroup("filecolor");
-        settings.setValue("video",QColorConstants::Green);
-        settings.setValue("image/gif",QColorConstants::Green);
-        settings.setValue("audio",QColorConstants::Blue);
-        settings.setValue("application/zip",QColor(204,77,22));
-        settings.setValue("application/vnd.comicbook+zip",QColor(204,77,22));
-        settings.endGroup();
+        settings.beginWriteArray("filecolor");
+        settings.setArrayIndex(0);
+        settings.setValue("prefix","video");
+        settings.setValue("color","#22ff22");
+        settings.setArrayIndex(1);
+        settings.setValue("prefix","image/gif");
+        settings.setValue("color","#44cc88");
+        settings.setArrayIndex(2);
+        settings.setValue("prefix","audio");
+        settings.setValue("color","#33bbff");
+        settings.setArrayIndex(3);
+        settings.setValue("prefix","application/zip");
+        settings.setValue("color","#cc7722");
+        settings.endArray();
 
-        settings.beginGroup("tagcolor");
-        settings.setValue("character:",QColorConstants::Green);
-        settings.setValue("series:",QColorConstants::Red);
-        settings.setValue("meta:",QColorConstants::DarkGray);
-        settings.setValue("creator:",QColorConstants::Blue);
-        settings.endGroup();
+        settings.beginWriteArray("tagcolor");
+        settings.setArrayIndex(0);
+        settings.setValue("prefix","meta:");
+        settings.setValue("color","#cccccc");
+        settings.endArray();
+
         new_database_creation_tab();
     } else {
         new_search_tab();

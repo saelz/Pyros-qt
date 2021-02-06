@@ -81,13 +81,21 @@ configtab::configtab(QWidget *parent) :
 
     page_layout = new_page("Tags");
     {
-        create_color_entries(page_layout,"Tag Color","tagcolor","Tag",tag_colors);
+        create_header(page_layout,"Tag Colors",sub_header_size);
+        SettingArrayList *arraylist = new SettingArrayList(page_layout->widget(),"tagcolor",{{"prefix","Tag",false},{"color","Color",true}});
+        page_layout->addWidget(arraylist);
+        setting_array_items.append(arraylist);
+
         page_layout->insertStretch(-1);
     }
 
     page_layout = new_page("Files");
     {
-        create_color_entries(page_layout,"File Border Color","filecolor","Mime/Type",file_colors);
+        create_header(page_layout,"File Color",sub_header_size);
+        SettingArrayList *arraylist = new SettingArrayList(page_layout->widget(),"filecolor",{{"prefix","Mime/Type",false},{"color","Tag Color",true}});
+        page_layout->addWidget(arraylist);
+        setting_array_items.append(arraylist);
+
         create_header(page_layout,"Thumbnails",sub_header_size);
         create_lineedit_settings_entry(page_layout,"Thumbnail size",THUMBNAIL_SIZE);
         create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
@@ -134,12 +142,6 @@ configtab::configtab(QWidget *parent) :
 
 configtab::~configtab()
 {
-    for(int i = 0;i < file_colors.count();i++)
-        if (!file_colors[i].isNull())
-            delete file_colors[i].data();
-    for(int i = 0;i < tag_colors.count();i++)
-        if (!tag_colors[i].isNull())
-            delete tag_colors[i].data();
 }
 
 QVariant configtab::setting_value(Setting setting)
@@ -216,50 +218,6 @@ void configtab::create_header(QBoxLayout *layout,QString text, int size)
 
 }
 
-void configtab::create_color_entries(QBoxLayout *layout,QString header,
-                                     QString setting_group,QString placeholder,QVector<QPointer<color_entry>> &list)
-{
-    QFrame *frame = new QFrame();
-    QVBoxLayout *main_layout = new QVBoxLayout();
-    QVBoxLayout *entry_container = new QVBoxLayout();
-    QHBoxLayout *button_container = new QHBoxLayout();
-    QPushButton *add_button = new QPushButton("+");
-
-    create_header(main_layout,header,sub_header_size);
-    frame->setFrameStyle(QFrame::StyledPanel);
-    frame->setFrameShadow(QFrame::Raised);
-    layout->addWidget(frame);
-    frame->setLayout(main_layout);
-    main_layout->addLayout(entry_container);
-    button_container->addStretch(-1);
-    button_container->addWidget(add_button);
-    main_layout->addLayout(button_container);
-
-    entry_buttons.append({add_button,entry_container,placeholder,&list});
-    connect(add_button,&QPushButton::clicked,this,&configtab::new_color_entry);
-
-    QSettings settings;
-    settings.beginGroup(setting_group);
-    QStringList entries = settings.allKeys();
-    foreach(QString colored_prefix,entries){
-        QColor color = settings.value(colored_prefix).value<QColor>();
-        list.append(new color_entry(entry_container,placeholder,colored_prefix,color.name()));
-    }
-    settings.endGroup();
-
-}
-
-void configtab::new_color_entry()
-{
-    QPushButton* button = qobject_cast<QPushButton*>(sender());
-
-    foreach(color_entry_button entry_button,entry_buttons){
-        if (entry_button.button == button){
-            entry_button.entries->append(new color_entry(entry_button.entry_container,entry_button.placeholder));
-        }
-    }
-
-}
 
 void configtab::create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set)
 {
@@ -284,7 +242,6 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout,QString displa
 
     container->addWidget(label);
     container->addWidget(text_box);
-    //container->addStretch(-1);
     label->setFont(font);
     text_box->setText(setting_value(set).toString());
 
@@ -342,12 +299,8 @@ void configtab::apply()
             qDebug() << "Invalid value" << str.toUtf8() << "for setting" << setting_name(item.setting) << '\n';
     }
 
-    settings.beginGroup("tagcolor");
-    apply_color_entries(settings,tag_colors);
-    settings.endGroup();
-    settings.beginGroup("filecolor");
-    apply_color_entries(settings,file_colors);
-    settings.endGroup();
+    foreach(SettingArrayList *arraylist, setting_array_items)
+        arraylist->apply();
 
     update_bindings();
 
@@ -366,20 +319,21 @@ QVector<configtab::color_setting> configtab::get_file_colors()
 QVector<configtab::color_setting> configtab::get_colors(QString group)
 {
     QVector<color_setting> colors;
+
     QSettings settings;
 
-    settings.beginGroup(group);
-    QStringList colored_tags = settings.allKeys();
-    foreach(QString colored_prefix,colored_tags){
+    int length = settings.beginReadArray(group);
+    for(int i = 0; i < length; i++){
         color_setting color;
-        QString color_hex = settings.value(colored_prefix).toString();
-
-        color.starts_with = colored_prefix;
-        color.color = QColor(color_hex);
+        settings.setArrayIndex(i);
+        color.starts_with = settings.value("prefix").toString();
+        color.color = QColor(settings.value("color").toString());
         colors.append(color);
     }
 
-    settings.endGroup();
+
+    settings.endArray();
+
     return colors;
 }
 
@@ -392,59 +346,121 @@ void configtab::update_bindings()
             active_bindings[i].action->setShortcut(QKeySequence(setting_value(active_bindings[i].set).toString()));
         }
     }
+}
+
+
+SettingArrayList::SettingArrayList(QWidget *parent,QString array_name,QVector<Key> keys) : QFrame(parent), array_name(array_name),keys(keys)
+{
+    QVBoxLayout *main_layout = new QVBoxLayout();
+    QHBoxLayout *button_container = new QHBoxLayout();
+    QPushButton *add_button = new QPushButton("+");
+
+    entry_container = new QVBoxLayout();
+
+    setFrameStyle(QFrame::StyledPanel);
+    setFrameShadow(QFrame::Raised);
+    setLayout(main_layout);
+
+    main_layout->addLayout(entry_container);
+    button_container->addStretch(-1);
+    button_container->addWidget(add_button);
+    main_layout->addLayout(button_container);
+
+    connect(add_button,SIGNAL(clicked()),this,SLOT(add_entry()));
+
+    QSettings settings;
+    int length = settings.beginReadArray(array_name);
+
+    for (int i = 0; i < length; i++)
+        add_entry(i);
+
+    settings.endArray();
 
 }
 
-void configtab::apply_color_entries(QSettings &settings,QVector<QPointer<color_entry>> &entries){
-    settings.remove("");
-    for(int i = 0;i < entries.count();i++){
-        if (entries[i].isNull())
-            continue;
-        color_entry *entry = entries[i].data();
-        settings.setValue(entry->entry->text(),"#"+entry->color->text());
+void
+SettingArrayList::add_entry(int existing_entry)
+{
+    QWidget *container = new QWidget();
+    QHBoxLayout *hbox = new QHBoxLayout(container);
+    QPushButton *delete_button = new QPushButton("-");
+
+    QSettings settings;
+    Entry entry;
+
+    settings.beginReadArray(array_name);
+    entry.delete_button = delete_button;
+
+    foreach(Key key,keys){
+        QLineEdit *lineedit = new QLineEdit();
+        lineedit->setPlaceholderText(key.placeholder);
+        if (key.isColor){
+            lineedit->setInputMask("HHHHHH");
+            connect(lineedit,&QLineEdit::textChanged,this,&SettingArrayList::update_color);
+        }
+
+        if (existing_entry >= 0){
+            settings.setArrayIndex(existing_entry);
+            if (key.isColor)
+                lineedit->setText(settings.value(key.name).toString().remove(0,1));
+            else
+                lineedit->setText(settings.value(key.name).toString());
+        }
+
+        hbox->addWidget(lineedit);
+        entry.data.append(lineedit);
     }
+    entries.append(entry);
+
+    settings.endArray();
+    hbox->addWidget(delete_button);
+    entry_container->addWidget(container);
+    hbox->setContentsMargins(0,0,0,0);
+    container->setContentsMargins(0,0,0,0);
+
+    connect(delete_button,&QPushButton::clicked,this,&SettingArrayList::delete_entry);
+    connect(delete_button,&QPushButton::clicked,container,&SettingArrayList::deleteLater);
 }
 
-color_entry::color_entry(QBoxLayout *parent,QString placeholder,
-               QString item,QString hex)
+void SettingArrayList::update_color(const QString &text)
 {
-
-        hbox = new QHBoxLayout();
-        entry = new QLineEdit(item);
-        color = new QLineEdit(hex);
-        delete_button = new QPushButton("-");
-        entry->setPlaceholderText(placeholder);
-        color->setInputMask("HHHHHH");
-        color->setPlaceholderText("Hex Color");
-
-        hbox->addWidget(entry);
-        hbox->addWidget(color);
-        hbox->addWidget(delete_button);
-        parent->addLayout(hbox);
-
-        connect(delete_button,&QPushButton::clicked,this,&color_entry::deleteLater);
-        connect(color,&QLineEdit::textChanged,this,&color_entry::update_color);
-        update_color(hex.remove(0,1));
-}
-
-void color_entry::update_color(const QString &text)
-{
+    QLineEdit* lineedit = qobject_cast<QLineEdit*>(sender());
     if (text.length() != 3 && text.length() != 6){
-        entry->setStyleSheet("");
-        color->setStyleSheet("color:#ff0000");
+        lineedit->setStyleSheet("color:#ff0000");
         return;
     }
 
     QColor c = "#"+text;
-    color->setStyleSheet("");
-    entry->setStyleSheet("color:"+c.name());
+    lineedit->setStyleSheet("color:"+c.name());
 
 }
 
-color_entry::~color_entry()
+void SettingArrayList::delete_entry()
 {
-    delete delete_button;
-    delete color;
-    delete entry;
-    delete hbox;
+    QPushButton* del_button = qobject_cast<QPushButton*>(sender());
+
+    for (int i = 0; i < entries.length(); i++)
+        if (entries[i].delete_button == del_button)
+            entries.remove(i);
+
+}
+
+void SettingArrayList::apply()
+{
+    QSettings settings;
+    settings.beginWriteArray(array_name);
+    for (int i = 0; i < entries.length(); i++){
+        settings.setArrayIndex(i);
+        for (int j = 0; j < keys.length(); j++){
+            QString str = entries[i].data.at(j)->text();
+            settings.setValue(keys[j].name,str);
+            if (keys[j].isColor)
+                settings.setValue(keys[j].name,"#"+str);
+            else
+                settings.setValue(keys[j].name,str);
+        }
+    }
+
+    settings.endArray();
+
 }
