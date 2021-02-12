@@ -204,6 +204,8 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
     QItemSelectionModel *select = ui->file_view->selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
     quint64 total_file_size = 0;
+    quint64 earliest_timestamp = -1;
+    quint64 latest_timestamp = 0;
 
 
     if (indexes.count() == 0){
@@ -214,6 +216,18 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
 
     QModelIndex  last_file = indexes.last();
 
+    if (indexes.count() > 1){
+        QString multi_select_styelsheet = "QLabel {color : cyan; }";
+        ui->data_file_time->setStyleSheet(multi_select_styelsheet);
+        ui->data_file_size->setStyleSheet(multi_select_styelsheet);
+        ui->data_current_file->setStyleSheet(multi_select_styelsheet);
+        ui->data_current_file->setText(QString::number(indexes.count()) +" /");
+    } else {
+        ui->data_file_time->setStyleSheet("");
+        ui->data_file_size->setStyleSheet("");
+        ui->data_current_file->setStyleSheet("");
+        ui->data_current_file->setText(QString::number(ui->file_view->file_model->indexToNum(last_file)+1) +" /");
+    }
 
     PyrosFile *last_pFile = nullptr;
     for	(int i = 0; i < indexes.length(); i++){
@@ -221,18 +235,13 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
         if (ui->file_view->file(last_valid_file) != nullptr){
             last_pFile = ui->file_view->file(last_valid_file);
             total_file_size += last_pFile->file_size;
+
+            if (earliest_timestamp >= last_pFile->import_time)
+                earliest_timestamp = last_pFile->import_time;
+            if (latest_timestamp <= last_pFile->import_time)
+                latest_timestamp = last_pFile->import_time;
+
         }
-
-    }
-
-    if (indexes.count() > 1){
-        ui->data_file_size->setStyleSheet("QLabel {color : cyan; }");
-        ui->data_current_file->setStyleSheet("QLabel {color : cyan; }");
-        ui->data_current_file->setText(QString::number(indexes.count()) +" /");
-    } else {
-        ui->data_file_size->setStyleSheet("");
-        ui->data_current_file->setStyleSheet("");
-        ui->data_current_file->setText(QString::number(ui->file_view->file_model->indexToNum(last_file)+1) +" /");
     }
 
     if (last_pFile == nullptr){
@@ -242,13 +251,25 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
     }
 
     QSettings settings;
+    QString timestamp_earlyest_string;
+    QString timestamp_latest_string;
     QDateTime timestamp;
     QLocale locale = this->locale();
-    timestamp.setTime_t(last_pFile->import_time);
+
+    timestamp.setTime_t(earliest_timestamp);
+    timestamp_earlyest_string = timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString());
+
+    timestamp.setTime_t(latest_timestamp);
+    timestamp_latest_string = timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString());
+
+    if (timestamp_earlyest_string == timestamp_latest_string)
+        ui->data_file_time->setText(timestamp_earlyest_string);
+    else
+        ui->data_file_time->setText(timestamp_earlyest_string+" - "+timestamp_latest_string);
+
 
     ui->data_file_mime->setText(last_pFile->mime);
     ui->data_file_size->setText(locale.formattedDataSize(total_file_size));
-    ui->data_file_time->setText(timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString()));
     ui->file_tags->setTagsFromFile(last_pFile);
 
 
