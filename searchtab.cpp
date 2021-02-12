@@ -203,6 +203,7 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
 
     QItemSelectionModel *select = ui->file_view->selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
+    quint64 total_file_size = 0;
 
 
     if (indexes.count() == 0){
@@ -215,36 +216,41 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
 
 
     PyrosFile *last_pFile = nullptr;
-    for	(int i = indexes.length()-1;i >= 0;i--){
+    for	(int i = 0; i < indexes.length(); i++){
         QModelIndex  last_valid_file = indexes.at(i);
-        last_pFile = ui->file_view->file(last_valid_file);
-        if (last_pFile != nullptr)
-            break;
-    }
+        if (ui->file_view->file(last_valid_file) != nullptr){
+            last_pFile = ui->file_view->file(last_valid_file);
+            total_file_size += last_pFile->file_size;
+        }
 
-    if (last_pFile != nullptr){
-        QSettings settings;
-        QDateTime timestamp;
-        QLocale locale = this->locale();
-        timestamp.setTime_t(last_pFile->import_time);
-
-        ui->data_file_mime->setText(last_pFile->mime);
-        ui->data_file_size->setText(locale.formattedDataSize(last_pFile->file_size));
-        ui->data_file_time->setText(timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString()));
-        ui->file_tags->setTagsFromFile(last_pFile);
-    } else {
-        ui->file_tags->clear();
-        clear_file_data();
     }
 
     if (indexes.count() > 1){
+        ui->data_file_size->setStyleSheet("QLabel {color : cyan; }");
         ui->data_current_file->setStyleSheet("QLabel {color : cyan; }");
         ui->data_current_file->setText(QString::number(indexes.count()) +" /");
     } else {
+        ui->data_file_size->setStyleSheet("");
         ui->data_current_file->setStyleSheet("");
         ui->data_current_file->setText(QString::number(ui->file_view->file_model->indexToNum(last_file)+1) +" /");
-
-
     }
+
+    if (last_pFile == nullptr){
+        ui->file_tags->clear();
+        clear_file_data();
+        return;
+    }
+
+    QSettings settings;
+    QDateTime timestamp;
+    QLocale locale = this->locale();
+    timestamp.setTime_t(last_pFile->import_time);
+
+    ui->data_file_mime->setText(last_pFile->mime);
+    ui->data_file_size->setText(locale.formattedDataSize(total_file_size));
+    ui->data_file_time->setText(timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString()));
+    ui->file_tags->setTagsFromFile(last_pFile);
+
+
 
 }
