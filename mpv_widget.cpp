@@ -10,8 +10,13 @@ static void wakeup(void *ctx)
     emit player->mpv_events();
 }
 
-mpv_widget::mpv_widget(QWidget *parent) : QWidget(parent)
+mpv_widget::mpv_widget(QWidget *parent) : QWidget(parent){}
+
+void mpv_widget::init()
 {
+    if (initalized)
+        return;
+
     mpv = mpv_create();
     if (!mpv)
         return;
@@ -54,8 +59,12 @@ mpv_widget::mpv_widget(QWidget *parent) : QWidget(parent)
             Qt::QueuedConnection);
     mpv_set_wakeup_callback(mpv, wakeup, this);
 
+
     if (mpv_initialize(mpv) < 0)
         return;
+
+    initalized = true;
+
 }
 
 mpv_widget::~mpv_widget()
@@ -70,6 +79,7 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
     case MPV_EVENT_SHUTDOWN: {
         mpv_terminate_destroy(mpv);
         mpv = NULL;
+        initalized = false;
         break;
     }
     default: ;
@@ -83,12 +93,15 @@ void mpv_widget::on_mpv_events()
         mpv_event *event = mpv_wait_event(mpv, 0);
         if (event->event_id == MPV_EVENT_NONE)
             break;
-        handle_mpv_event(event);
+       handle_mpv_event(event);
     }
 }
 
 void mpv_widget::set_file(char *path)
 {
+    if (!initalized)
+        init();
+
     if (mpv) {
         const char *args[] = {"loadfile", path, NULL};
         mpv_command_async(mpv, 0, args);

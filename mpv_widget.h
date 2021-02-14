@@ -14,8 +14,10 @@ public:
 
     void set_file(char *path);
     void stop();
+    void init();
 private:
-    mpv_handle *mpv;
+    bool initalized = false;
+    mpv_handle *mpv = nullptr;
     void handle_mpv_event(mpv_event *event);
 
 signals:

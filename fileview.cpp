@@ -90,8 +90,6 @@ FileView::FileView(QWidget *parent) :
 FileView::~FileView()
 {
     delete file_model;
-    delete contextMenu;
-    delete fd;
 }
 
 void FileView::onCustomContextMenu(const QPoint &point)
