@@ -14,7 +14,6 @@ class FileView : public QTableView
     Q_OBJECT
 public:
     FileView(QWidget *parent = nullptr);
-    ~FileView();
 
     void clear_tags();
     PyrosFile *file(const QModelIndex &index);
@@ -23,7 +22,8 @@ public:
 
 private:
     FileDelegate *fd;
-    QMenu *contextMenu;
+    QMenu *contextMenu_singlefile;
+    QMenu *contextMenu_multiplefiles;
 
     QVector<QByteArray> m_tags;
     QTimer thumbtimer;
@@ -55,6 +55,7 @@ private slots:
 
     void resizeEvent(QResizeEvent *event) override;
     void launch_timer();
+    void open_duplicate_menu();
 };
 
 #endif // FILEVIEW_H

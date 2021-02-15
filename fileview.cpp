@@ -66,16 +66,24 @@ FileView::FileView(QWidget *parent) :
 {
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     verticalScrollBar()->setSingleStep(45);
-    file_model = new FileModel;
+    file_model = new FileModel(this);
     setModel(file_model);
 
-    contextMenu = new QMenu(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    contextMenu_singlefile  = new QMenu(this);
 
-    contextMenu->addAction("Copy file path",      this,&FileView::copy_path);
-    contextMenu->addAction("Hide file",           this,&FileView::hide_file);
-    contextMenu->addAction("Regenerate thumbnail",this,&FileView::regenerate_thumbnail);
-    contextMenu->addAction("Delete file",         this,&FileView::remove_file);
+    contextMenu_singlefile->addAction("Copy file path",      this,&FileView::copy_path);
+    contextMenu_singlefile->addAction("Hide file",           this,&FileView::hide_file);
+    contextMenu_singlefile->addAction("Regenerate thumbnail",this,&FileView::regenerate_thumbnail);
+    contextMenu_singlefile->addAction("Delete file",         this,&FileView::remove_file);
+
+    contextMenu_multiplefiles = new QMenu(this);
+    contextMenu_multiplefiles->addAction("Copy file path",          this,&FileView::copy_path);
+    contextMenu_multiplefiles->addAction("Hide files",              this,&FileView::hide_file);
+    contextMenu_multiplefiles->addAction("Regenerate thumbnails",   this,&FileView::regenerate_thumbnail);
+    contextMenu_multiplefiles->addAction("Delete files",            this,&FileView::remove_file);
+    contextMenu_multiplefiles->addAction("Mark files as duplicates",this,&FileView::open_duplicate_menu);
+
 
     connect(this, &FileView::customContextMenuRequested, this, &FileView::onCustomContextMenu);
     connect(this,&FileView::new_files,this, &FileView::get_visible);
@@ -87,16 +95,16 @@ FileView::FileView(QWidget *parent) :
 
 }
 
-FileView::~FileView()
-{
-    delete file_model;
-}
-
 void FileView::onCustomContextMenu(const QPoint &point)
 {
     QModelIndex index = indexAt(point);
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+
     if (index.isValid()) {
-        contextMenu->exec(viewport()->mapToGlobal(point));
+        if (indexes.count() > 1)
+            contextMenu_multiplefiles->exec(viewport()->mapToGlobal(point));
+        else
+            contextMenu_singlefile->exec(viewport()->mapToGlobal(point));
     }
 }
 
@@ -358,7 +366,8 @@ void FileView::regenerate_thumbnail()
 }
 
 
-void FileView::resizeEvent(QResizeEvent *event){
+void FileView::resizeEvent(QResizeEvent *event)
+{
     int columns = event->size().width()/ct::setting_value(ct::THUMBNAIL_SIZE).toInt();
     int old_columns = file_model->columnCount();
 
@@ -404,12 +413,26 @@ void FileView::resizeEvent(QResizeEvent *event){
     }
 }
 
-void FileView::launch_timer(){
+void FileView::launch_timer()
+{
     if(thumbtimer.isActive()){
         thumbtimer.stop();
         thumbtimer.start(150);
     } else {
         thumbtimer.start(150);
     }
+}
+
+void FileView::open_duplicate_menu()
+{
+    QItemSelectionModel *select = selectionModel();
+    QModelIndexList indexes = select->selectedIndexes();
+    QModelIndex index;
+
+    foreach(index, indexes) {
+        QString str = file_model->file(index)->hash;
+        qDebug() << str;
+     }
+
 }
 

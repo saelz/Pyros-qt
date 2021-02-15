@@ -16,14 +16,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    MediaViewer/cbz_viewer.cpp \
+    MediaViewer/image_viewer.cpp \
+    MediaViewer/mediaviewer.cpp \
+    MediaViewer/movie_viewer.cpp \
+    MediaViewer/mpv_widget.cpp \
+    MediaViewer/text_viewer.cpp \
+    MediaViewer/unsupported_viewer.cpp \
+    MediaViewer/video_viewer.cpp \
+    MediaViewer/viewer.cpp \
     configtab.cpp \
     databasecreation.cpp \
+    duplicate_selector.cpp \
     fileimport.cpp \
     filemodel.cpp \
     fileview.cpp \
     fileviewer.cpp \
     main.cpp \
-    mpv_widget.cpp \
     pyrosdb.cpp \
     pyrosqt.cpp \
     searchtab.cpp \
@@ -34,13 +43,22 @@ SOURCES += \
     zip_reader.cpp
 
 HEADERS += \
+    MediaViewer/cbz_viewer.h \
+    MediaViewer/image_viewer.h \
+    MediaViewer/mediaviewer.h \
+    MediaViewer/movie_viewer.h \
+    MediaViewer/mpv_widget.h \
+    MediaViewer/text_viewer.h \
+    MediaViewer/unsupported_viewer.h \
+    MediaViewer/video_viewer.h \
+    MediaViewer/viewer.h \
     configtab.h \
     databasecreation.h \
+    duplicate_selector.h \
     fileimport.h \
     filemodel.h \
     fileview.h \
     fileviewer.h \
-    mpv_widget.h \
     pyrosdb.h \
     pyrosqt.h \
     searchtab.h \
@@ -54,6 +72,7 @@ LIBS += -lpyros -lmpv
 
 FORMS += \
     databasecreation.ui \
+    duplicate_selector.ui \
     fileimport.ui \
     fileviewer.ui \
     pyrosqt.ui \
