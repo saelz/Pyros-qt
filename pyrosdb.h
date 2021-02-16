@@ -68,6 +68,7 @@ signals:
     void sig_close(PyrosDB *db);
     void sig_remove_ext(PyrosDB*,QVector<QByteArray>);
     void sig_get_all_tags(PyrosDB *);
+    void sig_merge_files(PyrosDB *,QByteArray,QVector<QByteArray>);
 
 public:
     QByteArray db_path();
@@ -95,6 +96,8 @@ public:
     void close_db();
 
     void remove_ext(QVector<QByteArray> tags);
+
+    void merge_files(QByteArray superior_file,QVector<QByteArray> duplicates);
 };
 
 class PyrosWorker : public QObject
@@ -118,6 +121,7 @@ public slots:
     void close_db(PyrosDB *db);
     void remove_ext(PyrosDB *db,QVector<QByteArray>tags);
     void get_all_tags(PyrosDB *db);
+    void merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByteArray> duplicates);
 
 signals:
     void search_return(QVector<PyrosFile*>);

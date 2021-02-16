@@ -69,7 +69,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(ui->cbz_next_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::next_page);
 
     //connect(this,&QWidget::destroyed,ui->mpv_player,&mpv_widget::stop);
-    connect(ui->mediaviewer,&MediaViewer::info_updated,this,&FileViewer::set_file_info);
+    connect(ui->mediaviewer,&MediaViewer::info_updated,ui->file_info,&QLabel::setText);
 
 }
 
@@ -100,7 +100,6 @@ void FileViewer::set_file()
     if (m_pFile == nullptr || m_files.count() <= 0)
         return;
 
-    QSettings settings;
     QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
     ui->file_count_label->setText(filecount);
 
@@ -110,8 +109,6 @@ void FileViewer::set_file()
     ui->image_buttons->setVisible(ui->mediaviewer->is_resizable());
 
     ui->file_tags->setTagsFromFile(m_pFile);
-
-
 }
 
 void FileViewer::update_fit(const QString &text)
@@ -179,13 +176,6 @@ void FileViewer::remove_tag(QVector<QByteArray> tags)
 {
     PyrosTC *ptc = PyrosTC::get();
     ptc->remove_tags(m_pFile->hash,tags);
-}
-
-
-
-void FileViewer::set_file_info(QString string)
-{
-    ui->file_info->setText(string);
 }
 
 void FileViewer::hide_files(QVector<QByteArray> hashes){

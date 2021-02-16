@@ -31,6 +31,7 @@ private:
 signals:
     void new_files(QVector<FileModel::file_item> files);
     void files_removed(QVector<QByteArray>);
+    void new_duplicate_selector_tab(QVector<PyrosFile*>);
 
 public slots:
     void search(QVector<QByteArray> tags);

@@ -46,6 +46,8 @@ private slots:
     void new_viewer_tab(QVector<PyrosFile*> files,int inital_position);
     void new_config_tab();
     void new_database_creation_tab();
+    void new_duplicate_selector_tab(QVector<PyrosFile*> files);
+
     void set_tab_title(QString text,QWidget *sender);
     void open_database();
 

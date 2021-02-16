@@ -1,4 +1,3 @@
-
 #include "fileview.h"
 #include "pyrosqt.h"
 #include "pyrosdb.h"
@@ -15,8 +14,6 @@
 #include <QColor>
 #include <QResizeEvent>
 #include <QPixmap>
-
-#include <iostream>
 
 using ct = configtab;
 
@@ -427,12 +424,18 @@ void FileView::open_duplicate_menu()
 {
     QItemSelectionModel *select = selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
-    QModelIndex index;
+    QVector<PyrosFile*> ffiles;
 
-    foreach(index, indexes) {
-        QString str = file_model->file(index)->hash;
-        qDebug() << str;
-     }
+    foreach(QModelIndex index, indexes)
+        if (file_model->file(index) != nullptr)
+            ffiles.append(Pyros_Duplicate_File(file_model->file(index)));
+
+    if (ffiles.count() >= 2)
+        emit new_duplicate_selector_tab(ffiles);
+    else
+        foreach(PyrosFile *file,ffiles)
+            Pyros_Close_File(file);
+
 
 }
 

@@ -46,14 +46,13 @@ private slots:
     void add_tag(QVector<QByteArray> tags);
     void remove_tag(QVector<QByteArray> tags);
 
-    void set_file_info(QString string);
-
 public slots:
     void hide_files(QVector<QByteArray> hashes);
 
 signals:
     void file_deleted(QVector<QByteArray>);
     void new_search_with_selected_tags(QVector<QByteArray>);
+
 };
 
 #endif // FILEVIEWER_H

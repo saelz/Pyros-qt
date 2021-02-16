@@ -47,7 +47,7 @@ signals:
     void create_viewer_tab(QVector<PyrosFile*>,int);
     void create_new_search_with_tags(QVector<QByteArray> tags);
     void hide_files_by_hash(QVector<QByteArray> hashes);
-
+    void new_duplicate_selector_tab(QVector<PyrosFile*>);
 };
 
 #endif // SEARCHTAB_H

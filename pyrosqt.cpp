@@ -6,6 +6,7 @@
 #include "pyrosdb.h"
 #include "configtab.h"
 #include "databasecreation.h"
+#include "duplicate_selector.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -159,6 +160,7 @@ void PyrosQT::search_tab_init(SearchTab *st)
     connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
     connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
     connect(st,&SearchTab::create_new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
+    connect(st, &SearchTab::new_duplicate_selector_tab,this,&PyrosQT::new_duplicate_selector_tab);
 
     connect(st,&SearchTab::file_deleted,this,&PyrosQT::files_removed);
     connect(this,&PyrosQT::files_removed,st,&SearchTab::hide_files_by_hash);
@@ -209,13 +211,22 @@ void PyrosQT::new_config_tab()
 }
 
 
-void PyrosQT::new_database_creation_tab(){
+void PyrosQT::new_database_creation_tab()
+{
     DatabaseCreation *dc = new DatabaseCreation();
     create_tab(dc,"New Database");
     connect(dc,&DatabaseCreation::new_search,this,&PyrosQT::new_search_tab);
     connect(dc,&DatabaseCreation::delete_all_tabs,this,&PyrosQT::close_all_tabs);
 }
 
+void PyrosQT::new_duplicate_selector_tab(QVector<PyrosFile*> files)
+{
+    duplicate_selector *ds = new duplicate_selector(files);
+    create_tab(ds,"Duplicate Selector");
+    connect(ds,&duplicate_selector::files_removed,this,&PyrosQT::files_removed);
+    connect(this,&PyrosQT::files_removed,ds,&duplicate_selector::hide_files);
+
+}
 
 void PyrosQT::close_all_tabs(){
     while (ui->tabWidget->count() >= 1)

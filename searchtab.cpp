@@ -85,6 +85,7 @@ void SearchTab::init()
     connect(ui->file_tags,&TagView::add_tag_to_current_search,ui->search_tags,&TagView::add_tags);
     connect(ui->file_tags,&TagView::add_tag_to_current_search,ui->file_view,&FileView::search);
 
+    connect(ui->file_view, &FileView::new_duplicate_selector_tab, this, &SearchTab::new_duplicate_selector_tab);
     connect(ui->file_view, &FileView::files_removed, this, &SearchTab::file_deleted);
     connect(this, &SearchTab::hide_files_by_hash, ui->file_view,&FileView::hide_files_by_hash);
 
