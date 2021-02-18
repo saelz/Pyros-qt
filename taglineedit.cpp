@@ -40,7 +40,6 @@ void TagCompleter::update(QString text)   {
     foreach(QString t,m_list)
         if (t.startsWith(comparison_text))
             filtered.append(t);
-
     m_model.setStringList(filtered);
     complete();
 }
@@ -90,7 +89,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 
         if (hist_location != 0)
             setText(tag_history.at(hist_location));
-    } else {
+    } else if (event->key() != Qt::Key::Key_Enter){
         if (completer != nullptr)
             completer->update(text());
     }

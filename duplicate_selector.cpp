@@ -103,7 +103,6 @@ void duplicate_selector::update_file()
         ui->not_duplicate_radio->setChecked(true);
         break;
     case SUPERIOR:
-        ui->superior_file_radio->setEnabled(true);
         ui->superior_file_radio->setChecked(true);
         break;
     case NONE:
