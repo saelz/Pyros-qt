@@ -89,7 +89,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 
         if (hist_location != 0)
             setText(tag_history.at(hist_location));
-    } else if (event->key() != Qt::Key::Key_Enter){
+    } else if (event->key() != Qt::Key::Key_Enter && event->key() != Qt::Key::Key_Return){
         if (completer != nullptr)
             completer->update(text());
     }
@@ -111,11 +111,8 @@ void TagLineEdit::process_tag()
 
     if (ct::setting_value(ct::TAG_HISTORY).toBool()){
         foreach(QByteArray hist_tag, tags){
-            if ( tag_history.count() > 1){
-                if (hist_tag != tag_history.at(1))
-                    tag_history.insert(1,hist_tag);
-            } else
-                tag_history.insert(1,hist_tag);
+            tag_history.removeAll(hist_tag);
+            tag_history.insert(1,hist_tag);
         }
     }
 
@@ -128,7 +125,7 @@ void TagLineEdit::update_text_color(const QString &text){
 
     if (text.startsWith('-')){
         QColor color = settings.value("special-tagcolor/invalid",
-                      QColorConstants::Red).value<QColor>();
+                          QColorConstants::Red).value<QColor>();
         setStyleSheet(color_prefix+color.name());
         return;
     }
