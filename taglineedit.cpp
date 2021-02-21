@@ -14,10 +14,19 @@
 
 using ct = configtab;
 
+TagCompleter::TagCompleter(const QStringList& tags,QVector<QString> *tag_history, QObject * parent) :
+    QCompleter(parent), m_list(tags), m_model(),tag_history(tag_history)
+{
+
+    connect(this, QOverload<const QString &>::of(&QCompleter::activated),
+        this, &TagCompleter::set_hist_false);
+    setModel(&m_model);
+}
+
 void TagCompleter::update(QString text)   {
     QString comparison_text;
 
-    if (text.isEmpty() || text.isNull()){
+    if ((text.isEmpty() || text.isNull()) && !hist_mode){
         popup()->hide();
         return;
     }
@@ -37,9 +46,16 @@ void TagCompleter::update(QString text)   {
         comparison_text = comparison_text.toLower();
 
     QStringList filtered;
-    foreach(QString t,m_list)
-        if (t.startsWith(comparison_text))
-            filtered.append(t);
+    if (hist_mode){
+        foreach(QString t,*tag_history)
+            if (t.startsWith(comparison_text) && !t.isEmpty())
+                filtered.append(t);
+    } else {
+        foreach(QString t,m_list)
+            if (t.startsWith(comparison_text))
+                filtered.append(t);
+    }
+
     m_model.setStringList(filtered);
     complete();
 }
@@ -52,7 +68,7 @@ TagLineEdit::TagLineEdit(QWidget *parent) :
     PyrosTC *ptc = PyrosTC::get();
 
     PyrosTC::all_tags_cb cb= [&](QStringList tags){
-        completer = new TagCompleter(tags, this);
+        completer = new TagCompleter(tags,&tag_history, this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
         completer->setWidget(this);
 
@@ -89,7 +105,15 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 
         if (hist_location != 0)
             setText(tag_history.at(hist_location));
-    } else if (event->key() != Qt::Key::Key_Enter && event->key() != Qt::Key::Key_Return){
+    } else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key::Key_R){
+        if (completer != nullptr){
+            completer->toggle_hist_mode();
+            completer->update(text());
+        }
+    } else if (event->key() == Qt::Key::Key_Enter || event->key() == Qt::Key::Key_Return){
+        if (completer != nullptr)
+            completer->set_hist_false();
+    } else {
         if (completer != nullptr)
             completer->update(text());
     }
@@ -106,6 +130,7 @@ void TagLineEdit::process_tag()
         emit reset();
         return;
     }
+
     QList<QByteArray> l = tag.split('\n');
     QVector<QByteArray> tags = l.toVector();
 
