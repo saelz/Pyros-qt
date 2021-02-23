@@ -48,7 +48,7 @@ void TagCompleter::update(QString text)   {
     QStringList filtered;
     if (hist_mode){
         foreach(QString t,*tag_history)
-            if (t.startsWith(comparison_text) && !t.isEmpty())
+            if (!t.isEmpty() && t.contains(comparison_text))
                 filtered.append(t);
     } else {
         foreach(QString t,m_list)

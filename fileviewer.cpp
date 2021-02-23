@@ -97,8 +97,11 @@ void FileViewer::set_file()
     ui->file_tags->clear();
 
 
-    if (m_pFile == nullptr || m_files.count() <= 0)
+    if (m_pFile == nullptr || m_files.count() <= 0){
+        ui->mediaviewer->set_file(nullptr);
+        ui->file_count_label->setText("0");
         return;
+    }
 
     QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
     ui->file_count_label->setText(filecount);

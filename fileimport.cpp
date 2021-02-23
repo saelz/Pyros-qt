@@ -9,10 +9,29 @@
 #include <QMenu>
 #include <QStandardItemModel>
 #include <QDropEvent>
+#include <QFileSystemModel>
 
 using ct = configtab;
 
 QString FileImport::starting_dir = QDir::home().path();
+
+
+
+bool TagFileFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+    QFileSystemModel* fileModel = qobject_cast<QFileSystemModel*>(sourceModel());
+
+    if (fileModel->fileName(index).endsWith(".txt") && fileModel->fileName(index).length() > 4){
+        QString filename = fileModel->filePath(index);
+        filename.chop(4);
+        if (QFile::exists(filename))
+            return false;
+    }
+
+    return true;
+}
+
 
 FileImport::FileImport(QWidget *parent) :
     QWidget(parent),
@@ -115,7 +134,13 @@ void FileImport::dropEvent(QDropEvent* event)
 
 void FileImport::add_files()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this,"Select Files",starting_dir);
+    QFileDialog file_dialog(this,"Select Files",starting_dir);
+    file_dialog.setOption(QFileDialog::DontUseNativeDialog);
+    file_dialog.setFileMode(QFileDialog::ExistingFiles);
+    file_dialog.setProxyModel(new TagFileFilterProxyModel);
+    file_dialog.exec();
+
+    QStringList files  = file_dialog.selectedFiles();
 
     if (files.count() > 0){
         QAbstractItemModel *model = ui->selected_files->model();

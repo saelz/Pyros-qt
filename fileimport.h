@@ -4,9 +4,16 @@
 #include <QWidget>
 #include <QProgressBar>
 #include <QTabWidget>
+#include <QSortFilterProxyModel>
 #include <pyros.h>
 
 class QMenu;
+
+class TagFileFilterProxyModel : public QSortFilterProxyModel
+{
+protected:
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const;
+};
 
 namespace Ui {
 class FileImport;
