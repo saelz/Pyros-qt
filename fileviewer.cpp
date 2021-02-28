@@ -27,7 +27,6 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
         m_files.push_back(Pyros_Duplicate_File(pFile));
     }
 
-    set_file();
 
 
     QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
@@ -68,9 +67,9 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(ui->cbz_prev_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::prev_page);
     connect(ui->cbz_next_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::next_page);
 
-    //connect(this,&QWidget::destroyed,ui->mpv_player,&mpv_widget::stop);
     connect(ui->mediaviewer,&MediaViewer::info_updated,ui->file_info,&QLabel::setText);
 
+    set_file();
 }
 
 
@@ -190,7 +189,7 @@ void FileViewer::hide_files(QVector<QByteArray> hashes){
         for (int j  = hashes.length()-1;j >= 0;j--) {
             if (!hashes.at(j).compare(file->hash)){
                 m_files.removeAt(i);
-                if (position >= m_files.size())
+                if (position > i)
                     position--;
                 if (position < 0)
                     position = 0;

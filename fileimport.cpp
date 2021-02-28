@@ -138,7 +138,9 @@ void FileImport::add_files()
     file_dialog.setOption(QFileDialog::DontUseNativeDialog);
     file_dialog.setFileMode(QFileDialog::ExistingFiles);
     file_dialog.setProxyModel(new TagFileFilterProxyModel);
-    file_dialog.exec();
+
+    if (!file_dialog.exec())
+        return;
 
     QStringList files  = file_dialog.selectedFiles();
 
