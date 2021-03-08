@@ -36,12 +36,9 @@ int TagItem::childNumber() const
 QVariant TagItem::data(int column) const
 {
     if (column == TAG_COLUMN){
-      switch (type) {
-        default:
-            return tag;
-        case ALIAS_TAG:
-            return  tag.toString() + " <A>";
-        }
+        return tag;
+    } else if (column == TYPE_COLUMN){
+        return QVariant(type);
     }
 
     return QVariant();

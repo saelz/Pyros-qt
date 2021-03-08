@@ -31,9 +31,9 @@ QVariant TagTreeModel::data(const QModelIndex &index, int role) const
     TagItem *item = getItem(index);
 
     if (role == Qt::DisplayRole ){
-        return item->data(index.column());
+        return item->data(TagItem::TAG_COLUMN);
     }else if( role == Qt::EditRole){
-        return item->tag;
+        return item->data(TagItem::TYPE_COLUMN);
     } else if (role == Qt::ForegroundRole) {
         return item->fg_color;
     }

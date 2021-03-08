@@ -1,12 +1,51 @@
 #include "tagview.h"
 #include "pyrosqt.h"
 #include "pyrosdb.h"
+#include "tagitem.h"
 
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QInputDialog>
 #include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QSettings>
+#include <QPainter>
+
+
+#include <QDebug>
+
+class TagDelegate : public QStyledItemDelegate{
+public:
+    QAbstractItemModel *model;
+    TagDelegate(QAbstractItemModel *model,QObject *parent)
+        : QStyledItemDelegate(parent),model(model){}
+
+    void paint(QPainter* painter,const QStyleOptionViewItem &option,const QModelIndex &index) const{
+        QStyleOptionViewItem options = option;
+        QColor color = model->data(index,Qt::ForegroundRole).value<QColor>();
+
+        initStyleOption(&options, index);
+
+        painter->save();
+
+
+        painter->setPen(color);
+        //painter->drawText(options.rect,tag);
+        options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
+
+
+        if (model->data(index,Qt::EditRole).toInt() == TagItem::ALIAS_TAG){
+            painter->setPen(QColor(130,180,250));
+            options.rect.adjust(options.fontMetrics.boundingRect(options.text).width(),0,0,0);
+            //options.text = " <A>";
+            //options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
+            painter->drawText(options.rect,"  <A>");
+        }
+
+        painter->restore();
+    }
+
+};
 
 TagView::TagView(QWidget *parent) :
     QTreeView(parent)
@@ -33,6 +72,8 @@ TagView::TagView(QWidget *parent) :
     contextMenu->addAction("Remove Ext",        this, &TagView::remove_ext);
 
     connect(this, &TagView::customContextMenuRequested, this, &TagView::onCustomContextMenu);
+
+    setItemDelegate(new TagDelegate(sort_model,this));
 }
 
 
@@ -76,8 +117,8 @@ void TagView::remove_ext(){
     foreach(QModelIndex index, indexes) {
         QModelIndex parent =  index.parent();
         if (parent.isValid()){
-            QByteArray ext_parent = model->data(parent,Qt::EditRole).toByteArray();
-            QByteArray ext = model->data(index,Qt::EditRole).toByteArray();
+            QByteArray ext_parent = model->data(parent,Qt::DisplayRole).toByteArray();
+            QByteArray ext = model->data(index,Qt::DisplayRole).toByteArray();
             model->removeRow(index.row(),index.parent());
             tags.push_back(ext);
             tags.push_back(ext_parent);
@@ -123,7 +164,7 @@ QVector<QByteArray> TagView::get_selected_tags(){
     QModelIndexList indexes = select->selectedIndexes();
 
     foreach(QModelIndex index, indexes) {
-        QVariant varient = model()->data(index,Qt::EditRole);
+        QVariant varient = model()->data(index,Qt::DisplayRole);
         selected_tags.append(varient.toByteArray());
     }
     return selected_tags;
@@ -176,7 +217,7 @@ void TagView::copy_tag()
     bool multiple = false;
 
     foreach(index, indexes) {
-        QString str = model->data(index,Qt::EditRole).toString();
+        QString str = model->data(index,Qt::DisplayRole).toString();
         if (multiple){
             tags += "\n" + str;
         } else {

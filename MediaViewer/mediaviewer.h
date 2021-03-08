@@ -51,6 +51,8 @@ public slots:
 
     void set_scale(SCALE_TYPE scale);
 
+    void set_focus();
+
 signals:
     void info_updated(QString);
 

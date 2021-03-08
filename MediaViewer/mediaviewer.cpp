@@ -94,6 +94,8 @@ void MediaViewer::set_file(PyrosFile* file)
     viewer->set_file(file->path);
     emit info_updated(viewer->get_info());
     update_scale();
+    scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 bool MediaViewer::is_resizable()
@@ -145,8 +147,7 @@ void MediaViewer::prev_page()
 
 bool MediaViewer::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::Resize &&
-            obj == scroll_area) {
+    if (event->type() == QEvent::Resize) {
         if (scale_type != SCALE_TYPE::ORIGINAL){
             update_scale();
         }
@@ -172,6 +173,8 @@ bool MediaViewer::eventFilter(QObject *obj, QEvent *event)
         scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
+    if (viewer != nullptr && viewer->always_show_vertical_scrollbar())
+        scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     return QWidget::eventFilter(obj, event);
 }
@@ -186,4 +189,8 @@ void MediaViewer::set_scale(SCALE_TYPE scale)
 {
     scale_type = scale;
     update_scale();
+}
+
+void MediaViewer::set_focus(){
+    scroll_area->setFocus(Qt::OtherFocusReason);
 }

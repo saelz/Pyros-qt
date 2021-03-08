@@ -19,6 +19,7 @@ public:
     QString get_info() override;
 
     inline bool resizable() override{return true;}
+    inline bool always_show_vertical_scrollbar() override{return true;}
 
 };
 

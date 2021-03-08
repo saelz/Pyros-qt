@@ -43,6 +43,7 @@ public:
     virtual inline bool resizable(){return false;}
     virtual inline bool scaleing(){return false;}
     virtual inline bool multi_paged(){return false;}
+    virtual inline bool always_show_vertical_scrollbar(){return false;}
 };
 
 #endif // VIEWER_H

@@ -39,7 +39,6 @@ private slots:
     void update_fit(const QString &text);
 
     void select_tag_bar();
-    void select_file_viewer();
     void next_file();
     void prev_file();
     void delete_file();

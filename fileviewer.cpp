@@ -47,7 +47,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent)
     connect(zoom_out_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::zoom_out);
     connect(next_page_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::next_page);
     connect(prev_page_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::prev_page);
-    connect(focus_file_viewer, &QAction::triggered,this, &FileViewer::select_file_viewer);
+    connect(focus_file_viewer, &QAction::triggered,ui->mediaviewer, &MediaViewer::set_focus);
 
 
     connect(ui->fit_combo_box, &QComboBox::currentTextChanged,this, &FileViewer::update_fit);
@@ -84,10 +84,6 @@ void FileViewer::select_tag_bar()
     ui->tag_bar->setFocus(Qt::OtherFocusReason);
 }
 
-void FileViewer::select_file_viewer()
-{
-    ui->mediaviewer->setFocus(Qt::OtherFocusReason);
-}
 
 void FileViewer::set_file()
 {
