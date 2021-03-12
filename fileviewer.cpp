@@ -185,7 +185,7 @@ void FileViewer::hide_files(QVector<QByteArray> hashes){
         for (int j  = hashes.length()-1;j >= 0;j--) {
             if (!hashes.at(j).compare(file->hash)){
                 m_files.removeAt(i);
-                if (position > i)
+                if (position >= i)
                     position--;
                 if (position < 0)
                     position = 0;
