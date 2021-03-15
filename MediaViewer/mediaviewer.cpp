@@ -130,18 +130,20 @@ void MediaViewer::zoom_out()
 void MediaViewer::next_page()
 {
     if (viewer != nullptr){
-        viewer->next_page();
-        scroll_area->verticalScrollBar()->setValue(0);
-        emit info_updated(viewer->get_info());
+        if (viewer->next_page()){
+            scroll_area->verticalScrollBar()->setValue(0);
+            emit info_updated(viewer->get_info());
+        }
     }
 }
 
 void MediaViewer::prev_page()
 {
     if (viewer != nullptr){
-        viewer->prev_page();
-        scroll_area->verticalScrollBar()->setValue(0);
-        emit info_updated(viewer->get_info());
+        if (viewer->prev_page()){
+            scroll_area->verticalScrollBar()->setValue(0);
+            emit info_updated(viewer->get_info());
+        }
     }
 }
 
@@ -182,7 +184,7 @@ bool MediaViewer::eventFilter(QObject *obj, QEvent *event)
 void MediaViewer::update_scale()
 {
     if (viewer != nullptr)
-        viewer->resize(scroll_area->width(),scroll_area->height(),scale_type);
+        viewer->resize(scroll_area->width()-1,scroll_area->height()-1,scale_type);
 }
 
 void MediaViewer::set_scale(SCALE_TYPE scale)

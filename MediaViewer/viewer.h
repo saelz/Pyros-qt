@@ -35,8 +35,8 @@ public:
     virtual inline void zoom_in(){};
     virtual inline void zoom_out(){};
 
-    virtual inline void next_page(){};
-    virtual inline void prev_page(){};
+    virtual inline bool next_page(){return  false;};
+    virtual inline bool prev_page(){return  false;};
 
     virtual inline QString get_info(){return "";}
 

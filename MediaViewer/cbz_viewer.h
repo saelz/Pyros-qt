@@ -16,9 +16,9 @@ public:
 
     void update_size() override;
 
-    void next_page() override;
+    bool next_page() override;
 
-    void prev_page() override;
+    bool prev_page() override;
 
     QString get_info() override;
 

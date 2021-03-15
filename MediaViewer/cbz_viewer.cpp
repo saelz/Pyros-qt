@@ -28,20 +28,24 @@ void Cbz_Viewer::update_size()
         Image_Viewer::update_size();
 }
 
-void Cbz_Viewer::next_page()
+bool Cbz_Viewer::next_page()
 {
     if (!reader.isValid || current_page+1 >= reader.file_count())
-        return;
+        return false;
+
     current_page++;
     read_page();
+    return true;
 }
 
-void Cbz_Viewer::prev_page()
+bool Cbz_Viewer::prev_page()
 {
     if (!reader.isValid || current_page <= 0)
-        return;
+        return false;
+
     current_page--;
     read_page();
+    return true;
 }
 
 QString Cbz_Viewer::get_info()
