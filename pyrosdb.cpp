@@ -174,8 +174,10 @@ void PyrosWorker::get_all_tags(PyrosDB *db)
 
 void PyrosWorker::merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByteArray> duplicates)
 {
-    foreach(QByteArray duplicate,duplicates)
+    foreach(QByteArray duplicate,duplicates){
+        FileModel::delete_thumbnail(duplicate);
         Pyros_Merge_Hashes(db,superior_file,duplicate,true);
+    }
 
 }
 
