@@ -75,6 +75,7 @@ public:
         THUMBNAIL_SIZE,
         CBZ_THUMB_PAGE_COUNT,
         KEY_FOCUS_FILE_VIEWER,
+        THUMBNAIL_DIR
     };
 private:
 

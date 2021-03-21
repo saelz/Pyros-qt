@@ -186,15 +186,24 @@ QVariant FileModel::external_thumbnailer(thumbnail_item item,QByteArray& thumbpa
 }
 
 void FileModel::delete_thumbnail(QByteArray hash){
-    QString database_path = PyrosTC::get()->db_path()+"/db/"+hash.left(2)+"/";
-    QDir directory(database_path);
-    QStringList nameFilter(hash+".*.thumb");
-    QStringList thumbnails = directory.entryList(nameFilter);
+    QByteArray thumbnail_dir = ct::setting_value(ct::THUMBNAIL_DIR).toByteArray();
 
-    foreach(QString filepath,thumbnails){
-        QFile file(database_path+filepath);
+    if (thumbnail_dir.at(0) == '~')
+        thumbnail_dir = QDir::homePath().toUtf8() + thumbnail_dir.mid(1);
+
+    QDir directory(thumbnail_dir);
+    directory.setFilter(QDir::Dirs);
+    QStringList thumbnail_size_dirs = directory.entryList();
+
+
+    foreach(QString thumbnail_size,thumbnail_size_dirs){
+        if (thumbnail_size == "." || thumbnail_size == "..")
+            continue;
+
+        QFile file(thumbnail_dir+"/"+thumbnail_size+"/"+hash+".thumb");
         file.remove();
     }
+
 }
 
 QVariant FileModel::internal_image_thumbnailer(thumbnail_item item,QByteArray& thumbpath){
@@ -273,9 +282,18 @@ QVariant FileModel::internal_cbz_thumbnailer(thumbnail_item item,QByteArray& thu
 FileModel::thumbnail_item FileModel::generateThumbnail (thumbnail_item item) {
     QPixmap pix1;
 
-    QByteArray imgPath(item.path+".");
-    imgPath += ct::setting_value(ct::THUMBNAIL_SIZE).toString().toUtf8();
-    imgPath += ".thumb";
+    QByteArray imgPath = ct::setting_value(ct::THUMBNAIL_DIR).toByteArray();
+
+    if (imgPath.at(0) == '~')
+        imgPath = QDir::homePath().toUtf8() + imgPath.mid(1);
+
+    imgPath += "/"+ct::setting_value(ct::THUMBNAIL_SIZE).toByteArray()+"/";
+
+    QDir dir(imgPath);
+    if (!dir.exists())
+        dir.mkpath(".");
+
+    imgPath += item.hash+".thumb";
 
     if (pix1.load(imgPath)){
         item.thumbnail = pix1;
@@ -308,7 +326,8 @@ void FileModel::load_thumbnails(QModelIndexList indexes)
             if (pFile != nullptr){
                 m_files[indexToNum(index)].thumbnail = QVariant();
                 items.append({indexToNum(index),
-                              QVariant(),pFile->path,pFile->mime});
+                              QVariant(),
+                              pFile->path,pFile->hash,pFile->mime});
             }
     }
 
@@ -329,7 +348,7 @@ void FileModel::append_thumbnail_items(QVector<thumbnail_item> &items,int start_
             if (pFile == nullptr ||
                     m_files[indexToNum(current)].thumbnail != QVariant())
                 continue;
-            items.append({indexToNum(current),QVariant(),pFile->path,pFile->mime});
+            items.append({indexToNum(current),QVariant(),pFile->path,pFile->hash,pFile->mime});
         }
     }
 }

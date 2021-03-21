@@ -14,6 +14,7 @@ class FileModel : public QAbstractTableModel
         int last_known_index;
         QVariant thumbnail;
         QByteArray path;
+        QByteArray hash;
         QByteArray mime;
     };
 
