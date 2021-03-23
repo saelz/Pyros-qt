@@ -161,7 +161,7 @@ void duplicate_selector::update_radio_buttons()
     if (m_files.length() <= 1)
         all_files_set = false;
 
-    ui->apply_button->setEnabled(all_files_set);
+    ui->apply_button->setEnabled(all_files_set && superior_set);
     ui->superior_file_radio->setEnabled(!superior_set);
 
 }
