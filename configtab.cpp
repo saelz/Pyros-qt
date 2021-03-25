@@ -47,8 +47,8 @@ const configtab::setting configtab::settings[] = {
 
 QVector<configtab::binding> configtab::active_bindings;
 
-configtab::configtab(QWidget *parent) :
-    QWidget(parent)
+configtab::configtab(QTabWidget *parent) :
+    Tab(parent)
 {
 
     QVBoxLayout *page_layout;
@@ -58,6 +58,7 @@ configtab::configtab(QWidget *parent) :
     QHBoxLayout *button_layout = new QHBoxLayout();
     QPushButton *apply_button = new QPushButton("Apply");
 
+    set_title("Config");
     button_column = new QVBoxLayout();
     pages =  new QStackedWidget();
 

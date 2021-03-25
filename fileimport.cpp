@@ -33,11 +33,12 @@ bool TagFileFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex 
 }
 
 
-FileImport::FileImport(QWidget *parent) :
-    QWidget(parent),
+FileImport::FileImport(QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::FileImport)
 {
     ui->setupUi(this);
+    set_title("Import");
 
     QAction *insert_bind = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"Insert",this);
     connect(insert_bind, &QAction::triggered,this, &FileImport::select_tag_bar);
@@ -180,7 +181,7 @@ void FileImport::import_files()
 
     PyrosTC::search_cb cb = [&](QVector<PyrosFile*> files){
         emit new_search(files);
-        delete this;
+        Tab::delete_self();
     };
 
     PyrosTC::import_progress_cb progress_cb = [&](int i){

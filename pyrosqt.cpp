@@ -37,7 +37,6 @@ PyrosQT::PyrosQT(QWidget *parent)
     connect(ui->actionOpen_Database, &QAction::triggered,this, &PyrosQT::open_database);
 
     connect(ui->tabWidget,&QTabWidget::tabCloseRequested,this, &PyrosQT::remove_tab);
-    connect(ui->tabWidget,&QTabWidget::currentChanged,this,&PyrosQT::tab_changed);
 
     ui->tabWidget->installEventFilter(this);
 }
@@ -112,26 +111,9 @@ void PyrosQT::load_settings(){
     QApplication::setPalette(palette);
 }
 
-void PyrosQT::create_tab(QWidget *widget, QString label)
-{
-    ui->tabWidget->insertTab(ui->tabWidget->currentIndex()+1,widget,label);
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->currentIndex()+1);
-
-}
-
-void PyrosQT::tab_changed(int index)
-{
-    if (!current_tab.isNull())
-        last_tab = current_tab;
-
-    current_tab = ui->tabWidget->widget(index);
-
-}
-
 void PyrosQT::new_import_tab()
 {
     FileImport *fi = new FileImport(ui->tabWidget);
-    create_tab(fi,"Import");
 
     connect(fi,&FileImport::new_search,this,&PyrosQT::new_search_tab_with_vector);
     connect(fi,&FileImport::new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
@@ -139,25 +121,23 @@ void PyrosQT::new_import_tab()
 
 void PyrosQT::new_search_tab()
 {
-    SearchTab *st = new SearchTab();
+    SearchTab *st = new SearchTab(ui->tabWidget);
     search_tab_init(st);
 }
 void PyrosQT::new_search_tab_with_vector(QVector<PyrosFile*>files)
 {
-    SearchTab *st = new SearchTab(files);
+    SearchTab *st = new SearchTab(files,ui->tabWidget);
     search_tab_init(st);
 }
 void PyrosQT::new_search_tab_with_tags(QVector<QByteArray>tags)
 {
-    SearchTab *st = new SearchTab(tags);
+    SearchTab *st = new SearchTab(tags,ui->tabWidget);
     search_tab_init(st);
 }
 
 void PyrosQT::search_tab_init(SearchTab *st)
 {
 
-    create_tab(st,"Search");
-    connect(st,&SearchTab::set_title,this,&PyrosQT::set_tab_title);
     connect(st,&SearchTab::create_viewer_tab,this,&PyrosQT::new_viewer_tab);
     connect(st,&SearchTab::create_new_search_with_tags,this,&PyrosQT::new_search_tab_with_tags);
     connect(st, &SearchTab::new_duplicate_selector_tab,this,&PyrosQT::new_duplicate_selector_tab);
@@ -168,14 +148,8 @@ void PyrosQT::search_tab_init(SearchTab *st)
 
 void PyrosQT::remove_tab(int index)
 {
-    int cur_index = ui->tabWidget->currentIndex();
-    QWidget *widget = ui->tabWidget->widget(index);
-
-    if (!last_tab.isNull() && cur_index == index)
-        ui->tabWidget->setCurrentWidget(last_tab);
-    ui->tabWidget->removeTab(index);
-    delete widget;
-
+    Tab *tab = qobject_cast<Tab*>(ui->tabWidget->widget(index));
+    tab->delete_self();
 }
 
 void PyrosQT::remove_tab_current()
@@ -183,20 +157,12 @@ void PyrosQT::remove_tab_current()
     remove_tab(ui->tabWidget->currentIndex());
 }
 
-void PyrosQT::set_tab_title(QString title,QWidget *sender){
-    int index = ui->tabWidget->indexOf(sender);
-    int max_title = 20;
-    if (title.length() > max_title)
-        title = title.left(max_title-3)+"...";
-
-    ui->tabWidget->setTabText(index,title);
-
-}
-
 void PyrosQT::new_viewer_tab(QVector<PyrosFile*> files,int inital_position)
 {
+    Tab *tab = qobject_cast<Tab*>(sender());
     FileViewer *fv = new FileViewer(files,inital_position,ui->tabWidget);
-    create_tab(fv,"Viewer");
+    fv->set_parent_tab(tab);
+
     connect(fv,&FileViewer::new_search_with_selected_tags,this,&PyrosQT::new_search_tab_with_tags);
 
     connect(fv,&FileViewer::file_deleted,this,&PyrosQT::files_removed);
@@ -205,24 +171,23 @@ void PyrosQT::new_viewer_tab(QVector<PyrosFile*> files,int inital_position)
 
 void PyrosQT::new_config_tab()
 {
-    configtab *conft = new configtab();
-    create_tab(conft,"Config");
+    configtab *conft = new configtab(ui->tabWidget);
     connect(conft,&configtab::settings_changed,this,&PyrosQT::load_settings);
 }
 
 
 void PyrosQT::new_database_creation_tab()
 {
-    DatabaseCreation *dc = new DatabaseCreation();
-    create_tab(dc,"New Database");
+    DatabaseCreation *dc = new DatabaseCreation(ui->tabWidget);
     connect(dc,&DatabaseCreation::new_search,this,&PyrosQT::new_search_tab);
     connect(dc,&DatabaseCreation::delete_all_tabs,this,&PyrosQT::close_all_tabs);
 }
 
 void PyrosQT::new_duplicate_selector_tab(QVector<PyrosFile*> files)
 {
-    duplicate_selector *ds = new duplicate_selector(files);
-    create_tab(ds,"Duplicate Selector");
+    Tab *tab = qobject_cast<Tab*>(sender());
+    duplicate_selector *ds = new duplicate_selector(files,ui->tabWidget);
+    ds->set_parent_tab(tab);
     connect(ds,&duplicate_selector::files_removed,this,&PyrosQT::files_removed);
     connect(this,&PyrosQT::files_removed,ds,&duplicate_selector::hide_files);
 

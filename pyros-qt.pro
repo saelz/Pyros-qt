@@ -36,6 +36,7 @@ SOURCES += \
     pyrosdb.cpp \
     pyrosqt.cpp \
     searchtab.cpp \
+    tab.cpp \
     tagitem.cpp \
     taglineedit.cpp \
     tagtreemodel.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     pyrosdb.h \
     pyrosqt.h \
     searchtab.h \
+    tab.h \
     tagitem.h \
     taglineedit.h \
     tagtreemodel.h \

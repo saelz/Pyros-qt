@@ -8,10 +8,11 @@
 
 #include <pyros.h>
 
-DatabaseCreation::DatabaseCreation(QWidget *parent) :
-    QWidget(parent),
+DatabaseCreation::DatabaseCreation(QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::DatabaseCreation)
 {
+    set_title("New Database");
     ui->setupUi(this);
     connect(ui->create_database_button,&QPushButton::clicked,this,&DatabaseCreation::create_database);
     ui->database_path->setText(QDir::homePath()+"/.local/share/pyros/main");

@@ -15,13 +15,14 @@
 
 using ct = configtab;
 
-FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QWidget *parent) :
-    QWidget(parent),
+FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::FileViewer),
     position(inital_pos)
 {
 
     ui->setupUi(this);
+    set_title("Viewer");
 
     foreach(PyrosFile *pFile,files){
         m_files.push_back(Pyros_Duplicate_File(pFile));

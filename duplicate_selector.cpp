@@ -11,12 +11,13 @@
 
 using ct = configtab;
 
-duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QWidget *parent) :
-    QWidget(parent),
+duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::duplicate_selector),
     m_files(files)
 {
     ui->setupUi(this);
+    set_title("Duplicate Selector");
 
     QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
     QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",this);
@@ -63,7 +64,7 @@ void duplicate_selector::update_file()
 {
     if (m_files.length() <= 1){
         ui->mediaviewer->set_file(nullptr);
-        deleteLater();
+        delete_self();
         return;
     }
     PyrosFile *file = m_files.at(file_position);
@@ -183,7 +184,7 @@ void duplicate_selector::apply()
         ptc->merge_files(superior_file,duplicates);
         emit files_removed(duplicates);
     }
-    deleteLater();
+    delete_self();
 
 }
 

@@ -8,30 +8,31 @@
 
 using ct = configtab;
 
-SearchTab::SearchTab(QWidget *parent) :
-    QWidget(parent),
+SearchTab::SearchTab(QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::SearchTab)
 {
     init();
     set_loading_screen("");
 
 }
-SearchTab::SearchTab(QVector<PyrosFile*> &files,QWidget *parent) :
-    QWidget(parent),
+SearchTab::SearchTab(QVector<PyrosFile*> &files,QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::SearchTab)
 {
     init();
     set_loading_screen("Loading...");
     ui->file_view->set_files_from_vector(files);
 }
-SearchTab::SearchTab(QVector<QByteArray> &tags,QWidget *parent) :
-    QWidget(parent),
+SearchTab::SearchTab(QVector<QByteArray> &tags,QTabWidget *parent) :
+    Tab(parent),
     ui(new Ui::SearchTab)
 {
     init();
     set_loading_screen("Loading...");
     ui->search_tags->add_tags(tags);
     ui->file_view->search(tags);
+    create_title(tags);
 }
 
 SearchTab::~SearchTab()
@@ -42,6 +43,7 @@ SearchTab::~SearchTab()
 void SearchTab::init()
 {
     ui->setupUi(this);
+    set_title("Search");
 
     ui->search_tags->setTagType(PYROS_SEARCH_RELATIONSHIP);
     ui->searchbar->set_relation_type(PYROS_SEARCH_RELATIONSHIP);
@@ -111,7 +113,7 @@ void SearchTab::show_results()
 void SearchTab::create_title(QVector<QByteArray> tags){
     set_loading_screen("Loading...");
     QString str = tags.first();
-    emit set_title(str,this);
+    set_title(str);
 }
 
 void SearchTab::set_file_count(QVector<FileModel::file_item> files)
@@ -172,7 +174,7 @@ void SearchTab::clear()
     ui->file_view->clear_tags();
     clear_file_data();
     ui->data_file_count->clear();
-    emit set_title("Search",this);
+    set_title("Search");
 }
 
 void SearchTab::clear_file_data()

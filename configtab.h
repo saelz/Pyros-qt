@@ -6,6 +6,8 @@
 #include <QVariant>
 #include <QFrame>
 
+#include "tab.h"
+
 class QHBoxLayout;
 class QVBoxLayout;
 class QBoxLayout;
@@ -45,7 +47,7 @@ public slots:
     void apply();
 };
 
-class configtab : public QWidget
+class configtab : public Tab
 {
     Q_OBJECT
 public:
@@ -103,7 +105,7 @@ private:
     int font_size = 12;
 
 public:
-    explicit configtab(QWidget *parent = nullptr);
+    explicit configtab(QTabWidget *parent = nullptr);
     ~configtab();
 
 

@@ -2,17 +2,18 @@
 #define DATABASECREATION_H
 
 #include <QWidget>
+#include <tab.h>
 
 namespace Ui {
 class DatabaseCreation;
 }
 
-class DatabaseCreation : public QWidget
+class DatabaseCreation : public Tab
 {
     Q_OBJECT
 
 public:
-    explicit DatabaseCreation(QWidget *parent = nullptr);
+    explicit DatabaseCreation(QTabWidget *parent = nullptr);
     ~DatabaseCreation();
 
 private:

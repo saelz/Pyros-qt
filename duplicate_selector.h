@@ -2,6 +2,7 @@
 #define DUPLICATE_SELECTOR_H
 
 #include <QWidget>
+#include <tab.h>
 
 struct PyrosFile;
 
@@ -9,7 +10,7 @@ namespace Ui {
 class duplicate_selector;
 }
 
-class duplicate_selector : public QWidget
+class duplicate_selector : public Tab
 {
     Q_OBJECT
 
@@ -21,7 +22,7 @@ class duplicate_selector : public QWidget
     };
 
 public:
-    explicit duplicate_selector(QVector<PyrosFile*> files,QWidget *parent = nullptr);
+    explicit duplicate_selector(QVector<PyrosFile*> files,QTabWidget *parent = nullptr);
     ~duplicate_selector();
 
 public slots:

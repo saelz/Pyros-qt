@@ -29,14 +29,9 @@ signals:
 
 private:
     Ui::PyrosQT *ui;
-    QPointer<QWidget> last_tab;
-    QPointer<QWidget> current_tab;
 
 private slots:
     void load_settings();
-    void create_tab(QWidget *widget,QString label);
-
-    void tab_changed(int index);
 
     void new_import_tab();
     void new_search_tab();
@@ -48,7 +43,6 @@ private slots:
     void new_database_creation_tab();
     void new_duplicate_selector_tab(QVector<PyrosFile*> files);
 
-    void set_tab_title(QString text,QWidget *sender);
     void open_database();
 
     void remove_tab(int index);

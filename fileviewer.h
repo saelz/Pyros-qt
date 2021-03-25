@@ -10,6 +10,7 @@
 #include <pyros.h>
 
 #include "MediaViewer/mediaviewer.h"
+#include "tab.h"
 
 class zip_reader;
 //class QLabel;
@@ -18,12 +19,12 @@ namespace Ui {
 class FileViewer;
 }
 
-class FileViewer : public QWidget
+class FileViewer : public Tab
 {
     Q_OBJECT
 
 public:
-    explicit FileViewer(QVector<PyrosFile*> files,int inital_pos = 0,QWidget *parent = nullptr);
+    explicit FileViewer(QVector<PyrosFile*> files,int inital_pos = 0,QTabWidget *parent = nullptr);
     ~FileViewer();
 
     void set_file();

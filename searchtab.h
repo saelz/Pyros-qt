@@ -5,6 +5,7 @@
 
 #include "tagtreemodel.h"
 #include "filemodel.h"
+#include "tab.h"
 
 #include <QStandardItemModel>
 
@@ -13,14 +14,14 @@ namespace Ui {
 class SearchTab;
 }
 
-class SearchTab : public QWidget
+class SearchTab : public Tab
 {
     Q_OBJECT
 
 public:
-    explicit SearchTab(QWidget *parent = nullptr);
-    SearchTab(QVector<PyrosFile*> &files,QWidget *parent = nullptr);
-    SearchTab(QVector<QByteArray> &tags,QWidget *parent = nullptr);
+    explicit SearchTab(QTabWidget *parent = nullptr);
+    SearchTab(QVector<PyrosFile*> &files,QTabWidget *parent = nullptr);
+    SearchTab(QVector<QByteArray> &tags,QTabWidget *parent = nullptr);
     ~SearchTab();
 
 private:
@@ -43,7 +44,7 @@ private slots:
 
 signals:
     void file_deleted(QVector<QByteArray>);
-    void set_title(QString ,QWidget *);
+    //void set_title(QString ,QWidget *);
     void create_viewer_tab(QVector<PyrosFile*>,int);
     void create_new_search_with_tags(QVector<QByteArray> tags);
     void hide_files_by_hash(QVector<QByteArray> hashes);

@@ -5,6 +5,8 @@
 #include <QProgressBar>
 #include <QTabWidget>
 #include <QSortFilterProxyModel>
+#include <tab.h>
+
 #include <pyros.h>
 
 class QMenu;
@@ -19,12 +21,12 @@ namespace Ui {
 class FileImport;
 }
 
-class FileImport : public QWidget
+class FileImport : public Tab
 {
     Q_OBJECT
 
 public:
-    explicit FileImport(QWidget *parent = nullptr);
+    explicit FileImport(QTabWidget *parent = nullptr);
     ~FileImport();
 
 private:
