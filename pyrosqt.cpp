@@ -77,7 +77,19 @@ void PyrosQT::initalize_config(){
 
         new_database_creation_tab();
     } else {
-        new_search_tab();
+        if (QCoreApplication::arguments().count() >=3 &&
+                QCoreApplication::arguments().at(1) == "--search"){
+            QVector<QByteArray> tags;
+
+            for(int i = 2;i < QCoreApplication::arguments().count();i++)
+                tags.append(QCoreApplication::arguments().at(i).toUtf8());
+
+            new_search_tab_with_tags(tags);
+
+        } else {
+            new_search_tab();
+        }
+
     }
     load_settings();
 
