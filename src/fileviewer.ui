@@ -74,7 +74,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources.qrc">
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/data/icons/left_arrow.svg</normaloff>:/data/icons/left_arrow.svg</iconset>
            </property>
           </widget>
@@ -88,7 +88,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources.qrc">
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/data/icons/right_arrow.svg</normaloff>:/data/icons/right_arrow.svg</iconset>
            </property>
           </widget>
@@ -102,7 +102,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources.qrc">
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/data/icons/plus.svg</normaloff>:/data/icons/plus.svg</iconset>
            </property>
           </widget>
@@ -116,7 +116,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="resources.qrc">
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/data/icons/minus.svg</normaloff>:/data/icons/minus.svg</iconset>
            </property>
           </widget>
@@ -245,24 +245,24 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>MediaViewer</class>
+   <extends>QWidget</extends>
+   <header>src/MediaViewer/mediaviewer.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>TagView</class>
    <extends>QTreeView</extends>
-   <header>tagview.h</header>
+   <header>src/tagview.h</header>
   </customwidget>
   <customwidget>
    <class>TagLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>taglineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>MediaViewer</class>
-   <extends>QWidget</extends>
-   <header location="global">MediaViewer/mediaviewer.h</header>
-   <container>1</container>
+   <header>src/taglineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

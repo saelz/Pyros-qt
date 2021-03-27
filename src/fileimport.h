@@ -1,11 +1,12 @@
 #ifndef FILEIMPORT_H
 #define FILEIMPORT_H
 
+#include "tab.h"
+
 #include <QWidget>
 #include <QProgressBar>
 #include <QTabWidget>
 #include <QSortFilterProxyModel>
-#include <tab.h>
 
 #include <pyros.h>
 

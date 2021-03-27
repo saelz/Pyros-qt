@@ -326,17 +326,17 @@
   <customwidget>
    <class>TagView</class>
    <extends>QTreeView</extends>
-   <header>tagview.h</header>
+   <header>src/tagview.h</header>
   </customwidget>
   <customwidget>
    <class>TagLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>taglineedit.h</header>
+   <header>src/taglineedit.h</header>
   </customwidget>
   <customwidget>
    <class>FileView</class>
    <extends>QTableView</extends>
-   <header>fileview.h</header>
+   <header>src/fileview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

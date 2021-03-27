@@ -2,7 +2,7 @@
 #define DUPLICATE_SELECTOR_H
 
 #include <QWidget>
-#include <tab.h>
+#include "tab.h"
 
 struct PyrosFile;
 

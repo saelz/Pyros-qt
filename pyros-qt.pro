@@ -16,69 +16,69 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    MediaViewer/cbz_viewer.cpp \
-    MediaViewer/image_viewer.cpp \
-    MediaViewer/mediaviewer.cpp \
-    MediaViewer/movie_viewer.cpp \
-    MediaViewer/mpv_widget.cpp \
-    MediaViewer/text_viewer.cpp \
-    MediaViewer/unsupported_viewer.cpp \
-    MediaViewer/video_viewer.cpp \
-    MediaViewer/viewer.cpp \
-    configtab.cpp \
-    databasecreation.cpp \
-    duplicate_selector.cpp \
-    fileimport.cpp \
-    filemodel.cpp \
-    fileview.cpp \
-    fileviewer.cpp \
-    main.cpp \
-    pyrosdb.cpp \
-    pyrosqt.cpp \
-    searchtab.cpp \
-    tab.cpp \
-    tagitem.cpp \
-    taglineedit.cpp \
-    tagtreemodel.cpp \
-    tagview.cpp \
-    zip_reader.cpp
+    src/MediaViewer/cbz_viewer.cpp \
+    src/MediaViewer/image_viewer.cpp \
+    src/MediaViewer/mediaviewer.cpp \
+    src/MediaViewer/movie_viewer.cpp \
+    src/MediaViewer/mpv_widget.cpp \
+    src/MediaViewer/text_viewer.cpp \
+    src/MediaViewer/unsupported_viewer.cpp \
+    src/MediaViewer/video_viewer.cpp \
+    src/MediaViewer/viewer.cpp \
+    src/configtab.cpp \
+    src/databasecreation.cpp \
+    src/duplicate_selector.cpp \
+    src/fileimport.cpp \
+    src/filemodel.cpp \
+    src/fileview.cpp \
+    src/fileviewer.cpp \
+    src/main.cpp \
+    src/pyrosdb.cpp \
+    src/pyrosqt.cpp \
+    src/searchtab.cpp \
+    src/tab.cpp \
+    src/tagitem.cpp \
+    src/taglineedit.cpp \
+    src/tagtreemodel.cpp \
+    src/tagview.cpp \
+    src/zip_reader.cpp
 
 HEADERS += \
-    MediaViewer/cbz_viewer.h \
-    MediaViewer/image_viewer.h \
-    MediaViewer/mediaviewer.h \
-    MediaViewer/movie_viewer.h \
-    MediaViewer/mpv_widget.h \
-    MediaViewer/text_viewer.h \
-    MediaViewer/unsupported_viewer.h \
-    MediaViewer/video_viewer.h \
-    MediaViewer/viewer.h \
-    configtab.h \
-    databasecreation.h \
-    duplicate_selector.h \
-    fileimport.h \
-    filemodel.h \
-    fileview.h \
-    fileviewer.h \
-    pyrosdb.h \
-    pyrosqt.h \
-    searchtab.h \
-    tab.h \
-    tagitem.h \
-    taglineedit.h \
-    tagtreemodel.h \
-    tagview.h \
-    zip_reader.h
+    src/MediaViewer/cbz_viewer.h \
+    src/MediaViewer/image_viewer.h \
+    src/MediaViewer/mediaviewer.h \
+    src/MediaViewer/movie_viewer.h \
+    src/MediaViewer/mpv_widget.h \
+    src/MediaViewer/text_viewer.h \
+    src/MediaViewer/unsupported_viewer.h \
+    src/MediaViewer/video_viewer.h \
+    src/MediaViewer/viewer.h \
+    src/configtab.h \
+    src/databasecreation.h \
+    src/duplicate_selector.h \
+    src/fileimport.h \
+    src/filemodel.h \
+    src/fileview.h \
+    src/fileviewer.h \
+    src/pyrosdb.h \
+    src/pyrosqt.h \
+    src/searchtab.h \
+    src/tab.h \
+    src/tagitem.h \
+    src/taglineedit.h \
+    src/tagtreemodel.h \
+    src/tagview.h \
+    src/zip_reader.h
 
 LIBS += -lpyros -lmpv
 
 FORMS += \
-    databasecreation.ui \
-    duplicate_selector.ui \
-    fileimport.ui \
-    fileviewer.ui \
-    pyrosqt.ui \
-    searchtab.ui
+    src/databasecreation.ui \
+    src/duplicate_selector.ui \
+    src/fileimport.ui \
+    src/fileviewer.ui \
+    src/pyrosqt.ui \
+    src/searchtab.ui
 
 packagesExist(zlib) {
    DEFINES += ENABLE_ZLIB
@@ -91,4 +91,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    resources.qrc
+    resources/resources.qrc
