@@ -481,3 +481,8 @@ void FileModel::remove_excess_rows(int old_row_count)
     beginRemoveRows(QModelIndex(),rowCount(),old_row_count-1);
     endRemoveRows();
 }
+
+void FileModel::unset_last_index()
+{
+    last_index = QModelIndex();
+}

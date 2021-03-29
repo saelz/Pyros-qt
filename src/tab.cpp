@@ -9,8 +9,7 @@ Tab::Tab(QTabWidget *parent) :
     tab_widget->setCurrentIndex(tab_widget->currentIndex()+1);
 }
 
-void
-Tab::set_title(QString title)
+void Tab::set_title(QString title)
 {
     int index = tab_widget->indexOf(this);
     int max_title = 20;
@@ -22,8 +21,7 @@ Tab::set_title(QString title)
 
 }
 
-void
-Tab::delete_self()
+void Tab::delete_self()
 {
     int index = tab_widget->indexOf(parent_tab);
     if (index != -1)
@@ -33,8 +31,7 @@ Tab::delete_self()
     deleteLater();
 }
 
-void
-Tab::set_parent_tab(QWidget *parent)
+void Tab::set_parent_tab(QWidget *parent)
 {
     parent_tab = parent;
 }

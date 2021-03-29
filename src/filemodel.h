@@ -69,6 +69,7 @@ public:
 
     void setColumnCount(int columns);
     void remove_excess_rows(int old_row_count);
+    void unset_last_index();
 
 signals:
     void sourceChanged();

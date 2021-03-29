@@ -19,6 +19,7 @@ public slots:
     void set_title(QString new_title);
     void set_parent_tab(QWidget *parent);
 
+
 private:
     QTabWidget *tab_widget;
     QWidget *parent_tab = nullptr;

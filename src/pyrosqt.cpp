@@ -205,10 +205,12 @@ void PyrosQT::new_duplicate_selector_tab(QVector<PyrosFile*> files)
 
 }
 
-void PyrosQT::close_all_tabs(){
+void PyrosQT::close_all_tabs()
+{
     while (ui->tabWidget->count() >= 1)
         remove_tab(0);
 }
+
 
 void PyrosQT::open_database()
 {

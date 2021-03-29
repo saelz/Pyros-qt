@@ -205,6 +205,7 @@ void FileView::hide_files_by_hash(QVector<QByteArray> hashes){
         select->select(index,QItemSelectionModel::Select);
 
 
+    file_model->unset_last_index();
     emit new_files(file_model->files());
     file_model->remove_excess_rows(old_row_count);
 }
@@ -438,4 +439,3 @@ void FileView::open_duplicate_menu()
 
 
 }
-

@@ -56,6 +56,7 @@ private slots:
     void regenerate_thumbnail();
 
     void resizeEvent(QResizeEvent *event) override;
+
     void open_duplicate_menu();
 };
 
