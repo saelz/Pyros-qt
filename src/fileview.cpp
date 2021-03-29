@@ -223,7 +223,6 @@ void FileView::hide_file()
         file_model->remove_file(index);
     }
     select->clear();
-    emit new_files(file_model->files());
     file_model->remove_excess_rows(old_row_count);
 
 }
@@ -348,6 +347,7 @@ void FileView::get_visible()
     QModelIndex topLeft = indexAt(rec.topLeft());
 
     file_model->load_thumbnails(topLeft,height()/ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
+    thumbtimer.stop();
 }
 
 void FileView::regenerate_thumbnail()

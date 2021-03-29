@@ -43,6 +43,7 @@ public slots:
     void refresh();
     void invertSelection();
     void hide_files_by_hash(QVector<QByteArray> hashes);
+    void launch_timer();
 
 private slots:
 
@@ -55,7 +56,6 @@ private slots:
     void regenerate_thumbnail();
 
     void resizeEvent(QResizeEvent *event) override;
-    void launch_timer();
     void open_duplicate_menu();
 };
 
