@@ -83,6 +83,7 @@ FileView::FileView(QWidget *parent) :
 
 
     connect(this, &FileView::customContextMenuRequested, this, &FileView::onCustomContextMenu);
+    connect(this,&FileView::new_files,file_model, &FileModel::unset_last_index);
     connect(this,&FileView::new_files,this, &FileView::get_visible);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &FileView::launch_timer);
     connect(&thumbtimer, &QTimer::timeout, this, &FileView::get_visible);
@@ -205,7 +206,6 @@ void FileView::hide_files_by_hash(QVector<QByteArray> hashes){
         select->select(index,QItemSelectionModel::Select);
 
 
-    file_model->unset_last_index();
     emit new_files(file_model->files());
     file_model->remove_excess_rows(old_row_count);
 }
@@ -224,6 +224,7 @@ void FileView::hide_file()
         file_model->remove_file(index);
     }
     select->clear();
+    emit new_files(file_model->files());
     file_model->remove_excess_rows(old_row_count);
 
 }
