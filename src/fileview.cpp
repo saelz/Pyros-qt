@@ -69,6 +69,8 @@ FileView::FileView(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     contextMenu_singlefile  = new QMenu(this);
 
+    thumbtimer.setSingleShot(true);
+
     contextMenu_singlefile->addAction("Copy file path",      this,&FileView::copy_path);
     contextMenu_singlefile->addAction("Hide file",           this,&FileView::hide_file);
     contextMenu_singlefile->addAction("Regenerate thumbnail",this,&FileView::regenerate_thumbnail);
@@ -349,7 +351,6 @@ void FileView::get_visible()
     QModelIndex topLeft = indexAt(rec.topLeft());
 
     file_model->load_thumbnails(topLeft,height()/ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
-    thumbtimer.stop();
 }
 
 void FileView::regenerate_thumbnail()
