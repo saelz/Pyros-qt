@@ -9,6 +9,7 @@ public:
     void set_file(char *path) override;
 
     inline QString get_info() override{ return "";}
+    inline bool always_show_vertical_scrollbar() override{return false;}
 };
 
 #endif // UNSUPPORTED_VIEWER_H

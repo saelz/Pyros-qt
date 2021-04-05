@@ -7,6 +7,7 @@ class Image_Viewer : public Viewer
 {
 protected:
     QPixmap m_img;
+    QSize scaled_size;
     double zoom_level;
     double zoom_increment = .25;
 
@@ -16,7 +17,8 @@ public:
 
     void set_file(char *path) override;
 
-    inline virtual QSize size(){return m_img.size();};
+    inline virtual QSize size(){return m_img.size();} ;
+    virtual QSize current_size() override;
 
     virtual void set_size(QSize newsize);
 

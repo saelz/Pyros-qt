@@ -68,8 +68,6 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
     connect(ui->cbz_prev_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::prev_page);
     connect(ui->cbz_next_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::next_page);
 
-    connect(ui->mediaviewer,&MediaViewer::info_updated,ui->file_info,&QLabel::setText);
-
     set_file();
 }
 

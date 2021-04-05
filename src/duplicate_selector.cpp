@@ -26,9 +26,6 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",this);
     QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",this);
 
-
-    connect(ui->mediaviewer,&MediaViewer::info_updated,ui->file_info,&QLabel::setText);
-
     connect(next_bind,   &QAction::triggered,this, &duplicate_selector::next_file);
     connect(prev_bind,   &QAction::triggered,this, &duplicate_selector::prev_file);
     connect(zoom_in_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::zoom_in);

@@ -42,7 +42,7 @@
           <bool>false</bool>
          </property>
          <attribute name="headerVisible">
-          <bool>true</bool>
+          <bool>false</bool>
          </attribute>
         </widget>
        </item>
@@ -213,13 +213,6 @@
             </size>
            </property>
           </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="file_info">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
          </item>
          <item>
           <widget class="QLabel" name="file_count_label">

@@ -2,6 +2,7 @@
 #define MEDIAVIEWER_H
 
 #include <QWidget>
+#include <QPainter>
 
 struct PyrosFile;
 
@@ -11,6 +12,31 @@ class QScrollArea;
 
 class mpv_widget;
 class Viewer;
+
+class Overlay : public QWidget
+{
+    Q_OBJECT
+
+public:
+    enum STATE{
+        DISPLAYED,
+        HIDDEN,
+    };
+
+    Overlay(Viewer **viewer,QWidget *parent = nullptr);
+
+    void inline set_state(STATE new_state){
+        state = new_state;
+        repaint();
+    }
+
+private:
+   void paintEvent(QPaintEvent *) override;
+
+   STATE state = DISPLAYED;
+   Viewer **viewer;
+
+};
 
 class MediaViewer : public QWidget
 {
@@ -25,6 +51,8 @@ class MediaViewer : public QWidget
     QLabel *label;
     mpv_widget *video_player;
     Viewer *viewer = nullptr;
+    Overlay *overlay;
+    QPoint last_mouse_pos;
 
 public:
     explicit MediaViewer(QWidget *parent = nullptr);
@@ -53,14 +81,20 @@ public slots:
 
     void set_focus();
 
-signals:
-    void info_updated(QString);
 
 private:
     SCALE_TYPE scale_type = SCALE_TYPE::BOTH;
-    bool eventFilter(QObject *obj,QEvent *event) override;
-    void update_scale();
 
+    bool is_dragable();
+    void resizeEvent(QResizeEvent *) override;
+    void enterEvent(QEvent *) override;
+    void leaveEvent(QEvent *) override;
+    void showEvent(QShowEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+
+    void update_scale();
 };
 
 #endif // MEDIAVIEWER_H

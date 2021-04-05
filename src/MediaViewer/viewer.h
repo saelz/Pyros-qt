@@ -34,6 +34,7 @@ public:
     virtual inline void update_size(){};
     virtual inline void zoom_in(){};
     virtual inline void zoom_out(){};
+    virtual inline QSize current_size() {return QSize();};
 
     virtual inline bool next_page(){return  false;};
     virtual inline bool prev_page(){return  false;};
@@ -44,6 +45,7 @@ public:
     virtual inline bool scaleing(){return false;}
     virtual inline bool multi_paged(){return false;}
     virtual inline bool always_show_vertical_scrollbar(){return false;}
+
 };
 
 #endif // VIEWER_H

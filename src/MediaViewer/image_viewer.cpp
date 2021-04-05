@@ -19,8 +19,16 @@ void Image_Viewer::set_file(char *path)
     m_img = QPixmap(path);
 }
 
+QSize Image_Viewer::current_size()
+{
+    return scaled_size;
+}
+
 void Image_Viewer::set_size(QSize newsize){
     QPixmap scaledimg;
+
+    scaled_size = newsize;
+
     scaledimg = m_img.scaled(newsize,Qt::KeepAspectRatio,Qt::SmoothTransformation);
     m_label->setPixmap(scaledimg);
 };

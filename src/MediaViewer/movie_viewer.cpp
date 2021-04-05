@@ -26,6 +26,8 @@ void Movie_Viewer::set_size(QSize newsize){
     if (movie == nullptr)
         return;
 
+    scaled_size = newsize;
+
     movie->stop();
     movie->setScaledSize(newsize);
     movie->start();
