@@ -243,6 +243,7 @@ void MediaViewer::mousePressEvent(QMouseEvent *e)
         setCursor(Qt::ClosedHandCursor);
         e->accept();
     }
+    set_focus();
 }
 
 void MediaViewer::mouseReleaseEvent(QMouseEvent *e)
