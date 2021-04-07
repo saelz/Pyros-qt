@@ -5,6 +5,8 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
+#include <QTimer>
+#include <QPainter>
 
 #include <pyros.h>
 
@@ -24,8 +26,10 @@ using ct = configtab;
 
 Overlay::Overlay(Viewer **viewer,QWidget *parent) : QWidget(parent),viewer(viewer)
 {
+    auto_hide_timer.setSingleShot(true);
     setAttribute(Qt::WA_TransparentForMouseEvents);
     raise();
+    connect(&auto_hide_timer, &QTimer::timeout, this, &Overlay::set_hidden);
 }
 
 void Overlay::paintEvent(QPaintEvent *)
@@ -36,11 +40,36 @@ void Overlay::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     QBrush bg(QColor(0,0,0,100));
-    //p.drawLine(rect().topLeft(), rect().bottomRight());
-    //p.drawRect(rect());
+
+
     p.fillRect(QRect(0,rect().bottom()-20,rect().width(),20),bg);
     if (*viewer != nullptr){
         p.drawText(0,rect().bottom()-5,(*viewer)->get_info());
+    }
+}
+
+void Overlay::set_visible()
+{
+    if (state != DISPLAYED){
+        state = DISPLAYED;
+        repaint();
+    }
+
+    if (auto_hide){
+        if (auto_hide_timer.isActive())
+            auto_hide_timer.stop();
+
+        auto_hide_timer.start(1000);
+    } else {
+        auto_hide_timer.stop();
+    }
+}
+
+void Overlay::set_hidden()
+{
+    if (state != HIDDEN){
+        state = HIDDEN;
+        repaint();
     }
 }
 
@@ -126,6 +155,8 @@ void MediaViewer::set_file(PyrosFile* file)
     else
         scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    overlay->set_visible();
+
 }
 
 bool MediaViewer::is_resizable()
@@ -147,18 +178,21 @@ bool MediaViewer::is_multipaged()
 
 void MediaViewer::zoom_in()
 {
+    overlay->set_visible();
     if (viewer != nullptr)
         viewer->zoom_in();
 }
 
 void MediaViewer::zoom_out()
 {
+    overlay->set_visible();
     if (viewer != nullptr)
         viewer->zoom_out();
 }
 
 void MediaViewer::next_page()
 {
+    overlay->set_visible();
     if (viewer != nullptr)
         if (viewer->next_page())
             scroll_area->verticalScrollBar()->setValue(0);
@@ -166,6 +200,7 @@ void MediaViewer::next_page()
 
 void MediaViewer::prev_page()
 {
+    overlay->set_visible();
     if (viewer != nullptr)
         if (viewer->prev_page())
             scroll_area->verticalScrollBar()->setValue(0);
@@ -187,14 +222,16 @@ void MediaViewer::enterEvent(QEvent *e)
     if (is_dragable())
         setCursor(Qt::OpenHandCursor);
 
-    overlay->set_state(Overlay::DISPLAYED);
+    overlay->auto_hide = false;
+    overlay->set_visible();
 
     e->accept();
 }
 
 void MediaViewer::leaveEvent(QEvent *e)
 {
-    overlay->set_state(Overlay::HIDDEN);
+    overlay->set_hidden();
+    overlay->auto_hide = true;
     unsetCursor();
 
     e->accept();

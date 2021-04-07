@@ -2,7 +2,7 @@
 #define MEDIAVIEWER_H
 
 #include <QWidget>
-#include <QPainter>
+#include <QTimer>
 
 struct PyrosFile;
 
@@ -24,18 +24,18 @@ public:
     };
 
     Overlay(Viewer **viewer,QWidget *parent = nullptr);
+   bool auto_hide = true;
 
-    void inline set_state(STATE new_state){
-        state = new_state;
-        repaint();
-    }
+public slots:
+    void set_visible();
+    void set_hidden();
 
 private:
    void paintEvent(QPaintEvent *) override;
 
    STATE state = DISPLAYED;
    Viewer **viewer;
-
+   QTimer auto_hide_timer;
 };
 
 class MediaViewer : public QWidget

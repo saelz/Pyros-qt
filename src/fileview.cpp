@@ -423,12 +423,10 @@ void FileView::mousePressEvent(QMouseEvent *event)
 
 void FileView::launch_timer()
 {
-    if(thumbtimer.isActive()){
+    if(thumbtimer.isActive())
         thumbtimer.stop();
-        thumbtimer.start(150);
-    } else {
-        thumbtimer.start(150);
-    }
+
+    thumbtimer.start(150);
 }
 
 void FileView::open_duplicate_menu()
