@@ -413,6 +413,14 @@ void FileView::resizeEvent(QResizeEvent *event)
     }
 }
 
+void FileView::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::MouseButton::LeftButton){
+        QTableView::mousePressEvent(event);
+    }
+}
+
+
 void FileView::launch_timer()
 {
     if(thumbtimer.isActive()){
