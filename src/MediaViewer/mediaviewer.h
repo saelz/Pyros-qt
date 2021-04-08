@@ -81,7 +81,7 @@ public slots:
     void zoom_out();
     void zoom_in();
 
-    void set_scale(SCALE_TYPE scale);
+    void set_scale(MediaViewer::SCALE_TYPE scale);
 
     void set_focus();
 

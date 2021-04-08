@@ -24,7 +24,7 @@ signals:
     void mpv_events();
 
 private slots:
-    void on_mpv_events();
+    void mpv_event_occured();
 
 };
 

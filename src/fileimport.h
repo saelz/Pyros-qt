@@ -51,7 +51,6 @@ private slots:
     void select_tag_bar();
 signals:
     void new_search(QVector<PyrosFile*>);
-    void delete_self(QWidget*);
     void new_search_with_tags(QVector<QByteArray> tags);
 };
 

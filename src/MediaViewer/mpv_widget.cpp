@@ -55,7 +55,7 @@ void mpv_widget::init()
     // From this point on, the wakeup function will be called. The callback
     // can come from any thread, so we use the QueuedConnection mechanism to
     // relay the wakeup in a thread-safe way.
-    connect(this, &mpv_widget::mpv_events, this, &mpv_widget::on_mpv_events,
+    connect(this, &mpv_widget::mpv_events, this, &mpv_widget::mpv_event_occured,
             Qt::QueuedConnection);
     mpv_set_wakeup_callback(mpv, wakeup, this);
 
@@ -86,7 +86,7 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
     }
 }
 
-void mpv_widget::on_mpv_events()
+void mpv_widget::mpv_event_occured()
 {
     // Process all events, until the event queue is empty.
     while (mpv) {
