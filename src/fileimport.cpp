@@ -170,6 +170,9 @@ void FileImport::import_files()
     PyrosTC *ptc = PyrosTC::get();
 
     ui->add_files_button->setEnabled(false);
+    ui->use_tag_files->setEnabled(false);
+    ui->lineEdit->setEnabled(false);
+
     ui->import_progress->setMaximum(rowCount);
 
     for (int i = 0; i < rowCount; i++) {
