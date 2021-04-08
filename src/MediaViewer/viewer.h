@@ -18,18 +18,7 @@ public:
     virtual ~Viewer();
 
     virtual void set_file(char *filepath) = 0;
-    inline virtual void resize(int width,int height,MediaViewer::SCALE_TYPE scale)
-    {
-        if (boundry_height != height ||
-                boundry_width != width ||
-                scale_type != scale){
-
-            boundry_height = height;
-            boundry_width = width;
-            scale_type = scale;
-            update_size();
-        }
-    }
+    virtual void resize(int width,int height,MediaViewer::SCALE_TYPE scale);
 
     virtual inline void update_size(){};
     virtual inline void zoom_in(){};
@@ -39,7 +28,7 @@ public:
     virtual inline bool next_page(){return  false;};
     virtual inline bool prev_page(){return  false;};
 
-    virtual inline QString get_info(){return "";}
+    virtual inline QString get_info() {return "";};
 
     virtual inline bool resizable(){return false;}
     virtual inline bool scaleing(){return false;}

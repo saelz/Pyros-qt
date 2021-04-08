@@ -7,6 +7,8 @@
 #include <QVBoxLayout>
 #include <QTimer>
 #include <QPainter>
+#include <QLocale>
+#include <QTime>
 
 #include <pyros.h>
 
@@ -39,12 +41,23 @@ void Overlay::paintEvent(QPaintEvent *)
 
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    QBrush bg(QColor(0,0,0,100));
+    QBrush bg(QColor(0,0,0,170));
 
 
     p.fillRect(QRect(0,rect().bottom()-20,rect().width(),20),bg);
     if (*viewer != nullptr){
-        p.drawText(0,rect().bottom()-5,(*viewer)->get_info());
+        QDateTime timestamp;
+        timestamp.setTime_t(file->import_time);
+
+        QString info_text = (*viewer)->get_info();
+        info_text += "  ";
+        info_text += file->mime;
+        info_text += "  ";
+        info_text += locale().formattedDataSize(file->file_size);
+        info_text += "  ";
+        info_text += timestamp.toString(ct::setting_value(ct::TIMESTAMP).toString());
+
+        p.drawText(0,rect().bottom()-5,info_text);
     }
 }
 
@@ -148,6 +161,7 @@ void MediaViewer::set_file(PyrosFile* file)
     }
 
     viewer->set_file(file->path);
+    overlay->set_file(file);
     update_scale();
 
     if (viewer->always_show_vertical_scrollbar())

@@ -17,6 +17,10 @@ class Overlay : public QWidget
 {
     Q_OBJECT
 
+   Viewer **viewer;
+   QTimer auto_hide_timer;
+   PyrosFile *file = nullptr;
+
 public:
     enum STATE{
         DISPLAYED,
@@ -24,18 +28,18 @@ public:
     };
 
     Overlay(Viewer **viewer,QWidget *parent = nullptr);
-   bool auto_hide = true;
+    bool auto_hide = true;
 
 public slots:
     void set_visible();
     void set_hidden();
+    void set_file(PyrosFile *file){this->file = file;};
 
 private:
+   STATE state = DISPLAYED;
    void paintEvent(QPaintEvent *) override;
 
-   STATE state = DISPLAYED;
-   Viewer **viewer;
-   QTimer auto_hide_timer;
+
 };
 
 class MediaViewer : public QWidget
