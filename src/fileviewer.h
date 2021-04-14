@@ -37,7 +37,6 @@ private:
     int position;
 
 private slots:
-    void update_fit(const QString &text);
 
     void select_tag_bar();
     void next_file();
@@ -52,6 +51,7 @@ public slots:
 signals:
     void file_deleted(QVector<QByteArray>);
     void new_search_with_selected_tags(QVector<QByteArray>);
+    void update_file_count(QString);
 
 };
 

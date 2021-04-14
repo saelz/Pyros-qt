@@ -33,7 +33,7 @@ void Image_Viewer::set_size(QSize newsize){
     m_label->setPixmap(scaledimg);
 };
 
-void Image_Viewer::resize(int width, int height, MediaViewer::SCALE_TYPE scale) {
+void Image_Viewer::resize(int width, int height, Viewer::SCALE_TYPE scale) {
     if (scale_type != scale)
         zoom_level = 1;
 
@@ -49,22 +49,22 @@ void Image_Viewer::update_size()
 
     newsize = size();
     switch (scale_type){
-    case MediaViewer::HEIGHT:
+    case Viewer::HEIGHT:
         newsize.scale(newsize.width()*zoom_level,
                   boundry_height*zoom_level,
                   Qt::KeepAspectRatio);
         break;
-    case MediaViewer::WIDTH:
+    case Viewer::WIDTH:
         newsize.scale(boundry_width*zoom_level,
                   newsize.height()*zoom_level,
                   Qt::KeepAspectRatio);
         break;
-    case MediaViewer::BOTH:
+    case Viewer::BOTH:
         newsize.scale(boundry_width*zoom_level,
                   boundry_height*zoom_level,
                   Qt::KeepAspectRatio);
         break;
-    case MediaViewer::ORIGINAL:
+    case Viewer::ORIGINAL:
         newsize.scale(newsize.width()*zoom_level,
                   newsize.height()*zoom_level,
                   Qt::KeepAspectRatio);

@@ -28,7 +28,24 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
         m_files.push_back(Pyros_Duplicate_File(pFile));
     }
 
+    Overlay_Text *overlay_file_count = new Overlay_Text("File count",ui->mediaviewer->overlay);
+    Overlay_Button *overlay_delete_button = new Overlay_Button(":/data/icons/trash.png",nullptr,"Delete file",ui->mediaviewer->overlay);
 
+    Overlay_Button *overlay_next_button = new Overlay_Button(":/data/icons/right_arrow.png",nullptr,"Next file",ui->mediaviewer->overlay);
+    Overlay_Button *overlay_prev_button = new Overlay_Button(":/data/icons/left_arrow.png",nullptr,"Prev file",ui->mediaviewer->overlay);
+
+    ui->mediaviewer->overlay->overlay_widgets.prepend(overlay_next_button);
+    ui->mediaviewer->overlay->overlay_widgets.prepend(overlay_prev_button);
+
+    ui->mediaviewer->overlay->overlay_widgets.append(overlay_file_count);
+    ui->mediaviewer->overlay->overlay_widgets.append(overlay_delete_button);
+
+    connect(overlay_delete_button,&Overlay_Button::clicked,this,&FileViewer::delete_file);
+
+    connect(overlay_next_button,&Overlay_Button::clicked,this,&FileViewer::next_file);
+    connect(overlay_prev_button,&Overlay_Button::clicked,this,&FileViewer::prev_file);
+
+    connect(this,&FileViewer::update_file_count,overlay_file_count,&Overlay_Text::set_text);
 
     QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
     QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",this);
@@ -51,22 +68,12 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
     connect(focus_file_viewer, &QAction::triggered,ui->mediaviewer, &MediaViewer::set_focus);
 
 
-    connect(ui->fit_combo_box, &QComboBox::currentTextChanged,this, &FileViewer::update_fit);
 
-    connect(ui->next_button,   &QPushButton::released,this, &FileViewer::next_file);
-    connect(ui->prev_button,   &QPushButton::released,this, &FileViewer::prev_file);
-    connect(ui->delete_button, &QPushButton::released,this, &FileViewer::delete_file);
-
-    connect(ui->zoom_in_button,  &QPushButton::released,ui->mediaviewer, &MediaViewer::zoom_in);
-    connect(ui->zoom_out_button, &QPushButton::released,ui->mediaviewer, &MediaViewer::zoom_out);
     connect(ui->tag_bar, &TagLineEdit::tag_entered,ui->file_tags, &TagView::add_tags);
     connect(ui->tag_bar, &TagLineEdit::tag_entered,this, &FileViewer::add_tag);
 
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
     connect(ui->file_tags, &TagView::new_search_with_selected_tags,this, &FileViewer::new_search_with_selected_tags);
-
-    connect(ui->cbz_prev_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::prev_page);
-    connect(ui->cbz_next_page, &QPushButton::released,ui->mediaviewer, &MediaViewer::next_page);
 
     set_file();
 }
@@ -93,31 +100,15 @@ void FileViewer::set_file()
 
     if (m_pFile == nullptr || m_files.count() <= 0){
         ui->mediaviewer->set_file(nullptr);
-        ui->file_count_label->setText("0");
+        emit update_file_count("0");
         return;
     }
 
-    QString filecount = QString::number(position+1)+"/"+QString::number(m_files.count());
-    ui->file_count_label->setText(filecount);
+    emit update_file_count(QString::number(position+1)+"/"+QString::number(m_files.count()));
 
     ui->mediaviewer->set_file(m_pFile);
 
-    ui->cbz_buttons->setVisible(ui->mediaviewer->is_multipaged());
-    ui->image_buttons->setVisible(ui->mediaviewer->is_resizable());
-
     ui->file_tags->setTagsFromFile(m_pFile);
-}
-
-void FileViewer::update_fit(const QString &text)
-{
-    if (text == "Fit Both")
-        ui->mediaviewer->set_scale(MediaViewer::SCALE_TYPE::BOTH);
-    else if (text == "Fit Width")
-        ui->mediaviewer->set_scale(MediaViewer::SCALE_TYPE::WIDTH);
-    else if (text == "Fit Height")
-        ui->mediaviewer->set_scale(MediaViewer::SCALE_TYPE::HEIGHT);
-    else if (text == "Original")
-        ui->mediaviewer->set_scale(MediaViewer::SCALE_TYPE::ORIGINAL);
 }
 
 void FileViewer::next_file()

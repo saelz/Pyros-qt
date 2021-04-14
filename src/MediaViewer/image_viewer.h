@@ -1,6 +1,8 @@
 #ifndef IMAGE_VIEWER_H
 #define IMAGE_VIEWER_H
 
+#include <QPixmap>
+
 #include "viewer.h"
 
 class Image_Viewer : public Viewer
@@ -22,7 +24,7 @@ public:
 
     virtual void set_size(QSize newsize);
 
-    void resize(int width, int height, MediaViewer::SCALE_TYPE scale) override;
+    void resize(int width, int height, SCALE_TYPE scale) override;
 
     void update_size() override;
 

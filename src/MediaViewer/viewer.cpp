@@ -7,7 +7,7 @@ Viewer::Viewer(QLabel *label) : m_label(label){};
 
 Viewer::~Viewer(){};
 
-void Viewer::resize(int width,int height,MediaViewer::SCALE_TYPE scale)
+void Viewer::resize(int width,int height,Viewer::SCALE_TYPE scale)
 {
     if (boundry_height != height ||
             boundry_width != width ||
