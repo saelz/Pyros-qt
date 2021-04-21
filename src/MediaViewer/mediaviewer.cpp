@@ -178,6 +178,8 @@ void Overlay_Combo_Box::check_hover(QMouseEvent *e)
     bool inital_status = highlighed;
     int last_highlighted_entry = highlighted_entry;
 
+    if (entries.empty())
+        return;
 
     if (rect.contains(e->pos())){
         highlighed = true;
@@ -221,7 +223,7 @@ int Overlay_Button::requested_width(QPainter &)
 
 int Overlay_Combo_Box::requested_width(QPainter &p)
 {
-    if (!entries.isEmpty())
+    if ((active == nullptr || (*active)) && !entries.isEmpty())
         return p.boundingRect(0,0,0,0,0,entries[selected_entry].name).width()+3;
     else
         return 0;
@@ -322,6 +324,9 @@ int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
 
 void Overlay_Combo_Box::toggle_drop_down()
 {
+    if (entries.isEmpty())
+        return;
+
     if (display_dropdown){
         dropdownrect.clear();
         if (highlighted_entry != -1){
