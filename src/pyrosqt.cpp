@@ -161,7 +161,8 @@ void PyrosQT::search_tab_init(SearchTab *st)
 void PyrosQT::remove_tab(int index)
 {
     Tab *tab = qobject_cast<Tab*>(ui->tabWidget->widget(index));
-    tab->delete_self();
+    if (tab != nullptr)
+        tab->delete_self();
 }
 
 void PyrosQT::remove_tab_current()
