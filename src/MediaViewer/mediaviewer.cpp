@@ -523,15 +523,19 @@ void MediaViewer::set_file(PyrosFile* file)
 void MediaViewer::zoom_in()
 {
     overlay->set_visible();
-    if (viewer != nullptr)
+    if (viewer != nullptr){
         viewer->zoom_in();
+        emit overlay->update_file_info(viewer->get_info());
+    }
 }
 
 void MediaViewer::zoom_out()
 {
     overlay->set_visible();
-    if (viewer != nullptr)
+    if (viewer != nullptr){
         viewer->zoom_out();
+        emit overlay->update_file_info(viewer->get_info());
+    }
 }
 
 void MediaViewer::next_page()
@@ -550,7 +554,6 @@ void MediaViewer::prev_page()
     if (viewer != nullptr && viewer->prev_page()){
             scroll_area->verticalScrollBar()->setValue(0);
             emit overlay->update_file_info(viewer->get_info());
-            overlay->repaint();
     }
 }
 
@@ -588,8 +591,10 @@ void MediaViewer::leaveEvent(QEvent *e)
 
 void MediaViewer::update_scale()
 {
-    if (viewer != nullptr)
+    if (viewer != nullptr){
         viewer->resize(scroll_area->width()-1,scroll_area->height()-1,scale_type);
+        emit overlay->update_file_info(viewer->get_info());
+    }
 }
 
 void MediaViewer::set_scale(int scale)

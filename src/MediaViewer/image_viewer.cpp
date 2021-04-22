@@ -90,3 +90,16 @@ void Image_Viewer::zoom_out()
 
     update_size();
 }
+
+QString Image_Viewer::get_info()
+{
+    QString zoom_str = "";
+    QSize imgsize = size();
+
+    if (scaled_size.isValid()){
+        int zoom_percent = scaled_size.width()/double(imgsize.width())*100.0+.5;
+        zoom_str = QString::number(zoom_percent)+"%  ";
+    }
+
+    return zoom_str + QString::number(imgsize.width())+"x"+QString::number(imgsize.height());
+}

@@ -31,11 +31,7 @@ public:
     void zoom_in() override;
     void zoom_out() override;
 
-    inline QString get_info() override
-    {
-        QSize imgsize = size();
-        return QString::number(imgsize.width())+"x"+QString::number(imgsize.height());
-    }
+    QString get_info() override;
 
     inline bool resizable() override{return true;}
     inline bool scaleing() override{return true;}
