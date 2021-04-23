@@ -47,6 +47,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
 
     connect(this,&FileViewer::update_file_count,overlay_file_count,&Overlay_Text::set_text);
 
+    QAction *lock_media_overlay = ct::create_binding(ct::KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Lock Media Viewer Overlay",this);
     QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
     QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",this);
     QAction *insert_bind = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"Insert",this);
@@ -57,6 +58,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
     QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",this);
     QAction *focus_file_viewer = ct::create_binding(ct::KEY_FOCUS_FILE_VIEWER,"Focus file viewer",this);
 
+    connect(lock_media_overlay, &QAction::triggered,ui->mediaviewer, &MediaViewer::lock_overlay);
     connect(next_bind,   &QAction::triggered,this, &FileViewer::next_file);
     connect(prev_bind,   &QAction::triggered,this, &FileViewer::prev_file);
     connect(insert_bind, &QAction::triggered,this, &FileViewer::select_tag_bar);

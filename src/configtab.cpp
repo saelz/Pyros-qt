@@ -29,6 +29,7 @@ const configtab::setting configtab::settings[] = {
     {"keybind/invert-selection","SHIFT+i",nullptr},
     {"keybind/focus-search-bar","a",nullptr},
     {"keybind/focus-file-grid","CTRL+f",nullptr},
+    {"keybind/lock-media-overlay","CTRL+l",nullptr},
     {"keybind/next-file","CTRL+n",nullptr},
     {"keybind/prev-file","CTRL+p",nullptr},
     {"keybind/zoom-in","CTRL++",nullptr},

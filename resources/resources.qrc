@@ -8,5 +8,7 @@
         <file>icons/right_arrow.png</file>
         <file>icons/prev.png</file>
         <file>icons/next.png</file>
+        <file>icons/lock.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

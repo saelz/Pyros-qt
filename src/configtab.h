@@ -65,6 +65,7 @@ public:
         KEY_INVERT_SELECTION,
         KEY_FOCUS_SEARCH_BAR,
         KEY_FOCUS_FILE_GRID,
+        KEY_LOCK_MEDIA_VIEWER_OVERLAY,
         KEY_NEXT_FILE,
         KEY_PREV_FILE,
         KEY_ZOOM_IN,

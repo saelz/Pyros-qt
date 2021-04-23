@@ -48,18 +48,26 @@ class Overlay_Button :public QObject,public Overlay_Widget
 {
     Q_OBJECT
 public:
-    Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent);
+    Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent,bool toggleable = false);
     QImage icon;
+    QImage icon_off;
     int width = 16;
     int height = 16;
     bool highlighed = false;
+    bool toggleable;
+    bool is_toggled = false;
+
+    bool *active;
+
+public slots:
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
     void check_hover(QMouseEvent *e) override;
+    inline void set_toggle_state(bool state){is_toggled = state;emit toggle_changed();};
+    inline void toggle(){is_toggled = !is_toggled;emit toggle_changed();};
 
-
-    bool *active;
 signals:
+    void toggle_changed();
     void clicked() override;
     void request_redraw(void);
 
@@ -132,6 +140,7 @@ public:
 
     Overlay(Viewer **viewer,MediaViewer *parent);
     bool auto_hide = true;
+    bool locked = false;
 
     QVector<Overlay_Widget*> overlay_widgets;
 
@@ -143,6 +152,7 @@ public slots:
     bool mouseMoved(QMouseEvent *e);
     bool mouseClicked(QMouseEvent *e);
     bool mouseReleased(QMouseEvent *e);
+    void toggle_lock();
 
 private:
     STATE state = DISPLAYED;
@@ -208,6 +218,8 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
 
     void update_scale();
+signals:
+    void lock_overlay();
 };
 
 #endif // MEDIAVIEWER_H

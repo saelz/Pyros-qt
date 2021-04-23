@@ -27,7 +27,7 @@
 
 using ct = configtab;
 
-Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent) : QObject(parent),active(active_ptr)
+Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent,bool toggleable) : QObject(parent),toggleable(toggleable),active(active_ptr)
 {
     if (!icon_path.isEmpty()){
         icon = QImage(icon_path);
@@ -35,6 +35,17 @@ Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString too
                 QSize(width,height),
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation);
+    }
+    if (toggleable && !icon.isNull()){
+
+        icon_off = icon;
+
+        for(int y = 0; y < icon_off.height(); y++)
+            for(int x= 0; x < icon_off.width(); x++)
+                icon_off.setPixelColor(x,y,QColor(155,155,155,icon_off.pixelColor(x,y).alpha()));
+
+        connect(this,&Overlay_Button::clicked,this,&Overlay_Button::toggle);
+        connect(this,&Overlay_Button::toggle_changed,this,&Overlay_Button::request_redraw);
     }
 
     this->tooltip = tooltip;
@@ -66,6 +77,7 @@ void Overlay_Text::set_text(QString new_text)
 
 Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(viewer)
 {
+    Overlay_Button *lock_button = new Overlay_Button(":/data/icons/lock.png",nullptr,"Lock Overlay",this,true);
     Overlay_Button *zoom_out_button = new Overlay_Button(":/data/icons/zoom_out.png",&show_zoom,"Zoom out",this);
     Overlay_Button *zoom_in_button = new Overlay_Button(":/data/icons/zoom_in.png",&show_zoom,"Zoom in",this);
 
@@ -84,6 +96,9 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     auto_scale->entries.append({"Fit Height",Viewer::SCALE_TYPE::HEIGHT});
     auto_scale->entries.append({"Fit Width",Viewer::SCALE_TYPE::WIDTH});
     auto_scale->entries.append({"Original size",Viewer::SCALE_TYPE::ORIGINAL});
+
+    connect(lock_button,&Overlay_Button::clicked,this,&Overlay::toggle_lock);
+    connect(parent,&MediaViewer::lock_overlay,lock_button,&Overlay_Button::clicked);
 
     connect(zoom_out_button,&Overlay_Button::clicked,parent,&MediaViewer::zoom_out);
     connect(zoom_in_button,&Overlay_Button::clicked,parent,&MediaViewer::zoom_in);
@@ -104,6 +119,8 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     overlay_widgets.append(prev_page_button);
     overlay_widgets.append(next_page_button);
     overlay_widgets.append(auto_scale);
+    overlay_widgets.append(lock_button);
+
     overlay_widgets.append(spacer);
     overlay_widgets.append(info_text);
     overlay_widgets.append(size_text);
@@ -142,7 +159,7 @@ void Overlay::paintEvent(QPaintEvent *)
             used_space += widget->requested_width(p);
         }
 
-        qDebug("USED SPACE %d/%d DIFF: %d",used_space,width(),width()-used_space);
+        //qDebug("USED SPACE %d/%d DIFF: %d",used_space,width(),width()-used_space);
         unused_space = width()-used_space;
 
         foreach(Overlay_Widget *widget,overlay_widgets)
@@ -236,8 +253,12 @@ int Overlay_Button::draw(QPainter &p, int x, int y)
         if (highlighed)
             p.drawRect(rect);
 
+        if (!toggleable || is_toggled){
+            p.drawImage(rect,icon.scaled(width,height));
+        } else {
+            p.drawImage(rect,icon_off.scaled(width,height));
+        }
 
-        p.drawImage(rect,icon.scaled(width,height));
 
         return width+3;
     } else {
@@ -361,7 +382,7 @@ void Overlay::set_visible()
 
 void Overlay::set_hidden()
 {
-    if (state != HIDDEN){
+    if (state != HIDDEN && !locked){
         state = HIDDEN;
         repaint();
     }
@@ -427,6 +448,16 @@ bool Overlay::mouseReleased(QMouseEvent *e)
 
     last_pressed_widget = nullptr;
     return result;
+}
+
+void Overlay::toggle_lock()
+{
+    locked = !locked;
+    if (locked)
+        set_visible();
+    else if (auto_hide)
+        set_hidden();
+
 }
 
 MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
