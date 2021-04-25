@@ -1,3 +1,4 @@
+#include <QAction>
 #include <QOpenGLWidget>
 #include <QOpenGLContext>
 
@@ -12,7 +13,26 @@ void mpv_widget::wakeup(void *ctx)
     emit mpv_wid->mpv_events();
 }
 
-mpv_widget::mpv_widget(QWidget *parent) : QOpenGLWidget(parent){}
+mpv_widget::mpv_widget(QWidget *parent) : QOpenGLWidget(parent)
+{
+    QAction *pause = new QAction("pause",this);
+    QAction *seek_right = new QAction("pause",this);
+    QAction *seek_left = new QAction("pause",this);
+
+    pause->setShortcut(QKeySequence("Space"));
+    seek_right->setShortcut(QKeySequence("Right"));
+    seek_left->setShortcut(QKeySequence("Left"));
+
+
+
+    addAction(pause);
+    addAction(seek_right);
+    addAction(seek_left);
+
+    connect(pause,&QAction::triggered,this,&mpv_widget::toggle_playback);
+    connect(seek_right,&QAction::triggered,this,&mpv_widget::quick_fast_forward);
+    connect(seek_left,&QAction::triggered,this,&mpv_widget::quick_rewind);
+}
 
 void mpv_widget::init()
 {
@@ -59,12 +79,28 @@ mpv_widget::~mpv_widget()
 void mpv_widget::handle_mpv_event(mpv_event *event)
 {
     switch (event->event_id) {
-    case MPV_EVENT_SHUTDOWN: {
+    case MPV_EVENT_SHUTDOWN:
         mpv_terminate_destroy(mpv);
         mpv = NULL;
         initalized = false;
         break;
+
+    case MPV_EVENT_PROPERTY_CHANGE:{
+        mpv_event_property *prop = (mpv_event_property *)event->data;
+        if (strcmp(prop->name, "time-pos") == 0) {
+            if (prop->format == MPV_FORMAT_DOUBLE) {
+                double time = *(double *)prop->data;
+                qDebug("TIM:%lf",time);
+            }
+        } else if (strcmp(prop->name, "duration") == 0) {
+            if (prop->format == MPV_FORMAT_DOUBLE) {
+                double time = *(double *)prop->data;
+                qDebug("DUR:%lf",time);
+            }
+        }
+        break;
     }
+
     default: ;
     }
 }
@@ -75,7 +111,7 @@ void mpv_widget::mpv_event_occured()
         mpv_event *event = mpv_wait_event(mpv, 0);
         if (event->event_id == MPV_EVENT_NONE)
             break;
-       handle_mpv_event(event);
+        handle_mpv_event(event);
     }
 }
 
@@ -95,6 +131,31 @@ void mpv_widget::stop()
         const char *args[] = {"stop", NULL};
         mpv_command_async(mpv, 0, args);
     }
+}
+
+void mpv_widget::toggle_playback()
+{
+    if (mpv) {
+        const char *args[] = {"cycle","pause", NULL};
+        mpv_command_async(mpv, 0, args);
+    }
+}
+
+void mpv_widget::quick_rewind()
+{
+    if (mpv) {
+        const char *args[] = {"seek","-3", NULL};
+        mpv_command_async(mpv, 0, args);
+    }
+
+}
+void mpv_widget::quick_fast_forward()
+{
+    if (mpv) {
+        const char *args[] = {"seek","3", NULL};
+        mpv_command_async(mpv, 0, args);
+    }
+
 }
 
 void *mpv_widget::get_proc_address(void *,const char *name)

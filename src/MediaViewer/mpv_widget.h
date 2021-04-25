@@ -14,9 +14,14 @@ public:
     explicit mpv_widget(QWidget *parent = nullptr);
     ~mpv_widget();
 
+    void init();
+
+public slots:
     void set_file(char *path);
     void stop();
-    void init();
+    void toggle_playback();
+    void quick_rewind();
+    void quick_fast_forward();
 
 private:
     bool initalized = false;
