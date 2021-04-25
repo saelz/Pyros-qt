@@ -490,6 +490,8 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     stacked_widget->setMouseTracking(true);
     scroll_area->setMouseTracking(true);
     label->setMouseTracking(true);
+    video_player->setMouseTracking(true);
+
     setMouseTracking(true);
 }
 
@@ -522,7 +524,6 @@ void MediaViewer::set_file(PyrosFile* file)
            !qstrncmp(file->mime,"video/",6)){
         stacked_widget->setCurrentIndex(VIDEO_LAYER);
         viewer = new Video_Viewer(video_player);
-        overlay->hide();
 
     } else if (!qstrncmp(file->mime,"image/",6)){
         viewer = new Image_Viewer(label);
