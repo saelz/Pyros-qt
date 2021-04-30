@@ -6,6 +6,6 @@ moc_*.cpp
 moc_*.h
 pyros-qt
 .qmake.stash
-qrc_objectmodelist.cpp
+qrc_*
 *.user
 .ccls-cache/*
