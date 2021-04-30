@@ -5,7 +5,6 @@
 
 Movie_Viewer::Movie_Viewer(QLabel *label) : Image_Viewer(label)
 {
-
 }
 
 Movie_Viewer::~Movie_Viewer()
@@ -17,9 +16,11 @@ Movie_Viewer::~Movie_Viewer()
 void Movie_Viewer::set_file(char *path){
     movie = new QMovie(path);
 
-    m_label->setMovie(movie);
+    Image_Viewer::m_label->setMovie(movie);
     movie->start();
     orignal_size = movie->currentImage().size();
+    controller = new Movie_Controller(movie);
+    emit controller->duration_changed(controller->duration());
 }
 
 void Movie_Viewer::set_size(QSize newsize){
@@ -33,10 +34,31 @@ void Movie_Viewer::set_size(QSize newsize){
     movie->start();
 }
 
+Movie_Controller::Movie_Controller(QMovie *movie) : Playback_Controller(movie),movie(movie)
+{
+    connect(movie,&QMovie::frameChanged,this,&Movie_Controller::set_position);
+}
+
+QString Movie_Controller::duration()
+{
+    return milliToStr(movie->frameCount()*movie->nextFrameDelay());
+}
+
+QString Movie_Controller::position()
+{
+    return milliToStr(movie->currentFrameNumber()*movie->nextFrameDelay());
+}
+
 QString Movie_Viewer::get_info()
 {
     if (movie == nullptr)
         return "";
     return "Frames:"+QString::number(movie->frameCount())+
             " "+Image_Viewer::get_info();
+}
+
+void Movie_Controller::set_position(int frame)
+{
+    emit update_progress(frame,movie->frameCount());
+    emit position_changed(milliToStr(frame*movie->nextFrameDelay()));
 }

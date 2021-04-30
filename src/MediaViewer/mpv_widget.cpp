@@ -45,6 +45,7 @@ void mpv_widget::init()
 
     mpv_set_option_string(mpv, "loop", "yes");
 
+    mpv_observe_property(mpv, 0, "duration", MPV_FORMAT_DOUBLE);
     mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
     mpv_observe_property(mpv, 0, "track-list", MPV_FORMAT_NODE);
     mpv_observe_property(mpv, 0, "chapter-list", MPV_FORMAT_NODE);
@@ -89,13 +90,12 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
         mpv_event_property *prop = (mpv_event_property *)event->data;
         if (strcmp(prop->name, "time-pos") == 0) {
             if (prop->format == MPV_FORMAT_DOUBLE) {
-                double time = *(double *)prop->data;
-                qDebug("TIM:%lf",time);
+                emit position_changed(*(double *)prop->data);
             }
         } else if (strcmp(prop->name, "duration") == 0) {
             if (prop->format == MPV_FORMAT_DOUBLE) {
-                double time = *(double *)prop->data;
-                qDebug("DUR:%lf",time);
+                emit duration_changed(*(double *)prop->data);
+                //qDebug("DUR:%lf",m_duration);
             }
         }
         break;

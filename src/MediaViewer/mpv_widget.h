@@ -40,6 +40,8 @@ private:
 signals:
     void mpv_events();
     void mpv_update();
+    void duration_changed(double);
+    void position_changed(double);
 
 private slots:
     void mpv_event_occured();

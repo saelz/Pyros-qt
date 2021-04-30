@@ -21,6 +21,7 @@ SOURCES += \
     src/MediaViewer/mediaviewer.cpp \
     src/MediaViewer/movie_viewer.cpp \
     src/MediaViewer/mpv_widget.cpp \
+    src/MediaViewer/playback_controller.cpp \
     src/MediaViewer/text_viewer.cpp \
     src/MediaViewer/unsupported_viewer.cpp \
     src/MediaViewer/video_viewer.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     src/MediaViewer/mediaviewer.h \
     src/MediaViewer/movie_viewer.h \
     src/MediaViewer/mpv_widget.h \
+    src/MediaViewer/playback_controller.h \
     src/MediaViewer/text_viewer.h \
     src/MediaViewer/unsupported_viewer.h \
     src/MediaViewer/video_viewer.h \

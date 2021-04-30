@@ -21,6 +21,7 @@ class Overlay_Widget
 {
 public:
     QRect rect = QRect(0,0,0,0);
+    virtual ~Overlay_Widget();
     virtual int requested_width(QPainter &p) = 0;
     virtual int draw(QPainter &p,int x,int y) = 0;
     virtual void check_hover(QMouseEvent *e);
@@ -48,7 +49,7 @@ class Overlay_Button :public QObject,public Overlay_Widget
 {
     Q_OBJECT
 public:
-    Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent,bool toggleable = false);
+    Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent,bool toggleable = false,QByteArray off_icon = QByteArray());
     QImage icon;
     QImage icon_off;
     int width = 16;
@@ -80,6 +81,21 @@ public:
     inline int requested_width(QPainter &) override{return 0;};
     int draw(QPainter &p,int x, int y) override;
     int *unused_space;
+};
+
+class Overlay_Progress_Bar :public QObject,public Overlay_Spacer
+{
+    Q_OBJECT
+    double progress = 0;
+public:
+    Overlay_Progress_Bar(int *available_space,Overlay *parent);
+    int draw(QPainter &p,int x, int y) override;
+    void draw_progress(QPainter &p);
+
+public slots:
+    void set_progress(int progress,int max);
+signals:
+    void request_redraw(void);
 };
 
 class Overlay_Combo_Box : public Overlay_Button
@@ -118,14 +134,8 @@ class Overlay : public QWidget
 {
     Q_OBJECT
 
-
-    const int left_margin = 3;
-    const int bottom_margin = 2;
-    const int height = 20;
-
     bool show_zoom = false;
     bool show_page = false;
-    int unused_space = 0;
 
     Viewer **viewer;
     QTimer auto_hide_timer;
@@ -133,16 +143,35 @@ class Overlay : public QWidget
     Overlay_Widget *last_pressed_widget = nullptr;
 
 public:
+
+    struct Overlay_Bar{
+        const int left_margin = 3;
+        const int bottom_margin = 2;
+        const int height = 20;
+        const QBrush bg = QBrush(QColor(0,0,0,170));
+
+        int unused_space = 0;
+        bool active = true;
+
+        QRect rect;
+        QVector<Overlay_Widget*> widgets;
+        void draw(Viewer *viewer,QPainter &p);
+    };
+
     enum STATE{
         DISPLAYED,
         HIDDEN,
     };
 
     Overlay(Viewer **viewer,MediaViewer *parent);
+    ~Overlay();
     bool auto_hide = true;
     bool locked = false;
 
-    QVector<Overlay_Widget*> overlay_widgets;
+    Overlay_Bar main_bar;
+    Overlay_Bar playback_bar;
+
+    std::array<Overlay_Bar*,2> overlay_bars{&main_bar,&playback_bar};
 
 public slots:
     void set_visible();
@@ -157,12 +186,16 @@ public slots:
 private:
     STATE state = DISPLAYED;
     void paintEvent(QPaintEvent *) override;
+    void resizeEvent(QResizeEvent *) override;
 
 signals:
     void update_size_info(QString);
     void update_time_info(QString);
     void update_mime_info(QString);
     void update_file_info(QString);
+    void update_playback_duration(QString);
+    void update_playback_position(QString);
+    void update_playback_progress(int,int);
 
 };
 
@@ -189,6 +222,8 @@ public:
 
 
     Overlay *overlay;
+
+    void bind_keys(QWidget *widget);
 
 public slots:
     void set_file(PyrosFile* file);

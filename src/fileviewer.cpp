@@ -34,11 +34,11 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
     Overlay_Button *overlay_next_button = new Overlay_Button(":/data/icons/right_arrow.png",nullptr,"Next file",ui->mediaviewer->overlay);
     Overlay_Button *overlay_prev_button = new Overlay_Button(":/data/icons/left_arrow.png",nullptr,"Prev file",ui->mediaviewer->overlay);
 
-    ui->mediaviewer->overlay->overlay_widgets.prepend(overlay_next_button);
-    ui->mediaviewer->overlay->overlay_widgets.prepend(overlay_prev_button);
+    ui->mediaviewer->overlay->main_bar.widgets.prepend(overlay_next_button);
+    ui->mediaviewer->overlay->main_bar.widgets.prepend(overlay_prev_button);
 
-    ui->mediaviewer->overlay->overlay_widgets.append(overlay_file_count);
-    ui->mediaviewer->overlay->overlay_widgets.append(overlay_delete_button);
+    ui->mediaviewer->overlay->main_bar.widgets.append(overlay_file_count);
+    ui->mediaviewer->overlay->main_bar.widgets.append(overlay_delete_button);
 
     connect(overlay_delete_button,&Overlay_Button::clicked,this,&FileViewer::delete_file);
 
@@ -47,35 +47,23 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
 
     connect(this,&FileViewer::update_file_count,overlay_file_count,&Overlay_Text::set_text);
 
-    QAction *lock_media_overlay = ct::create_binding(ct::KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Lock Media Viewer Overlay",this);
     QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
     QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",this);
     QAction *insert_bind = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"Insert",this);
     QAction *delete_bind = ct::create_binding(ct::KEY_DELETE_FILE,"Delete",this);
-    QAction *zoom_in_bind = ct::create_binding(ct::KEY_ZOOM_IN,"Zoom in",this);
-    QAction *zoom_out_bind = ct::create_binding(ct::KEY_ZOOM_OUT,"Zoom out",this);
-    QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",this);
-    QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",this);
-    QAction *focus_file_viewer = ct::create_binding(ct::KEY_FOCUS_FILE_VIEWER,"Focus file viewer",this);
 
-    connect(lock_media_overlay, &QAction::triggered,ui->mediaviewer, &MediaViewer::lock_overlay);
     connect(next_bind,   &QAction::triggered,this, &FileViewer::next_file);
     connect(prev_bind,   &QAction::triggered,this, &FileViewer::prev_file);
     connect(insert_bind, &QAction::triggered,this, &FileViewer::select_tag_bar);
     connect(delete_bind, &QAction::triggered,this, &FileViewer::delete_file);
-    connect(zoom_in_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::zoom_in);
-    connect(zoom_out_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::zoom_out);
-    connect(next_page_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::next_page);
-    connect(prev_page_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::prev_page);
-    connect(focus_file_viewer, &QAction::triggered,ui->mediaviewer, &MediaViewer::set_focus);
-
-
 
     connect(ui->tag_bar, &TagLineEdit::tag_entered,ui->file_tags, &TagView::add_tags);
     connect(ui->tag_bar, &TagLineEdit::tag_entered,this, &FileViewer::add_tag);
 
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
     connect(ui->file_tags, &TagView::new_search_with_selected_tags,this, &FileViewer::new_search_with_selected_tags);
+
+    ui->mediaviewer->bind_keys(this);
 
     set_file();
 }

@@ -21,17 +21,9 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
 
     QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",this);
     QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",this);
-    QAction *zoom_in_bind = ct::create_binding(ct::KEY_ZOOM_IN,"Zoom in",this);
-    QAction *zoom_out_bind = ct::create_binding(ct::KEY_ZOOM_OUT,"Zoom out",this);
-    QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",this);
-    QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",this);
 
     connect(next_bind,   &QAction::triggered,this, &duplicate_selector::next_file);
     connect(prev_bind,   &QAction::triggered,this, &duplicate_selector::prev_file);
-    connect(zoom_in_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::zoom_in);
-    connect(zoom_out_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::zoom_out);
-    connect(next_page_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::next_page);
-    connect(prev_page_bind, &QAction::triggered,ui->mediaviewer, &MediaViewer::prev_page);
 
     connect(ui->next_button,   &QPushButton::released,this, &duplicate_selector::next_file);
     connect(ui->prev_button,   &QPushButton::released,this, &duplicate_selector::prev_file);
@@ -45,6 +37,7 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     for(int i = 0;i < m_files.length(); i++)
         file_statuses.append(NONE);
 
+    ui->mediaviewer->bind_keys(this);
     update_file();
 
 }

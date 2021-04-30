@@ -4,8 +4,10 @@
 #include <QSize>
 #include <QString>
 
+
 class QString;
 class QLabel;
+class Playback_Controller;
 
 class Viewer{
 public:
@@ -25,6 +27,8 @@ public:
     Viewer(QLabel *label);
     Viewer();
     virtual ~Viewer();
+
+    Playback_Controller *controller = nullptr;
 
     virtual void set_file(char *filepath) = 0;
     virtual void resize(int width,int height,SCALE_TYPE scale);

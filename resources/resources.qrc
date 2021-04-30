@@ -9,6 +9,9 @@
         <file>icons/prev.png</file>
         <file>icons/next.png</file>
         <file>icons/lock.png</file>
+        <file>icons/pause.png</file>
+        <file>icons/volume_med.png</file>
+        <file>icons/volume_low.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

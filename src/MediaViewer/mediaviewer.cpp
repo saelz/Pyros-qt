@@ -2,6 +2,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QAction>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
@@ -27,7 +28,7 @@
 
 using ct = configtab;
 
-Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent,bool toggleable) : QObject(parent),toggleable(toggleable),active(active_ptr)
+Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString tooltip,Overlay *parent,bool toggleable,QByteArray icon_off_path) : QObject(parent),toggleable(toggleable),active(active_ptr)
 {
     if (!icon_path.isEmpty()){
         icon = QImage(icon_path);
@@ -36,7 +37,17 @@ Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString too
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation);
     }
-    if (toggleable && !icon.isNull()){
+
+    if (toggleable && !icon_off_path.isEmpty()){
+        icon_off = QImage(icon_off_path);
+        icon_off = icon_off.scaled(
+                QSize(width,height),
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation);
+
+        connect(this,&Overlay_Button::clicked,this,&Overlay_Button::toggle);
+        connect(this,&Overlay_Button::toggle_changed,this,&Overlay_Button::request_redraw);
+    } else if (toggleable && !icon.isNull()){
 
         icon_off = icon;
 
@@ -60,6 +71,11 @@ Overlay_Text::Overlay_Text(QString tooltip,Overlay *parent): QObject(parent)
 }
 
 Overlay_Spacer::Overlay_Spacer(int *available_space) : unused_space(available_space){}
+
+Overlay_Progress_Bar::Overlay_Progress_Bar(int *available_space,Overlay *parent) : QObject(parent),Overlay_Spacer(available_space)
+{
+    connect(this,SIGNAL(request_redraw()),parent,SLOT(repaint()));
+}
 
 Overlay_Combo_Box::Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *parent) : Overlay_Button("",active_ptr,tooltip,parent)
 {
@@ -89,7 +105,7 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     Overlay_Text *time_text = new Overlay_Text("Import time",this);
     Overlay_Text *size_text = new Overlay_Text("File size",this);
 
-    Overlay_Spacer *spacer = new Overlay_Spacer(&unused_space);
+    Overlay_Spacer *spacer = new Overlay_Spacer(&main_bar.unused_space);
     Overlay_Combo_Box *auto_scale = new Overlay_Combo_Box(&show_zoom,"Scale",this);
 
     auto_scale->entries.append({"Fit Both",Viewer::SCALE_TYPE::BOTH});
@@ -114,18 +130,33 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     connect(auto_scale,&Overlay_Combo_Box::entry_changed,parent,&MediaViewer::set_scale);
 
 
-    overlay_widgets.append(zoom_out_button);
-    overlay_widgets.append(zoom_in_button);
-    overlay_widgets.append(prev_page_button);
-    overlay_widgets.append(next_page_button);
-    overlay_widgets.append(auto_scale);
-    overlay_widgets.append(lock_button);
+    main_bar.widgets.append(zoom_out_button);
+    main_bar.widgets.append(zoom_in_button);
+    main_bar.widgets.append(prev_page_button);
+    main_bar.widgets.append(next_page_button);
+    main_bar.widgets.append(auto_scale);
+    main_bar.widgets.append(lock_button);
 
-    overlay_widgets.append(spacer);
-    overlay_widgets.append(info_text);
-    overlay_widgets.append(size_text);
-    overlay_widgets.append(mime_text);
-    overlay_widgets.append(time_text);
+    main_bar.widgets.append(spacer);
+    main_bar.widgets.append(info_text);
+    main_bar.widgets.append(size_text);
+    main_bar.widgets.append(mime_text);
+    main_bar.widgets.append(time_text);
+
+    // playback bar
+    Overlay_Button *pause_button = new Overlay_Button(":/data/icons/pause.png",nullptr,"Pause",this,true,":/data/icons/next.png");
+    Overlay_Text *position_text = new Overlay_Text("File Position",this);
+    Overlay_Text *duration_text = new Overlay_Text("File Duration",this);
+    Overlay_Progress_Bar *prog_bar = new Overlay_Progress_Bar(&playback_bar.unused_space,this);
+
+    connect(this,&Overlay::update_playback_position,position_text,&Overlay_Text::set_text);
+    connect(this,&Overlay::update_playback_duration,duration_text,&Overlay_Text::set_text);
+    connect(this,&Overlay::update_playback_progress,prog_bar,&Overlay_Progress_Bar::set_progress);
+
+    playback_bar.widgets.append(pause_button);
+    playback_bar.widgets.append(position_text);
+    playback_bar.widgets.append(prog_bar);
+    playback_bar.widgets.append(duration_text);
 
     auto_hide_timer.setSingleShot(true);
     connect(&auto_hide_timer, &QTimer::timeout, this, &Overlay::set_hidden);
@@ -136,6 +167,14 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
 
 }
 
+Overlay::~Overlay()
+{
+    foreach(Overlay_Bar *bar,overlay_bars)
+        foreach(Overlay_Widget *widget,bar->widgets)
+            delete widget;
+}
+
+Overlay_Widget::~Overlay_Widget(){};
 
 void Overlay::paintEvent(QPaintEvent *)
 {
@@ -143,30 +182,47 @@ void Overlay::paintEvent(QPaintEvent *)
         return;
 
     QPainter p(this);
-    QBrush bg(QColor(0,0,0,170));
 
     p.setRenderHints(QPainter::Antialiasing);
 
     p.setPen(Qt::white);
 
-    p.fillRect(QRect(0,rect().bottom()-height,rect().width(),height),bg);
-    if (*viewer != nullptr){
-        int used_space = 0;
-        int offset = left_margin;
-        int y = rect().bottom()-bottom_margin;
+    foreach(Overlay_Bar *bar,overlay_bars)
+        bar->draw(*viewer,p);
+}
 
-        foreach(Overlay_Widget *widget,overlay_widgets){
-            used_space += widget->requested_width(p);
+void Overlay::Overlay_Bar::draw(Viewer *viewer, QPainter &p)
+{
+    if (active){
+        p.fillRect(rect,bg);
+        if (viewer != nullptr){
+            int used_space = 0;
+            int offset = left_margin;
+            int widget_bottom = rect.bottom()-bottom_margin;
+
+            foreach(Overlay_Widget *widget,widgets)
+                used_space += widget->requested_width(p);
+
+            unused_space = rect.width()-used_space;
+
+            foreach(Overlay_Widget *widget,widgets)
+                offset += widget->draw(p,offset,widget_bottom);
+
         }
-
-        //qDebug("USED SPACE %d/%d DIFF: %d",used_space,width(),width()-used_space);
-        unused_space = width()-used_space;
-
-        foreach(Overlay_Widget *widget,overlay_widgets)
-            offset += widget->draw(p,offset,y);
-
-
     }
+
+}
+
+
+void Overlay::resizeEvent(QResizeEvent *e)
+{
+    int bottom = rect().bottom()+1;
+    foreach(Overlay_Bar *bar,overlay_bars){
+        bar->rect = QRect(0,bottom-bar->height,rect().width(),bar->height);
+        bottom -= bar->height;
+    }
+
+    QWidget::resizeEvent(e);
 }
 
 void Overlay_Widget::check_hover(QMouseEvent *e)
@@ -284,6 +340,25 @@ int Overlay_Spacer::draw(QPainter &, int , int )
         return 0;
 }
 
+int Overlay_Progress_Bar::draw(QPainter &p, int x, int y)
+{
+    if ((*unused_space) >= 10){
+        rect = QRect(x,y-15,*unused_space-10,15);
+
+        QRect progress_rect = rect;
+        progress_rect.setWidth(progress/100*rect.width());
+
+        QBrush highlight_bg(QColor(40,40,40,255));
+
+        p.fillRect(progress_rect,highlight_bg);
+        p.drawRect(rect);
+
+        return *unused_space;
+    } else {
+        return 0;
+    }
+}
+
 int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
 {
     if ((active == nullptr || (*active)) && !entries.isEmpty()){
@@ -341,6 +416,12 @@ int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
         return 0;
     }
 
+}
+
+void Overlay_Progress_Bar::set_progress(int new_progress,int max)
+{
+    progress = double(new_progress)/max*100;
+    emit request_redraw();
 }
 
 void Overlay_Combo_Box::toggle_drop_down()
@@ -402,7 +483,18 @@ void Overlay::set_file(PyrosFile *file)
 
         show_zoom = (*viewer)->scaleing();
         show_page = (*viewer)->multi_paged();
+
+        if ((playback_bar.active = (*viewer)->controller != nullptr)){
+            Playback_Controller *controller = (*viewer)->controller;
+            connect(controller,&Playback_Controller::duration_changed,this,&Overlay::update_playback_duration);
+            connect(controller,&Playback_Controller::position_changed,this,&Overlay::update_playback_position);
+            connect(controller,&Playback_Controller::update_progress,this,&Overlay::update_playback_progress);
+
+            emit update_playback_duration(controller->duration());
+        }
+
     } else {
+        playback_bar.active = false;
         show_page = false;
         show_zoom = false;
         emit update_file_info("");
@@ -414,8 +506,9 @@ void Overlay::set_file(PyrosFile *file)
 
 bool Overlay::mouseMoved(QMouseEvent *e)
 {
-    foreach(Overlay_Widget *widget,overlay_widgets)
-        widget->check_hover(e);
+    foreach(Overlay_Bar *bar,overlay_bars)
+        foreach(Overlay_Widget *widget,bar->widgets)
+            widget->check_hover(e);
 
     return false;
 }
@@ -424,10 +517,12 @@ bool Overlay::mouseClicked(QMouseEvent *e)
 {
     bool result = false;
 
-    foreach(Overlay_Widget *widget,overlay_widgets){
-        if (widget->rect.contains(e->pos())){
-            last_pressed_widget = widget;
-            result = true;
+    foreach(Overlay_Bar *bar,overlay_bars){
+        foreach(Overlay_Widget *widget,bar->widgets){
+            if (widget->rect.contains(e->pos())){
+                last_pressed_widget = widget;
+                result = true;
+            }
         }
     }
 
@@ -437,12 +532,15 @@ bool Overlay::mouseClicked(QMouseEvent *e)
 bool Overlay::mouseReleased(QMouseEvent *e)
 {
     bool result = false;
-    foreach(Overlay_Widget *widget,overlay_widgets){
-        if (widget->rect.contains(e->pos())){
-            if (last_pressed_widget == widget && viewer != nullptr)
-                widget->clicked();
 
-            result = true;
+    foreach(Overlay_Bar *bar,overlay_bars){
+        foreach(Overlay_Widget *widget,bar->widgets){
+            if (widget->rect.contains(e->pos())){
+                if (last_pressed_widget == widget && viewer != nullptr)
+                    widget->clicked();
+
+                result = true;
+            }
         }
     }
 
@@ -503,18 +601,16 @@ MediaViewer::~MediaViewer()
 
 void MediaViewer::set_file(PyrosFile* file)
 {
+   int used_layer = LABEL_LAYER;
+
      if (viewer != nullptr){
         delete viewer;
         viewer = nullptr;
     }
 
-    if (file == nullptr){
+    if (file == nullptr)
         return;
-    }
 
-    stacked_widget->setCurrentIndex(LABEL_LAYER);
-
-    overlay->show();
     if (!strcmp(file->mime,"image/gif") &&
             !ct::setting_value(ct::GIFS_AS_VIDEO).toBool()){
         viewer = new Movie_Viewer(label);
@@ -522,7 +618,7 @@ void MediaViewer::set_file(PyrosFile* file)
     } else if (!qstrcmp(file->mime,"image/gif") ||
            !qstrncmp(file->mime,"audio/",6) ||
            !qstrncmp(file->mime,"video/",6)){
-        stacked_widget->setCurrentIndex(VIDEO_LAYER);
+        used_layer = VIDEO_LAYER;
         viewer = new Video_Viewer(video_player);
 
     } else if (!qstrncmp(file->mime,"image/",6)){
@@ -539,16 +635,22 @@ void MediaViewer::set_file(PyrosFile* file)
         viewer = new Unsupported_Viewer(label);
     }
 
-    viewer->set_file(file->path);
-    overlay->set_file(file);
-    update_scale();
-
     if (viewer->always_show_vertical_scrollbar())
         scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     else
         scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    stacked_widget->setCurrentIndex(used_layer);
+
+    viewer->set_file(file->path);
+    update_scale();
+
+
+    overlay->set_file(file);
     overlay->set_visible();
+
+    // somtimes when the layer gets switched overlay won't be repainted, this forces a repaint
+    QTimer::singleShot(10,overlay,SLOT(repaint()));
 
 }
 
@@ -637,7 +739,10 @@ void MediaViewer::set_scale(int scale)
 
 void MediaViewer::set_focus()
 {
-    scroll_area->setFocus(Qt::OtherFocusReason);
+    if (stacked_widget->currentIndex() == VIDEO_LAYER)
+        video_player->setFocus(Qt::OtherFocusReason);
+    else
+        scroll_area->setFocus(Qt::OtherFocusReason);
 }
 
 void MediaViewer::resizeEvent(QResizeEvent *e)
@@ -700,4 +805,21 @@ void MediaViewer::mouseMoveEvent(QMouseEvent *e)
         e->accept();
     }
 
+}
+
+void MediaViewer::bind_keys(QWidget *widget)
+{
+    QAction *lock_media_overlay = ct::create_binding(ct::KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Lock Media Viewer Overlay",widget);
+    QAction *zoom_in_bind = ct::create_binding(ct::KEY_ZOOM_IN,"Zoom in",widget);
+    QAction *zoom_out_bind = ct::create_binding(ct::KEY_ZOOM_OUT,"Zoom out",widget);
+    QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",widget);
+    QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",widget);
+    QAction *focus_file_viewer = ct::create_binding(ct::KEY_FOCUS_FILE_VIEWER,"Focus file viewer",widget);
+
+    connect(lock_media_overlay, &QAction::triggered,this, &MediaViewer::lock_overlay);
+    connect(zoom_in_bind, &QAction::triggered,this, &MediaViewer::zoom_in);
+    connect(zoom_out_bind, &QAction::triggered,this, &MediaViewer::zoom_out);
+    connect(next_page_bind, &QAction::triggered,this, &MediaViewer::next_page);
+    connect(prev_page_bind, &QAction::triggered,this, &MediaViewer::prev_page);
+    connect(focus_file_viewer, &QAction::triggered,this, &MediaViewer::set_focus);
 }
