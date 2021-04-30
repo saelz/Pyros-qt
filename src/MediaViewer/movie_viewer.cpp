@@ -62,3 +62,20 @@ void Movie_Controller::set_position(int frame)
     emit update_progress(frame,movie->frameCount());
     emit position_changed(milliToStr(frame*movie->nextFrameDelay()));
 }
+
+void Movie_Controller::fast_forward()
+{
+    movie->jumpToNextFrame();
+}
+
+void Movie_Controller::rewind()
+{
+}
+
+void Movie_Controller::pause()
+{
+    if (movie->state() == QMovie::NotRunning || movie->state() == QMovie::Paused)
+        movie->setPaused(false);
+    else
+        movie->setPaused(true);
+}

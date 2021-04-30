@@ -12,6 +12,12 @@ public:
     Movie_Controller(QMovie *movie);
     QString duration() override;
     QString position() override;
+
+public slots:
+    void fast_forward() override;
+    void rewind() override;
+    void pause() override;
+
 private slots:
     void set_position(int frame);
 };

@@ -490,6 +490,10 @@ void Overlay::set_file(PyrosFile *file)
             connect(controller,&Playback_Controller::position_changed,this,&Overlay::update_playback_position);
             connect(controller,&Playback_Controller::update_progress,this,&Overlay::update_playback_progress);
 
+            connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
+            connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);
+            connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
+
             emit update_playback_duration(controller->duration());
         }
 
@@ -591,6 +595,23 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     video_player->setMouseTracking(true);
 
     setMouseTracking(true);
+
+    QAction *pause = new QAction("pause",this);
+    QAction *seek_right = new QAction("pause",this);
+    QAction *seek_left = new QAction("pause",this);
+
+    pause->setShortcut(QKeySequence("Space"));
+    seek_right->setShortcut(QKeySequence("Right"));
+    seek_left->setShortcut(QKeySequence("Left"));
+
+    addAction(pause);
+    addAction(seek_right);
+    addAction(seek_left);
+
+    connect(pause,&QAction::triggered,overlay,&Overlay::pause);
+    connect(seek_right,&QAction::triggered,overlay,&Overlay::fast_forward);
+    connect(seek_left,&QAction::triggered,overlay,&Overlay::rewind);
+
 }
 
 MediaViewer::~MediaViewer()

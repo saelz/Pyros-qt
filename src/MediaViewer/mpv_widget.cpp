@@ -13,26 +13,7 @@ void mpv_widget::wakeup(void *ctx)
     emit mpv_wid->mpv_events();
 }
 
-mpv_widget::mpv_widget(QWidget *parent) : QOpenGLWidget(parent)
-{
-    QAction *pause = new QAction("pause",this);
-    QAction *seek_right = new QAction("pause",this);
-    QAction *seek_left = new QAction("pause",this);
-
-    pause->setShortcut(QKeySequence("Space"));
-    seek_right->setShortcut(QKeySequence("Right"));
-    seek_left->setShortcut(QKeySequence("Left"));
-
-
-
-    addAction(pause);
-    addAction(seek_right);
-    addAction(seek_left);
-
-    connect(pause,&QAction::triggered,this,&mpv_widget::toggle_playback);
-    connect(seek_right,&QAction::triggered,this,&mpv_widget::quick_fast_forward);
-    connect(seek_left,&QAction::triggered,this,&mpv_widget::quick_rewind);
-}
+mpv_widget::mpv_widget(QWidget *parent) : QOpenGLWidget(parent){}
 
 void mpv_widget::init()
 {

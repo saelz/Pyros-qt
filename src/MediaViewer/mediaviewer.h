@@ -196,6 +196,9 @@ signals:
     void update_playback_duration(QString);
     void update_playback_position(QString);
     void update_playback_progress(int,int);
+    void fast_forward();
+    void rewind();
+    void pause();
 
 };
 

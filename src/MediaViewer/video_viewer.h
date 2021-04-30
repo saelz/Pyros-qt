@@ -6,6 +6,7 @@
 #include "playback_controller.h"
 
 class Mpv_Controller : public Playback_Controller{
+    mpv_widget *mpv;
 public:
     double m_duration = 0;
     double m_position = 0;
@@ -16,6 +17,10 @@ public:
 public slots:
     void set_duration(double dur);
     void set_position(double dur);
+
+    void fast_forward() override;
+    void rewind() override;
+    void pause() override;
 };
 
 class Video_Viewer : public Viewer
@@ -31,8 +36,6 @@ public:
     {
         m_mpv->set_file(path);
     }
-
-
 
 
 };
