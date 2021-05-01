@@ -24,7 +24,7 @@ public:
     virtual ~Overlay_Widget();
     virtual int requested_width(QPainter &p) = 0;
     virtual int draw(QPainter &p,int x,int y) = 0;
-    virtual void check_hover(QMouseEvent *e);
+    virtual bool check_hover(QMouseEvent *e);
     virtual void clicked(){};
     QString tooltip;
 };
@@ -63,7 +63,7 @@ public:
 public slots:
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
-    void check_hover(QMouseEvent *e) override;
+    bool check_hover(QMouseEvent *e) override;
     inline void set_toggle_state(bool state){is_toggled = state;emit toggle_changed();};
     inline void toggle(){is_toggled = !is_toggled;emit toggle_changed();};
 
@@ -115,7 +115,7 @@ public:
     QVector<Combo_Entry> entries;
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
-    void check_hover(QMouseEvent *e) override;
+    bool check_hover(QMouseEvent *e) override;
 
 
     int selected_entry = 0;

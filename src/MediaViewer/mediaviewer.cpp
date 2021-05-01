@@ -225,13 +225,14 @@ void Overlay::resizeEvent(QResizeEvent *e)
     QWidget::resizeEvent(e);
 }
 
-void Overlay_Widget::check_hover(QMouseEvent *e)
+bool Overlay_Widget::check_hover(QMouseEvent *e)
 {
     if (!tooltip.isEmpty() && rect.contains(e->pos()))
         QToolTip::showText(e->globalPos(),tooltip);
+    return false;
 }
 
-void Overlay_Button::check_hover(QMouseEvent *e)
+bool Overlay_Button::check_hover(QMouseEvent *e)
 {
     bool inital_status = highlighed;
     if (rect.contains(e->pos())){
@@ -244,20 +245,22 @@ void Overlay_Button::check_hover(QMouseEvent *e)
    if (inital_status != highlighed){
        emit request_redraw();
    }
+   return highlighed;
 }
 
-void Overlay_Combo_Box::check_hover(QMouseEvent *e)
+bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
 {
     bool inital_status = highlighed;
     int last_highlighted_entry = highlighted_entry;
 
     if (entries.empty())
-        return;
+        return false;
 
     if (rect.contains(e->pos())){
         highlighed = true;
         if (!display_dropdown)
             QToolTip::showText(e->globalPos(),tooltip);
+
     } else {
         highlighed = false;
     }
@@ -279,6 +282,8 @@ void Overlay_Combo_Box::check_hover(QMouseEvent *e)
             last_highlighted_entry != highlighted_entry){
         emit request_redraw();
     }
+
+    return (highlighted_entry != -1 || highlighed);
 }
 
 int Overlay_Text::requested_width(QPainter &p)
@@ -510,9 +515,13 @@ void Overlay::set_file(PyrosFile *file)
 
 bool Overlay::mouseMoved(QMouseEvent *e)
 {
-    foreach(Overlay_Bar *bar,overlay_bars)
-        foreach(Overlay_Widget *widget,bar->widgets)
-            widget->check_hover(e);
+    foreach(Overlay_Bar *bar,overlay_bars){
+        foreach(Overlay_Widget *widget,bar->widgets){
+            if (widget->check_hover(e)){
+                return true;
+            }
+        }
+    }
 
     return false;
 }
@@ -540,10 +549,10 @@ bool Overlay::mouseReleased(QMouseEvent *e)
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
             if (widget->rect.contains(e->pos())){
-                if (last_pressed_widget == widget && viewer != nullptr)
+                if (last_pressed_widget == widget && viewer != nullptr){
                     widget->clicked();
-
-                result = true;
+                    result = true;
+                }
             }
         }
     }
@@ -811,7 +820,26 @@ void MediaViewer::mouseReleaseEvent(QMouseEvent *e)
 
 void MediaViewer::mouseMoveEvent(QMouseEvent *e)
 {
-    if (overlay->mouseMoved(e)) return;
+    if (!mouse_clicked ){
+        if (overlay->mouseMoved(e)) {
+            setCursor(Qt::PointingHandCursor);
+            return;
+        } else {
+            unsetCursor();
+        }
+    }
+
+    if (!mouse_clicked && is_dragable()){
+        bool overlay_hovor = false;
+        foreach(Overlay::Overlay_Bar *bar, overlay->overlay_bars)
+            if (bar->active && bar->rect.contains(e->pos()))
+                overlay_hovor = true;
+
+        if (!overlay_hovor)
+            setCursor(Qt::OpenHandCursor);
+        else
+            unsetCursor();
+    }
 
     if (mouse_clicked && is_dragable()){
         QPoint diff = e->pos() - last_mouse_pos;
