@@ -9,7 +9,10 @@ class Playback_Controller: public QObject{
     Q_OBJECT
 protected:
     QString milliToStr(int milli);
+
 public:
+    bool show_milliseconds = false;
+
     Playback_Controller(QObject *parent);
     virtual QString duration() = 0;
     virtual QString position() = 0;

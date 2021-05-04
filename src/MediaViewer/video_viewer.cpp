@@ -28,6 +28,11 @@ QString Mpv_Controller::duration()
 void Mpv_Controller::set_duration(double dur)
 {
     m_duration = dur;
+    if (dur*1000 < 2000)
+        show_milliseconds = true;
+    else
+        show_milliseconds = false;
+
     emit duration_changed(duration());
 }
 

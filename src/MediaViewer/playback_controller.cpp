@@ -6,12 +6,12 @@ Playback_Controller::Playback_Controller(QObject *parent) : QObject(parent){};
 
 QString Playback_Controller::milliToStr(int milli)
 {
-    if (milli >= 1000){
-        QTime duration(0,0,0);
-        duration = duration.addMSecs(milli);
-        return duration.toString();
-    } else {
-        return "00:00:00."+QString::number(milli);
-    }
+    QTime duration(0,0,0);
+    duration = duration.addMSecs(milli);
+
+    if (show_milliseconds)
+        return QString::asprintf("%02d:%02d.%03d",duration.minute(),duration.second(),duration.msec());
+    else
+        return QString::asprintf("%02d:%02d",duration.minute(),duration.second());
 
 }

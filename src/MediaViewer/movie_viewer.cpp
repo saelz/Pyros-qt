@@ -20,6 +20,10 @@ void Movie_Viewer::set_file(char *path){
     movie->start();
     orignal_size = movie->currentImage().size();
     controller = new Movie_Controller(movie);
+
+    if (movie->frameCount()*movie->nextFrameDelay() < 2000)
+        controller->show_milliseconds = true;
+
     emit controller->duration_changed(controller->duration());
 }
 
