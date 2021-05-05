@@ -355,7 +355,9 @@ int Overlay_Progress_Bar::draw(QPainter &p, int x, int y)
 
         QBrush highlight_bg(QColor(40,40,40,255));
 
-        p.fillRect(progress_rect,highlight_bg);
+        if (progress_rect.right() > progress_rect.left())
+            p.fillRect(progress_rect,highlight_bg);
+
         p.drawRect(rect);
 
         return *unused_space;
@@ -500,6 +502,7 @@ void Overlay::set_file(PyrosFile *file)
             connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
 
             emit update_playback_duration(controller->duration());
+            emit update_playback_position(controller->position());
         }
 
     } else {

@@ -20,8 +20,8 @@ public slots:
     void set_file(char *path);
     void stop();
     void toggle_playback();
-    void quick_rewind();
-    void quick_fast_forward();
+    void rewind();
+    void fast_forward();
 
 private:
     bool initalized = false;

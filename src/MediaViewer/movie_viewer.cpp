@@ -15,6 +15,7 @@ Movie_Viewer::~Movie_Viewer()
 
 void Movie_Viewer::set_file(char *path){
     movie = new QMovie(path);
+    movie->setCacheMode(QMovie::CacheAll);
 
     Image_Viewer::m_label->setMovie(movie);
     movie->start();
@@ -45,26 +46,26 @@ Movie_Controller::Movie_Controller(QMovie *movie) : Playback_Controller(movie),m
 
 QString Movie_Controller::duration()
 {
-    return milliToStr(movie->frameCount()*movie->nextFrameDelay());
+    return QString::number(movie->frameCount());
 }
 
 QString Movie_Controller::position()
 {
-    return milliToStr(movie->currentFrameNumber()*movie->nextFrameDelay());
+    return QString::number(movie->currentFrameNumber());
 }
 
 QString Movie_Viewer::get_info()
 {
     if (movie == nullptr)
         return "";
-    return "Frames:"+QString::number(movie->frameCount())+
-            " "+Image_Viewer::get_info();
+
+    return Image_Viewer::get_info();
 }
 
 void Movie_Controller::set_position(int frame)
 {
     emit update_progress(frame,movie->frameCount());
-    emit position_changed(milliToStr(frame*movie->nextFrameDelay()));
+    emit position_changed(position());
 }
 
 void Movie_Controller::fast_forward()
@@ -74,6 +75,10 @@ void Movie_Controller::fast_forward()
 
 void Movie_Controller::rewind()
 {
+    if (movie->currentFrameNumber() > 0)
+        movie->jumpToFrame(movie->currentFrameNumber()-1);
+    else
+        movie->jumpToFrame(movie->frameCount()-1);
 }
 
 void Movie_Controller::pause()

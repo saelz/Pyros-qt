@@ -50,12 +50,12 @@ void Mpv_Controller::set_position(double pos)
 
 void Mpv_Controller::fast_forward()
 {
-    mpv->quick_fast_forward();
+    mpv->fast_forward();
 }
 
 void Mpv_Controller::rewind()
 {
-    mpv->quick_rewind();
+    mpv->rewind();
 }
 
 void Mpv_Controller::pause()

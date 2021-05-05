@@ -82,7 +82,12 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
         break;
     }
 
-    default: ;
+    case MPV_EVENT_FILE_LOADED:
+        invoke_update();
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -122,18 +127,19 @@ void mpv_widget::toggle_playback()
     }
 }
 
-void mpv_widget::quick_rewind()
+void mpv_widget::rewind()
 {
     if (mpv) {
-        const char *args[] = {"seek","-3", NULL};
+        const char *args[] = {"seek","-1", NULL};
         mpv_command_async(mpv, 0, args);
     }
 
 }
-void mpv_widget::quick_fast_forward()
+void mpv_widget::fast_forward()
 {
+    qDebug("RIGHT");
     if (mpv) {
-        const char *args[] = {"seek","3", NULL};
+        const char *args[] = {"seek","1", NULL};
         mpv_command_async(mpv, 0, args);
     }
 
