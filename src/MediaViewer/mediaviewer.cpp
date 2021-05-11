@@ -266,16 +266,19 @@ bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
     }
 
 
+    if (display_dropdown){
         highlighted_entry = -1;
-    for(int i = 0;i < dropdownrect.length();i++){
-        if (dropdownrect[i].contains(e->pos())){
-            if (selected_entry  > i)
-                highlighted_entry = i;
-            else
-                highlighted_entry = i+1;
+        for(int i = 0;i < dropdownrect.length();i++){
+            if (dropdownrect[i].contains(e->pos())){
+                if (selected_entry  > i)
+                    highlighted_entry = i;
+                else
+                    highlighted_entry = i+1;
 
-            break;
+                break;
+            }
         }
+
     }
 
     if (inital_status != highlighed ||
@@ -609,8 +612,8 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     setMouseTracking(true);
 
     QAction *pause = new QAction("pause",this);
-    QAction *seek_right = new QAction("pause",this);
-    QAction *seek_left = new QAction("pause",this);
+    QAction *seek_right = new QAction("seek right",this);
+    QAction *seek_left = new QAction("seek left",this);
 
     pause->setShortcut(QKeySequence("Space"));
     seek_right->setShortcut(QKeySequence("Right"));
