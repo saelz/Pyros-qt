@@ -137,7 +137,6 @@ void mpv_widget::rewind()
 }
 void mpv_widget::fast_forward()
 {
-    qDebug("RIGHT");
     if (mpv) {
         const char *args[] = {"seek","1", NULL};
         mpv_command_async(mpv, 0, args);

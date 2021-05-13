@@ -619,6 +619,8 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     seek_right->setShortcut(QKeySequence("Right"));
     seek_left->setShortcut(QKeySequence("Left"));
 
+    pause->setAutoRepeat(false);
+
     addAction(pause);
     addAction(seek_right);
     addAction(seek_left);

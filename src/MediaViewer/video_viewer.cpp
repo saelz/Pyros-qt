@@ -11,6 +11,7 @@ Video_Viewer::Video_Viewer(mpv_widget *mpv): Viewer(nullptr),m_mpv(mpv)
 Video_Viewer::~Video_Viewer()
 {
     m_mpv->stop();
+    delete controller;
 }
 
 Mpv_Controller::Mpv_Controller(mpv_widget *mpv) : Playback_Controller(mpv),mpv(mpv)

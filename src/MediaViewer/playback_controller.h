@@ -17,6 +17,7 @@ public:
     virtual QString duration() = 0;
     virtual QString position() = 0;
 
+
 public slots:
     virtual void fast_forward() = 0;
     virtual void rewind() = 0;
