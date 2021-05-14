@@ -133,12 +133,15 @@ void FileView::copy_path()
     bool multiple = false;
 
     foreach(index, indexes) {
-        QString str = file_model->file(index)->path;
+        PyrosFile *file = file_model->file(index);
+        if (file == nullptr)
+            continue;
+
+        QString str = file->path;
         if (multiple){
             tags += "\n" + str;
         } else {
             tags = str;
-
             multiple = true;
         }
     }
@@ -159,7 +162,7 @@ void FileView::remove_file()
 
     foreach(index,indexes){
         PyrosFile *file = file_model->file(index);
-        if (file != NULL){
+        if (file != nullptr){
             files.append(Pyros_Duplicate_File(file));
             hashes.append(file->hash);
         }
