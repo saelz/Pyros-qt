@@ -26,6 +26,16 @@ void Movie_Viewer::set_file(char *path){
         controller->show_milliseconds = true;
 
     emit controller->duration_changed(controller->duration());
+    ((Movie_Controller*)controller)->playback_changed(movie->state());
+}
+
+bool Movie_Controller::pause_state()
+{
+    if (movie->state() == QMovie::NotRunning || movie->state() == QMovie::Paused)
+        return false;
+    else
+        return true;
+
 }
 
 void Movie_Viewer::set_size(QSize newsize){
@@ -42,6 +52,7 @@ void Movie_Viewer::set_size(QSize newsize){
 Movie_Controller::Movie_Controller(QMovie *movie) : Playback_Controller(movie),movie(movie)
 {
     connect(movie,&QMovie::frameChanged,this,&Movie_Controller::set_position);
+    connect(movie,&QMovie::stateChanged,this,&Movie_Controller::playback_changed);
 }
 
 QString Movie_Controller::duration()
@@ -87,4 +98,12 @@ void Movie_Controller::pause()
         movie->setPaused(false);
     else
         movie->setPaused(true);
+}
+
+void Movie_Controller::playback_changed(QMovie::MovieState state)
+{
+    if (state == QMovie::NotRunning || state == QMovie::Paused)
+        emit playback_state_changed(false);
+    else
+        emit playback_state_changed(true);
 }

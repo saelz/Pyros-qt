@@ -13,6 +13,7 @@ public:
     Mpv_Controller(mpv_widget *mpv);
     QString duration() override;
     QString position() override;
+    bool pause_state() override;
 
 public slots:
     void set_duration(double dur);

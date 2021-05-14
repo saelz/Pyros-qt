@@ -15,6 +15,7 @@ public:
     ~mpv_widget();
 
     void init();
+    bool is_paused();
 
 public slots:
     void set_file(char *path);
@@ -24,6 +25,7 @@ public slots:
     void fast_forward();
 
 private:
+    bool stop_playback_updates = false;
     bool initalized = false;
     mpv_handle *mpv = nullptr;
     mpv_render_context *mpv_gl = nullptr;
@@ -42,6 +44,7 @@ signals:
     void mpv_update();
     void duration_changed(double);
     void position_changed(double);
+    void playback_state(bool);
 
 private slots:
     void mpv_event_occured();

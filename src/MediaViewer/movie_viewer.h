@@ -3,8 +3,8 @@
 
 #include "image_viewer.h"
 #include "playback_controller.h"
+#include <QMovie>
 
-class QMovie;
 
 class Movie_Controller : public Playback_Controller{
 public:
@@ -12,11 +12,13 @@ public:
     Movie_Controller(QMovie *movie);
     QString duration() override;
     QString position() override;
+    bool pause_state() override;
 
 public slots:
     void fast_forward() override;
     void rewind() override;
     void pause() override;
+    void playback_changed(QMovie::MovieState state);
 
 private slots:
     void set_position(int frame);

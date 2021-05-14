@@ -64,7 +64,7 @@ public slots:
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
     bool check_hover(QMouseEvent *e) override;
-    inline void set_toggle_state(bool state){is_toggled = state;emit toggle_changed();};
+    inline void set_toggle_state(bool state){is_toggled = state;emit request_redraw();};
     inline void toggle(){is_toggled = !is_toggled;emit toggle_changed();};
 
 signals:
@@ -196,6 +196,7 @@ signals:
     void update_playback_duration(QString);
     void update_playback_position(QString);
     void update_playback_progress(int,int);
+    void update_playback_state(bool);
     void fast_forward();
     void rewind();
     void pause();

@@ -26,9 +26,9 @@ void mpv_widget::init()
 
     mpv_set_option_string(mpv, "loop", "yes");
 
+    mpv_observe_property(mpv, 0, "pause", MPV_FORMAT_STRING);
     mpv_observe_property(mpv, 0, "duration", MPV_FORMAT_DOUBLE);
     mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
-    mpv_observe_property(mpv, 0, "track-list", MPV_FORMAT_NODE);
     mpv_observe_property(mpv, 0, "chapter-list", MPV_FORMAT_NODE);
 
     connect(this, &mpv_widget::mpv_events, this, &mpv_widget::mpv_event_occured,
@@ -71,16 +71,27 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
         mpv_event_property *prop = (mpv_event_property *)event->data;
         if (strcmp(prop->name, "time-pos") == 0) {
             if (prop->format == MPV_FORMAT_DOUBLE) {
-                emit position_changed(*(double *)prop->data);
+                if (!stop_playback_updates)
+                    emit position_changed(*(double *)prop->data);
             }
         } else if (strcmp(prop->name, "duration") == 0) {
             if (prop->format == MPV_FORMAT_DOUBLE) {
                 emit duration_changed(*(double *)prop->data);
-                //qDebug("DUR:%lf",m_duration);
+            }
+        } else if (strcmp(prop->name, "pause") == 0) {
+            if (prop->format == MPV_FORMAT_STRING){
+                if (**(char**)prop->data == 'n')
+                    emit playback_state(true);
+                else
+                    emit playback_state(false);
             }
         }
         break;
     }
+
+    case MPV_EVENT_SEEK:
+        stop_playback_updates = false;
+        break;
 
     case MPV_EVENT_FILE_LOADED:
         invoke_update();
@@ -101,6 +112,21 @@ void mpv_widget::mpv_event_occured()
     }
 }
 
+bool mpv_widget::is_paused()
+{
+    char *pause_state = nullptr;
+    bool state;
+
+    mpv_get_property(mpv, "pause", MPV_FORMAT_STRING,&pause_state);
+    if (pause_state == nullptr || *pause_state == 'n')
+        state = true;
+    else
+        state = false;
+
+    mpv_free(pause_state);
+    return state;
+}
+
 void mpv_widget::set_file(char *path)
 {
     if (!initalized)
@@ -108,7 +134,10 @@ void mpv_widget::set_file(char *path)
 
     if (mpv) {
         const char *args[] = {"loadfile", path, NULL};
+
+        stop_playback_updates = false;
         mpv_command_async(mpv, 0, args);
+
     }
 }
 void mpv_widget::stop()
@@ -131,6 +160,7 @@ void mpv_widget::rewind()
 {
     if (mpv) {
         const char *args[] = {"seek","-1", NULL};
+        stop_playback_updates = true;
         mpv_command_async(mpv, 0, args);
     }
 
@@ -139,6 +169,7 @@ void mpv_widget::fast_forward()
 {
     if (mpv) {
         const char *args[] = {"seek","1", NULL};
+        stop_playback_updates = true;
         mpv_command_async(mpv, 0, args);
     }
 

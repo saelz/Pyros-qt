@@ -152,6 +152,8 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     connect(this,&Overlay::update_playback_position,position_text,&Overlay_Text::set_text);
     connect(this,&Overlay::update_playback_duration,duration_text,&Overlay_Text::set_text);
     connect(this,&Overlay::update_playback_progress,prog_bar,&Overlay_Progress_Bar::set_progress);
+    connect(this,&Overlay::update_playback_state,pause_button,&Overlay_Button::set_toggle_state);
+    connect(pause_button,&Overlay_Button::clicked,this,&Overlay::pause);
 
     playback_bar.widgets.append(pause_button);
     playback_bar.widgets.append(position_text);
@@ -499,6 +501,7 @@ void Overlay::set_file(PyrosFile *file)
             connect(controller,&Playback_Controller::duration_changed,this,&Overlay::update_playback_duration);
             connect(controller,&Playback_Controller::position_changed,this,&Overlay::update_playback_position);
             connect(controller,&Playback_Controller::update_progress,this,&Overlay::update_playback_progress);
+            connect(controller,&Playback_Controller::playback_state_changed,this,&Overlay::update_playback_state);
 
             connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
             connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);
@@ -506,6 +509,7 @@ void Overlay::set_file(PyrosFile *file)
 
             emit update_playback_duration(controller->duration());
             emit update_playback_position(controller->position());
+            emit update_playback_state(controller->pause_state());
         }
 
     } else {

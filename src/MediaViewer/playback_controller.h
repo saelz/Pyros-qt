@@ -16,6 +16,7 @@ public:
     Playback_Controller(QObject *parent);
     virtual QString duration() = 0;
     virtual QString position() = 0;
+    virtual bool pause_state() = 0;
 
 
 public slots:
@@ -27,6 +28,7 @@ signals:
     void duration_changed(QString duration);
     void position_changed(QString position);
     void update_progress(int position,int max);
+    void playback_state_changed(bool);
 };
 
 #endif // PLAYBACK_CONTROLLER_H

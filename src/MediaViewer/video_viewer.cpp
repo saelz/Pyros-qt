@@ -18,6 +18,7 @@ Mpv_Controller::Mpv_Controller(mpv_widget *mpv) : Playback_Controller(mpv),mpv(m
 {
     connect(mpv,&mpv_widget::position_changed,this,&Mpv_Controller::set_position);
     connect(mpv,&mpv_widget::duration_changed,this,&Mpv_Controller::set_duration);
+    connect(mpv,&mpv_widget::playback_state,this,&Mpv_Controller::playback_state_changed);
 
 }
 
@@ -40,6 +41,11 @@ void Mpv_Controller::set_duration(double dur)
 QString Mpv_Controller::position()
 {
     return milliToStr(m_position*1000);
+}
+
+bool Mpv_Controller::pause_state()
+{
+    return mpv->is_paused();
 }
 
 void Mpv_Controller::set_position(double pos)
