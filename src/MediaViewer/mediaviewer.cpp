@@ -371,7 +371,7 @@ int Overlay_Progress_Bar::draw(QPainter &p, int x, int y)
         QRect progress_rect = rect;
         progress_rect.setWidth(progress/100*rect.width());
 
-        QBrush highlight_bg(QColor(40,40,40,255));
+        QBrush highlight_bg(QColor(80,80,80,255));
 
         if (progress_rect.right() > progress_rect.left())
             p.fillRect(progress_rect,highlight_bg);
