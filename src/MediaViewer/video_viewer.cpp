@@ -69,3 +69,8 @@ void Mpv_Controller::pause()
 {
     mpv->toggle_playback();
 }
+
+void Mpv_Controller::set_progress(double progress)
+{
+    mpv->set_progress(progress);
+}

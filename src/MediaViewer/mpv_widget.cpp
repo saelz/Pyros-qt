@@ -175,6 +175,16 @@ void mpv_widget::fast_forward()
 
 }
 
+void mpv_widget::set_progress(double progress)
+{
+     if (mpv) {
+        const char *args[] = {"seek",QString::number(progress*100).toUtf8(),"absolute-percent+exact", NULL};
+        stop_playback_updates = true;
+        mpv_command_async(mpv, 0, args);
+     }
+
+}
+
 void *mpv_widget::get_proc_address(void *,const char *name)
 {
     QOpenGLContext *ctx = QOpenGLContext::currentContext();

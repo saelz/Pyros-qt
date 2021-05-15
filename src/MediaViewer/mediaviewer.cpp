@@ -59,9 +59,9 @@ Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString too
         connect(this,&Overlay_Button::toggle_changed,this,&Overlay_Button::request_redraw);
     }
 
-    this->tooltip = tooltip;
-
     connect(this,SIGNAL(request_redraw()),parent,SLOT(repaint()));
+
+    this->tooltip = tooltip;
 }
 
 Overlay_Text::Overlay_Text(QString tooltip,Overlay *parent): QObject(parent)
@@ -74,6 +74,7 @@ Overlay_Spacer::Overlay_Spacer(int *available_space) : unused_space(available_sp
 
 Overlay_Progress_Bar::Overlay_Progress_Bar(int *available_space,Overlay *parent) : QObject(parent),Overlay_Spacer(available_space)
 {
+    connect(this,&Overlay_Progress_Bar::clicked,this,&Overlay_Progress_Bar::progress_change_request);
     connect(this,SIGNAL(request_redraw()),parent,SLOT(repaint()));
 }
 
@@ -81,7 +82,6 @@ Overlay_Combo_Box::Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *p
 {
     connect(this,&Overlay_Combo_Box::clicked,this,&Overlay_Combo_Box::toggle_drop_down);
 }
-
 
 void Overlay_Text::set_text(QString new_text)
 {
@@ -154,6 +154,8 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     connect(this,&Overlay::update_playback_progress,prog_bar,&Overlay_Progress_Bar::set_progress);
     connect(this,&Overlay::update_playback_state,pause_button,&Overlay_Button::set_toggle_state);
     connect(pause_button,&Overlay_Button::clicked,this,&Overlay::pause);
+
+    connect(prog_bar,&Overlay_Progress_Bar::change_progress,this,&Overlay::change_progress);
 
     playback_bar.widgets.append(pause_button);
     playback_bar.widgets.append(position_text);
@@ -248,6 +250,17 @@ bool Overlay_Button::check_hover(QMouseEvent *e)
        emit request_redraw();
    }
    return highlighed;
+}
+
+bool Overlay_Progress_Bar::check_hover(QMouseEvent *e)
+{
+    if (rect.contains(e->pos())){
+        hover_progress = (e->pos().x()-rect.left())/(double)rect.width();
+        return true;
+    }
+
+    return false;
+
 }
 
 bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
@@ -506,6 +519,7 @@ void Overlay::set_file(PyrosFile *file)
             connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
             connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);
             connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
+            connect(this,&Overlay::change_progress,controller,&Playback_Controller::set_progress);
 
             emit update_playback_duration(controller->duration());
             emit update_playback_position(controller->position());

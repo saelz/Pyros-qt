@@ -23,6 +23,7 @@ public slots:
     virtual void fast_forward() = 0;
     virtual void rewind() = 0;
     virtual void pause() = 0;
+    virtual void set_progress(double) = 0;
 
 signals:
     void duration_changed(QString duration);

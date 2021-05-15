@@ -18,6 +18,7 @@ public slots:
     void fast_forward() override;
     void rewind() override;
     void pause() override;
+    void set_progress(double progress) override;
     void playback_changed(QMovie::MovieState state);
 
 private slots:

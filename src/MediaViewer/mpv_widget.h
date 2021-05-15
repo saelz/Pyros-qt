@@ -23,6 +23,7 @@ public slots:
     void toggle_playback();
     void rewind();
     void fast_forward();
+    void set_progress(double);
 
 private:
     bool stop_playback_updates = false;

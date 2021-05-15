@@ -22,6 +22,7 @@ public slots:
     void fast_forward() override;
     void rewind() override;
     void pause() override;
+    void set_progress(double progress) override;
 };
 
 class Video_Viewer : public Viewer

@@ -107,3 +107,8 @@ void Movie_Controller::playback_changed(QMovie::MovieState state)
     else
         emit playback_state_changed(true);
 }
+
+void Movie_Controller::set_progress(double progress)
+{
+    movie->jumpToFrame(movie->frameCount()*progress);
+}
