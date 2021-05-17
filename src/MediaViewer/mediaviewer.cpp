@@ -191,8 +191,8 @@ void Overlay::paintEvent(QPaintEvent *)
 
     p.setPen(Qt::white);
 
-    foreach(Overlay_Bar *bar,overlay_bars)
-        bar->draw(*viewer,p);
+    for	(int i = overlay_bars.size()-1;i >= 0;i--)
+        overlay_bars[i]->draw(*viewer,p);
 }
 
 void Overlay::Overlay_Bar::draw(Viewer *viewer, QPainter &p)
@@ -539,9 +539,21 @@ void Overlay::set_file(PyrosFile *file)
 
 bool Overlay::mouseMoved(QMouseEvent *e)
 {
+    foreach(Overlay_Bar *bar,overlay_bars)
+        foreach(Overlay_Widget *widget,bar->widgets)
+            if (widget->check_hover(e))
+                return true;
+
+    return false;
+}
+
+bool Overlay::mouseClicked(QMouseEvent *e)
+{
+
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
-            if (widget->check_hover(e)){
+            if (widget->rect.contains(e->pos())){
+                last_pressed_widget = widget;
                 return true;
             }
         }
@@ -550,39 +562,22 @@ bool Overlay::mouseMoved(QMouseEvent *e)
     return false;
 }
 
-bool Overlay::mouseClicked(QMouseEvent *e)
-{
-    bool result = false;
-
-    foreach(Overlay_Bar *bar,overlay_bars){
-        foreach(Overlay_Widget *widget,bar->widgets){
-            if (widget->rect.contains(e->pos())){
-                last_pressed_widget = widget;
-                result = true;
-            }
-        }
-    }
-
-    return result;
-}
-
 bool Overlay::mouseReleased(QMouseEvent *e)
 {
-    bool result = false;
 
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
             if (widget->rect.contains(e->pos())){
                 if (last_pressed_widget == widget && viewer != nullptr){
                     widget->clicked();
-                    result = true;
+                    return true;
                 }
             }
         }
     }
 
     last_pressed_widget = nullptr;
-    return result;
+    return false;
 }
 
 void Overlay::toggle_lock()

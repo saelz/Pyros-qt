@@ -44,9 +44,7 @@ void Movie_Viewer::set_size(QSize newsize){
 
     scaled_size = newsize;
 
-    movie->stop();
     movie->setScaledSize(newsize);
-    movie->start();
 }
 
 Movie_Controller::Movie_Controller(QMovie *movie) : Playback_Controller(movie),movie(movie)
