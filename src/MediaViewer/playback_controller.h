@@ -25,11 +25,17 @@ public slots:
     virtual void pause() = 0;
     virtual void set_progress(double) = 0;
 
+    inline virtual void set_volume(double){};
+    inline virtual bool has_audio(){return false;};
+    inline virtual void set_mute(bool){};
+
 signals:
     void duration_changed(QString duration);
     void position_changed(QString position);
+    void volume_changed(double volume);
     void update_progress(int position,int max);
     void playback_state_changed(bool);
+    void mute_state_changed(bool);
 };
 
 #endif // PLAYBACK_CONTROLLER_H

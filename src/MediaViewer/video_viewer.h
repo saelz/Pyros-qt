@@ -18,11 +18,13 @@ public:
 public slots:
     void set_duration(double dur);
     void set_position(double dur);
+    void set_volume(double) override;
 
     void fast_forward() override;
     void rewind() override;
     void pause() override;
     void set_progress(double progress) override;
+    bool has_audio() override;
 };
 
 class Video_Viewer : public Viewer

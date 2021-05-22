@@ -83,6 +83,28 @@ Overlay_Combo_Box::Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *p
     connect(this,&Overlay_Combo_Box::clicked,this,&Overlay_Combo_Box::toggle_drop_down);
 }
 
+Overlay_Volume_Button::Overlay_Volume_Button(bool *active_ptr,Overlay *parent): Overlay_Button(":/data/icons/volume_med",active_ptr,"Volume",parent)
+{
+    icon_low = QImage(":/data/icons/volume_low");
+    icon_mute = QImage(":/data/icons/mute.png");
+
+    icon_low = icon_low.scaled(
+                QSize(width,height),
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation);
+
+    icon_mute = icon_mute.scaled(
+                QSize(width,height),
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation);
+
+    icon_med = icon;
+
+    connect(this,&Overlay_Volume_Button::clicked,this,&Overlay_Volume_Button::volume_change_request);
+    connect(this,&Overlay_Volume_Button::clicked,this,&Overlay_Volume_Button::toggle_popup);
+}
+
+
 void Overlay_Text::set_text(QString new_text)
 {
     if (text != new_text){
@@ -148,19 +170,26 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     Overlay_Text *position_text = new Overlay_Text("File Position",this);
     Overlay_Text *duration_text = new Overlay_Text("File Duration",this);
     Overlay_Progress_Bar *prog_bar = new Overlay_Progress_Bar(&playback_bar.unused_space,this);
+    Overlay_Volume_Button *vol_button = new Overlay_Volume_Button(nullptr,this);
 
     connect(this,&Overlay::update_playback_position,position_text,&Overlay_Text::set_text);
     connect(this,&Overlay::update_playback_duration,duration_text,&Overlay_Text::set_text);
     connect(this,&Overlay::update_playback_progress,prog_bar,&Overlay_Progress_Bar::set_progress);
     connect(this,&Overlay::update_playback_state,pause_button,&Overlay_Button::set_toggle_state);
+    connect(this,&Overlay::update_playback_volume,vol_button,&Overlay_Volume_Button::set_volume);
+    connect(this,&Overlay::update_playback_has_audio,vol_button,&Overlay_Volume_Button::set_has_audio);
+    connect(this,&Overlay::update_playback_mute_state,vol_button,&Overlay_Volume_Button::set_mute_state);
     connect(pause_button,&Overlay_Button::clicked,this,&Overlay::pause);
 
     connect(prog_bar,&Overlay_Progress_Bar::change_progress,this,&Overlay::change_progress);
+    connect(vol_button,&Overlay_Volume_Button::change_volume,this,&Overlay::change_volume);
+    connect(vol_button,&Overlay_Volume_Button::change_mute,this,&Overlay::change_muted);
 
     playback_bar.widgets.append(pause_button);
     playback_bar.widgets.append(position_text);
     playback_bar.widgets.append(prog_bar);
     playback_bar.widgets.append(duration_text);
+    playback_bar.widgets.append(vol_button);
 
     auto_hide_timer.setSingleShot(true);
     connect(&auto_hide_timer, &QTimer::timeout, this, &Overlay::set_hidden);
@@ -179,6 +208,14 @@ Overlay::~Overlay()
 }
 
 Overlay_Widget::~Overlay_Widget(){};
+
+bool Overlay_Widget::check_hover(QMouseEvent *e)
+{
+    if (rect.contains(e->pos()))
+        return true;
+    return false;
+}
+
 
 void Overlay::paintEvent(QPaintEvent *)
 {
@@ -229,14 +266,14 @@ void Overlay::resizeEvent(QResizeEvent *e)
     QWidget::resizeEvent(e);
 }
 
-bool Overlay_Widget::check_hover(QMouseEvent *e)
+bool Overlay_Widget::activate_hover(QMouseEvent *e)
 {
     if (!tooltip.isEmpty() && rect.contains(e->pos()))
         QToolTip::showText(e->globalPos(),tooltip);
     return false;
 }
 
-bool Overlay_Button::check_hover(QMouseEvent *e)
+bool Overlay_Button::activate_hover(QMouseEvent *e)
 {
     bool inital_status = highlighed;
     if (rect.contains(e->pos())){
@@ -252,7 +289,7 @@ bool Overlay_Button::check_hover(QMouseEvent *e)
    return highlighed;
 }
 
-bool Overlay_Progress_Bar::check_hover(QMouseEvent *e)
+bool Overlay_Progress_Bar::activate_hover(QMouseEvent *e)
 {
     if (rect.contains(e->pos())){
         hover_progress = (e->pos().x()-rect.left())/(double)rect.width();
@@ -263,7 +300,7 @@ bool Overlay_Progress_Bar::check_hover(QMouseEvent *e)
 
 }
 
-bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
+bool Overlay_Combo_Box::activate_hover(QMouseEvent *e)
 {
     bool inital_status = highlighed;
     int last_highlighted_entry = highlighted_entry;
@@ -303,6 +340,26 @@ bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
 
     return (highlighted_entry != -1 || highlighed);
 }
+bool Overlay_Volume_Button::check_hover(QMouseEvent *e)
+{
+    if (Overlay_Widget::check_hover(e))
+        return true;
+
+    return popup_visible && popup_rect.contains(e->pos());
+}
+bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
+{
+    if (Overlay_Widget::check_hover(e))
+        return true;
+
+    if (display_dropdown)
+        for(int i = 0;i < dropdownrect.length();i++)
+            if (dropdownrect[i].contains(e->pos()))
+                return true;
+
+    return false;
+}
+
 
 int Overlay_Text::requested_width(QPainter &p)
 {
@@ -430,9 +487,6 @@ int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
                 }
             }
 
-            rect.adjust(0,-bounding_text.height()*dropdownrect.length(),0,0);
-            if (rect.width() > dropdown_width)
-                rect.setWidth(dropdown_width);
         }
 
         return used_width+3;
@@ -442,6 +496,46 @@ int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
     }
 
 }
+
+int Overlay_Volume_Button::draw(QPainter &p,int x,int y)
+{
+    if (popup_visible){
+        QBrush bg(QColor(80,80,80,255));
+        popup_rect = QRect(x+rect.width()/4,y-rect.width()-3-100,rect.width()/2,100);
+        QRect volume_rect = popup_rect.adjusted(0,100-volume_level,0,0);
+
+
+        p.fillRect(popup_rect,QBrush(QColor(0,0,0,255)));
+        p.fillRect(volume_rect,bg);
+        p.drawRect(popup_rect);
+    }
+
+    if (has_audio){
+        return Overlay_Button::draw(p,x,y);
+    } else {
+        if (active == nullptr || (*active)){
+            rect = QRect(x,y-width,width,height);
+            p.drawImage(rect,icon_mute.scaled(width,height));
+            return width+3;
+        } else {
+            return 0;
+        }
+    }
+
+}
+
+bool Overlay_Volume_Button::activate_hover(QMouseEvent *e)
+{
+    if (popup_visible && popup_rect.contains(e->pos())){
+        hover_volume = (popup_rect.bottom()-e->pos().y())/(double)popup_rect.height();
+        return true;
+    } else {
+        hover_volume = -1;
+    }
+
+    return Overlay_Button::activate_hover(e);
+}
+
 
 void Overlay_Progress_Bar::set_progress(int new_progress,int max)
 {
@@ -513,17 +607,21 @@ void Overlay::set_file(PyrosFile *file)
             Playback_Controller *controller = (*viewer)->controller;
             connect(controller,&Playback_Controller::duration_changed,this,&Overlay::update_playback_duration);
             connect(controller,&Playback_Controller::position_changed,this,&Overlay::update_playback_position);
-            connect(controller,&Playback_Controller::update_progress,this,&Overlay::update_playback_progress);
             connect(controller,&Playback_Controller::playback_state_changed,this,&Overlay::update_playback_state);
+            connect(controller,&Playback_Controller::update_progress,this,&Overlay::update_playback_progress);
+            connect(controller,&Playback_Controller::volume_changed,this,&Overlay::update_playback_volume);
 
             connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
             connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);
             connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
             connect(this,&Overlay::change_progress,controller,&Playback_Controller::set_progress);
+            connect(this,&Overlay::change_volume,controller,&Playback_Controller::set_volume);
+            connect(this,&Overlay::change_muted,controller,&Playback_Controller::set_mute);
 
             emit update_playback_duration(controller->duration());
             emit update_playback_position(controller->position());
             emit update_playback_state(controller->pause_state());
+            emit update_playback_has_audio(controller->has_audio());
         }
 
     } else {
@@ -541,7 +639,7 @@ bool Overlay::mouseMoved(QMouseEvent *e)
 {
     foreach(Overlay_Bar *bar,overlay_bars)
         foreach(Overlay_Widget *widget,bar->widgets)
-            if (widget->check_hover(e))
+            if (widget->activate_hover(e))
                 return true;
 
     return false;
@@ -552,7 +650,7 @@ bool Overlay::mouseClicked(QMouseEvent *e)
 
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
-            if (widget->rect.contains(e->pos())){
+            if (widget->check_hover(e)){
                 last_pressed_widget = widget;
                 return true;
             }
@@ -567,7 +665,7 @@ bool Overlay::mouseReleased(QMouseEvent *e)
 
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
-            if (widget->rect.contains(e->pos())){
+            if (widget->check_hover(e)){
                 if (last_pressed_widget == widget && viewer != nullptr){
                     widget->clicked();
                     return true;

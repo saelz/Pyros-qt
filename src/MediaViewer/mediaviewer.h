@@ -24,8 +24,9 @@ public:
     virtual ~Overlay_Widget();
     virtual int requested_width(QPainter &p) = 0;
     virtual int draw(QPainter &p,int x,int y) = 0;
-    virtual bool check_hover(QMouseEvent *e);
+    virtual bool activate_hover(QMouseEvent *e);
     virtual void clicked(){};
+    virtual bool check_hover(QMouseEvent *e);
     QString tooltip;
 };
 
@@ -63,7 +64,7 @@ public:
 public slots:
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
-    bool check_hover(QMouseEvent *e) override;
+    bool activate_hover(QMouseEvent *e) override;
     inline void set_toggle_state(bool state){is_toggled = state;emit request_redraw();};
     inline void toggle(){is_toggled = !is_toggled;emit toggle_changed();};
 
@@ -72,6 +73,45 @@ signals:
     void clicked() override;
     void request_redraw(void);
 
+};
+
+class Overlay_Volume_Button : public Overlay_Button{
+    Q_OBJECT
+    double volume_level = 100;
+    double hover_volume = -1;
+    bool popup_visible = false;
+    bool has_audio = true;
+    bool muted = false;
+    QRect popup_rect;
+public:
+    Overlay_Volume_Button(bool *active_ptr,Overlay *parent);
+    QImage icon_low;
+    QImage icon_med;
+    QImage icon_mute;
+    bool activate_hover(QMouseEvent *e) override;
+
+public slots:
+    int draw(QPainter &p,int x, int y) override;
+    inline void toggle_popup(){if (has_audio) popup_visible = !popup_visible;emit request_redraw();};
+    inline void set_volume(double vol){
+        volume_level = vol;
+        if (vol > 50)
+            icon = icon_med;
+        else
+            icon = icon_low;
+        emit request_redraw();
+    };
+    inline void set_mute_state(bool is_muted){muted = is_muted;emit request_redraw();};
+    inline void set_has_audio(bool audio){has_audio = audio;popup_visible = false;emit request_redraw();};
+    bool check_hover(QMouseEvent *e) override;
+
+private slots:
+    inline void volume_change_request(){if (has_audio && hover_volume  != -1 && popup_visible){emit change_volume(hover_volume);set_volume(hover_volume*100);}};
+
+signals:
+    void clicked() override;
+    void change_volume(double);
+    void change_mute(bool);
 };
 
 class Overlay_Spacer: public Overlay_Widget
@@ -92,7 +132,7 @@ public:
     Overlay_Progress_Bar(int *available_space,Overlay *parent);
     int draw(QPainter &p,int x, int y) override;
     void draw_progress(QPainter &p);
-    bool check_hover(QMouseEvent *e) override;
+    bool activate_hover(QMouseEvent *e) override;
 
 public slots:
     void set_progress(int progress,int max);
@@ -121,11 +161,14 @@ public:
     QVector<Combo_Entry> entries;
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
-    bool check_hover(QMouseEvent *e) override;
+    bool activate_hover(QMouseEvent *e) override;
 
 
     int selected_entry = 0;
     int highlighted_entry = -1;
+
+public slots:
+    bool check_hover(QMouseEvent *e) override;
 
 private slots:
     void toggle_drop_down();
@@ -203,10 +246,16 @@ signals:
     void update_playback_position(QString);
     void update_playback_progress(int,int);
     void update_playback_state(bool);
+    void update_playback_volume(double);
+    void update_playback_mute_state(bool);
+    void update_playback_has_audio(bool);
+
     void fast_forward();
     void rewind();
     void pause();
     void change_progress(double);
+    void change_volume(double);
+    void change_muted(bool);
 
 };
 

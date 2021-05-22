@@ -29,7 +29,7 @@ void mpv_widget::init()
     mpv_observe_property(mpv, 0, "pause", MPV_FORMAT_STRING);
     mpv_observe_property(mpv, 0, "duration", MPV_FORMAT_DOUBLE);
     mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
-    mpv_observe_property(mpv, 0, "chapter-list", MPV_FORMAT_NODE);
+    mpv_observe_property(mpv, 0, "volume", MPV_FORMAT_STRING);
 
     connect(this, &mpv_widget::mpv_events, this, &mpv_widget::mpv_event_occured,
             Qt::QueuedConnection);
@@ -58,6 +58,15 @@ mpv_widget::~mpv_widget()
         mpv_terminate_destroy(mpv);
 }
 
+
+bool mpv_widget::check_prop(mpv_event_property*prop,int format,const char *name)
+{
+    if (strcmp(prop->name, name) == 0)
+        if (prop->format == format)
+            return true;
+
+    return false;
+}
 void mpv_widget::handle_mpv_event(mpv_event *event)
 {
     switch (event->event_id) {
@@ -69,22 +78,21 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
 
     case MPV_EVENT_PROPERTY_CHANGE:{
         mpv_event_property *prop = (mpv_event_property *)event->data;
-        if (strcmp(prop->name, "time-pos") == 0) {
-            if (prop->format == MPV_FORMAT_DOUBLE) {
-                if (!stop_playback_updates)
-                    emit position_changed(*(double *)prop->data);
-            }
-        } else if (strcmp(prop->name, "duration") == 0) {
-            if (prop->format == MPV_FORMAT_DOUBLE) {
-                emit duration_changed(*(double *)prop->data);
-            }
-        } else if (strcmp(prop->name, "pause") == 0) {
-            if (prop->format == MPV_FORMAT_STRING){
-                if (**(char**)prop->data == 'n')
-                    emit playback_state(true);
-                else
-                    emit playback_state(false);
-            }
+        if (check_prop(prop,MPV_FORMAT_DOUBLE,"time-pos")) {
+            if (!stop_playback_updates)
+                emit position_changed(*(double *)prop->data);
+
+        } else if (check_prop(prop,MPV_FORMAT_DOUBLE, "duration")) {
+            emit duration_changed(*(double *)prop->data);
+
+        } else if (check_prop(prop,MPV_FORMAT_DOUBLE, "volume")) {
+            emit volume_changed(*(double *)prop->data);
+
+        } else if (check_prop(prop,MPV_FORMAT_STRING, "pause")) {
+            if (**(char**)prop->data == 'n')
+                emit playback_state(true);
+            else
+                emit playback_state(false);
         }
         break;
     }
@@ -177,11 +185,21 @@ void mpv_widget::fast_forward()
 
 void mpv_widget::set_progress(double progress)
 {
-     if (mpv) {
+    if (mpv) {
         const char *args[] = {"seek",QString::number(progress*100).toUtf8(),"absolute-percent+exact", NULL};
         stop_playback_updates = true;
         mpv_command_async(mpv, 0, args);
-     }
+    }
+
+}
+
+void mpv_widget::set_volume(double volume)
+{
+    if (mpv) {
+        const char *args[] = {"set","volume",QString::number(volume*100).toUtf8(), NULL};
+        stop_playback_updates = true;
+        mpv_command_async(mpv, 0, args);
+    }
 
 }
 

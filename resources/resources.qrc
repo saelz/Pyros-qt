@@ -12,6 +12,7 @@
         <file>icons/pause.png</file>
         <file>icons/volume_med.png</file>
         <file>icons/volume_low.png</file>
+        <file>icons/mute.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

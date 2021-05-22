@@ -19,6 +19,7 @@ Mpv_Controller::Mpv_Controller(mpv_widget *mpv) : Playback_Controller(mpv),mpv(m
     connect(mpv,&mpv_widget::position_changed,this,&Mpv_Controller::set_position);
     connect(mpv,&mpv_widget::duration_changed,this,&Mpv_Controller::set_duration);
     connect(mpv,&mpv_widget::playback_state,this,&Mpv_Controller::playback_state_changed);
+    connect(mpv,&mpv_widget::volume_changed,this,&Mpv_Controller::volume_changed);
 
 }
 
@@ -73,4 +74,14 @@ void Mpv_Controller::pause()
 void Mpv_Controller::set_progress(double progress)
 {
     mpv->set_progress(progress);
+}
+
+void Mpv_Controller::set_volume(double volume)
+{
+    mpv->set_volume(volume);
+}
+
+bool Mpv_Controller::has_audio()
+{
+    return true;
 }
