@@ -1,6 +1,10 @@
 #include "fileviewer.h"
 #include "pyrosqt.h"
 #include "pyrosdb.h"
+
+#include "MediaViewer/Overlay/overlay.h"
+#include "MediaViewer/Overlay/overlay_text.h"
+#include "MediaViewer/Overlay/overlay_button.h"
 #include "MediaViewer/mediaviewer.h"
 
 #include "ui_fileviewer.h"

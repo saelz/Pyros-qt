@@ -16,6 +16,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/MediaViewer/Overlay/overlay.cpp \
+    src/MediaViewer/Overlay/overlay_button.cpp \
+    src/MediaViewer/Overlay/overlay_combo_box.cpp \
+    src/MediaViewer/Overlay/overlay_progress_bar.cpp \
+    src/MediaViewer/Overlay/overlay_spacer.cpp \
+    src/MediaViewer/Overlay/overlay_text.cpp \
+    src/MediaViewer/Overlay/overlay_volume_button.cpp \
+    src/MediaViewer/Overlay/overlay_widget.cpp \
     src/MediaViewer/cbz_viewer.cpp \
     src/MediaViewer/image_viewer.cpp \
     src/MediaViewer/mediaviewer.cpp \
@@ -45,6 +53,14 @@ SOURCES += \
     src/zip_reader.cpp
 
 HEADERS += \
+    src/MediaViewer/Overlay/overlay.h \
+    src/MediaViewer/Overlay/overlay_button.h \
+    src/MediaViewer/Overlay/overlay_combo_box.h \
+    src/MediaViewer/Overlay/overlay_progress_bar.h \
+    src/MediaViewer/Overlay/overlay_spacer.h \
+    src/MediaViewer/Overlay/overlay_text.h \
+    src/MediaViewer/Overlay/overlay_volume_button.h \
+    src/MediaViewer/Overlay/overlay_widget.h \
     src/MediaViewer/cbz_viewer.h \
     src/MediaViewer/image_viewer.h \
     src/MediaViewer/mediaviewer.h \

@@ -9,11 +9,9 @@
 
 #include <pyros.h>
 
-#include "MediaViewer/mediaviewer.h"
 #include "tab.h"
 
 class zip_reader;
-//class QLabel;
 
 namespace Ui {
 class FileViewer;
