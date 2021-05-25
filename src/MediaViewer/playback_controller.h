@@ -34,6 +34,7 @@ signals:
     void volume_changed(double volume);
     void update_progress(int position,int max);
     void playback_state_changed(bool);
+    void has_audio_changed(bool);
 };
 
 #endif // PLAYBACK_CONTROLLER_H

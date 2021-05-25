@@ -26,6 +26,7 @@ public slots:
     void fast_forward();
     void set_progress(double);
     void set_volume(double);
+    bool check_if_has_audio();
 
 private:
     bool stop_playback_updates = false;
@@ -51,6 +52,7 @@ signals:
     void position_changed(double);
     void volume_changed(double);
     void playback_state(bool);
+    void has_audio(bool);
 
 private slots:
     void mpv_event_occured();

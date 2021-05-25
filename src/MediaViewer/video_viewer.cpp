@@ -20,6 +20,7 @@ Mpv_Controller::Mpv_Controller(mpv_widget *mpv) : Playback_Controller(mpv),mpv(m
     connect(mpv,&mpv_widget::duration_changed,this,&Mpv_Controller::set_duration);
     connect(mpv,&mpv_widget::playback_state,this,&Mpv_Controller::playback_state_changed);
     connect(mpv,&mpv_widget::volume_changed,this,&Mpv_Controller::volume_changed);
+    connect(mpv,&mpv_widget::has_audio,this,&Mpv_Controller::has_audio_changed);
 
 }
 
@@ -83,5 +84,5 @@ void Mpv_Controller::set_volume(double volume)
 
 bool Mpv_Controller::has_audio()
 {
-    return true;
+    return mpv->check_if_has_audio();
 }

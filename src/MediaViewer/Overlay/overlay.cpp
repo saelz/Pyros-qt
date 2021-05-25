@@ -220,6 +220,7 @@ void Overlay::set_file(PyrosFile *file)
             connect(controller,&Playback_Controller::playback_state_changed,this,&Overlay::update_playback_state);
             connect(controller,&Playback_Controller::update_progress,this,&Overlay::update_playback_progress);
             connect(controller,&Playback_Controller::volume_changed,this,&Overlay::update_playback_volume);
+            connect(controller,&Playback_Controller::has_audio_changed,this,&Overlay::update_playback_has_audio);
 
             connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
             connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);

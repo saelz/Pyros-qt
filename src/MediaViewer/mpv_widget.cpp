@@ -102,6 +102,7 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
         break;
 
     case MPV_EVENT_FILE_LOADED:
+        emit has_audio(check_if_has_audio());
         invoke_update();
         break;
 
@@ -200,6 +201,20 @@ void mpv_widget::set_volume(double volume)
         stop_playback_updates = true;
         mpv_command_async(mpv, 0, args);
     }
+
+}
+
+bool mpv_widget::check_if_has_audio()
+{
+    char *acodec = nullptr;
+    bool state = true;
+
+    mpv_get_property(mpv, "audio-codec", MPV_FORMAT_STRING,&acodec);
+    if (acodec == nullptr)
+        state = false;
+
+    mpv_free(acodec);
+    return state;
 
 }
 
