@@ -30,6 +30,7 @@ const configtab::setting configtab::settings[] = {
     {"keybind/focus-search-bar","a",nullptr},
     {"keybind/focus-file-grid","CTRL+f",nullptr},
     {"keybind/lock-media-overlay","CTRL+l",nullptr},
+    {"keybind/toggle-mute","m",nullptr},
     {"keybind/next-file","CTRL+n",nullptr},
     {"keybind/prev-file","CTRL+p",nullptr},
     {"keybind/zoom-in","CTRL++",nullptr},
@@ -131,6 +132,8 @@ configtab::configtab(QTabWidget *parent) :
         create_lineedit_settings_entry(page_layout,"Zoom out",KEY_ZOOM_OUT);
         create_lineedit_settings_entry(page_layout,"Next page",KEY_NEXT_PAGE);
         create_lineedit_settings_entry(page_layout,"Previous page",KEY_PREV_PAGE);
+        create_lineedit_settings_entry(page_layout,"Toggle Mute",KEY_TOGGLE_MUTE);
+        create_lineedit_settings_entry(page_layout,"Lock Overlay",KEY_LOCK_MEDIA_VIEWER_OVERLAY);
 
         page_layout->insertStretch(-1);
     }

@@ -62,9 +62,10 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
 
     setMouseTracking(true);
 
-    QAction *pause = new QAction("pause",this);
-    QAction *seek_right = new QAction("seek right",this);
-    QAction *seek_left = new QAction("seek left",this);
+    QAction *pause = new QAction("Pause",this);
+    QAction *seek_right = new QAction("Seek right",this);
+    QAction *seek_left = new QAction("Seek left",this);
+    QAction *toggle_mute = ct::create_binding(ct::KEY_TOGGLE_MUTE,"Toggle mute",this);
 
     pause->setShortcut(QKeySequence("Space"));
     seek_right->setShortcut(QKeySequence("Right"));
@@ -79,6 +80,7 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     connect(pause,&QAction::triggered,overlay,&Overlay::pause);
     connect(seek_right,&QAction::triggered,overlay,&Overlay::fast_forward);
     connect(seek_left,&QAction::triggered,overlay,&Overlay::rewind);
+    connect(toggle_mute,&QAction::triggered,overlay,&Overlay::toggle_playback_mute_state);
 
 }
 

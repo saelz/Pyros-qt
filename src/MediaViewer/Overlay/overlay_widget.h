@@ -16,7 +16,8 @@ public:
     virtual int requested_width(QPainter &p) = 0;
     virtual int draw(QPainter &p,int x,int y) = 0;
     virtual bool activate_hover(QMouseEvent *e);
-    virtual void clicked(){};
+    virtual inline void clicked(){};
+    virtual inline void middle_button_clicked(){clicked();};
     virtual bool check_hover(QMouseEvent *e);
     QString tooltip;
 };

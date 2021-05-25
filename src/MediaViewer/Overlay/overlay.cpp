@@ -85,12 +85,11 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     connect(this,&Overlay::update_playback_state,pause_button,&Overlay_Button::set_toggle_state);
     connect(this,&Overlay::update_playback_volume,vol_button,&Overlay_Volume_Button::set_volume);
     connect(this,&Overlay::update_playback_has_audio,vol_button,&Overlay_Volume_Button::set_has_audio);
-    connect(this,&Overlay::update_playback_mute_state,vol_button,&Overlay_Volume_Button::set_mute_state);
+    connect(this,&Overlay::toggle_playback_mute_state,vol_button,&Overlay_Volume_Button::toggle_mute);
     connect(pause_button,&Overlay_Button::clicked,this,&Overlay::pause);
 
     connect(prog_bar,&Overlay_Progress_Bar::change_progress,this,&Overlay::change_progress);
     connect(vol_button,&Overlay_Volume_Button::change_volume,this,&Overlay::change_volume);
-    connect(vol_button,&Overlay_Volume_Button::change_mute,this,&Overlay::change_muted);
 
     playback_bar.widgets.append(pause_button);
     playback_bar.widgets.append(position_text);
@@ -227,7 +226,6 @@ void Overlay::set_file(PyrosFile *file)
             connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
             connect(this,&Overlay::change_progress,controller,&Playback_Controller::set_progress);
             connect(this,&Overlay::change_volume,controller,&Playback_Controller::set_volume);
-            connect(this,&Overlay::change_muted,controller,&Playback_Controller::set_mute);
 
             emit update_playback_duration(controller->duration());
             emit update_playback_position(controller->position());
@@ -278,7 +276,10 @@ bool Overlay::mouseReleased(QMouseEvent *e)
         foreach(Overlay_Widget *widget,bar->widgets){
             if (widget->check_hover(e)){
                 if (last_pressed_widget == widget && viewer != nullptr){
-                    widget->clicked();
+                    if (e->button() == Qt::MiddleButton)
+                        widget->middle_button_clicked();
+                    else
+                        widget->clicked();
                     return true;
                 }
             }

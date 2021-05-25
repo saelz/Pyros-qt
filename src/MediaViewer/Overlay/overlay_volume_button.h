@@ -21,15 +21,9 @@ public:
 public slots:
     int draw(QPainter &p,int x, int y) override;
     inline void toggle_popup(){if (has_audio) popup_visible = !popup_visible;emit request_redraw();};
-    inline void set_volume(double vol){
-        volume_level = vol;
-        if (vol > 50)
-            icon = icon_med;
-        else
-            icon = icon_low;
-        emit request_redraw();
-    };
-    inline void set_mute_state(bool is_muted){muted = is_muted;emit request_redraw();};
+    void set_volume(double vol);
+    void set_mute_state(bool is_muted);
+    inline void toggle_mute(){set_mute_state(!muted);};
     inline void set_has_audio(bool audio){has_audio = audio;popup_visible = false;emit request_redraw();};
     bool check_hover(QMouseEvent *e) override;
 
@@ -38,8 +32,8 @@ private slots:
 
 signals:
     void clicked() override;
+    void middle_button_clicked() override;
     void change_volume(double);
-    void change_mute(bool);
 };
 
 #endif // OVERLAY_VOLUME_BUTTON_H

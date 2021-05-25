@@ -21,6 +21,7 @@ Overlay_Volume_Button::Overlay_Volume_Button(bool *active_ptr,Overlay *parent): 
 
     connect(this,&Overlay_Volume_Button::clicked,this,&Overlay_Volume_Button::volume_change_request);
     connect(this,&Overlay_Volume_Button::clicked,this,&Overlay_Volume_Button::toggle_popup);
+    connect(this,&Overlay_Volume_Button::middle_button_clicked,this,&Overlay_Volume_Button::toggle_mute);
 }
 
 bool Overlay_Volume_Button::check_hover(QMouseEvent *e)
@@ -69,3 +70,34 @@ bool Overlay_Volume_Button::activate_hover(QMouseEvent *e)
 
     return Overlay_Button::activate_hover(e);
 }
+
+void Overlay_Volume_Button::set_volume(double vol)
+{
+    muted = false;
+    volume_level = vol;
+
+    if (vol > 50)
+        icon = icon_med;
+    else if (vol > 0)
+        icon = icon_low;
+    else
+        icon = icon_mute;
+
+    emit request_redraw();
+}
+
+void Overlay_Volume_Button::set_mute_state(bool is_muted)
+{
+    if (!has_audio)
+        return;
+    muted = is_muted;
+    if (muted){
+        icon = icon_mute;
+        emit change_volume(0);
+    } else {
+        emit change_volume(volume_level/100);
+        set_volume(volume_level);
+    }
+
+    emit request_redraw();
+};

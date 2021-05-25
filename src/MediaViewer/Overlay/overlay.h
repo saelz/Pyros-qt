@@ -79,15 +79,14 @@ signals:
     void update_playback_progress(int,int);
     void update_playback_state(bool);
     void update_playback_volume(double);
-    void update_playback_mute_state(bool);
     void update_playback_has_audio(bool);
+    void toggle_playback_mute_state();
 
     void fast_forward();
     void rewind();
     void pause();
     void change_progress(double);
     void change_volume(double);
-    void change_muted(bool);
 
 };
 
