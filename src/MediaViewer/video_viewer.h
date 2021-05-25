@@ -8,8 +8,9 @@
 class Mpv_Controller : public Playback_Controller{
     mpv_widget *mpv;
 public:
-    double m_duration = 0;
-    double m_position = 0;
+    double m_duration  = 0;
+    double m_remaining = 0;
+    double m_position  = 0;
     Mpv_Controller(mpv_widget *mpv);
     QString duration() override;
     QString position() override;
@@ -17,7 +18,8 @@ public:
 
 public slots:
     void set_duration(double dur);
-    void set_position(double dur);
+    void set_position(double pos);
+    void set_remaining(double rem);
     void set_volume(double) override;
 
     void fast_forward() override;

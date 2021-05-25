@@ -1,6 +1,9 @@
 #include <QTime>
 
+#include "../configtab.h"
 #include "video_viewer.h"
+
+using ct = configtab;
 
 Video_Viewer::Video_Viewer(mpv_widget *mpv): Viewer(nullptr),m_mpv(mpv)
 {
@@ -17,6 +20,7 @@ Video_Viewer::~Video_Viewer()
 Mpv_Controller::Mpv_Controller(mpv_widget *mpv) : Playback_Controller(mpv),mpv(mpv)
 {
     connect(mpv,&mpv_widget::position_changed,this,&Mpv_Controller::set_position);
+    connect(mpv,&mpv_widget::remaining_changed,this,&Mpv_Controller::set_remaining);
     connect(mpv,&mpv_widget::duration_changed,this,&Mpv_Controller::set_duration);
     connect(mpv,&mpv_widget::playback_state,this,&Mpv_Controller::playback_state_changed);
     connect(mpv,&mpv_widget::volume_changed,this,&Mpv_Controller::volume_changed);
@@ -26,7 +30,10 @@ Mpv_Controller::Mpv_Controller(mpv_widget *mpv) : Playback_Controller(mpv),mpv(m
 
 QString Mpv_Controller::duration()
 {
-    return milliToStr(m_duration*1000);
+    if (!ct::setting_value(ct::SHOW_REMAINING_TIME).toBool())
+        return milliToStr(m_duration*1000);
+    else
+        return milliToStr(m_remaining*1000);
 }
 
 void Mpv_Controller::set_duration(double dur)
@@ -37,7 +44,15 @@ void Mpv_Controller::set_duration(double dur)
     else
         show_milliseconds = false;
 
-    emit duration_changed(duration());
+    if (!ct::setting_value(ct::SHOW_REMAINING_TIME).toBool())
+        emit duration_changed(duration());
+}
+
+void Mpv_Controller::set_remaining(double rem)
+{
+    m_remaining = rem;
+    if (ct::setting_value(ct::SHOW_REMAINING_TIME).toBool())
+        emit duration_changed(duration());
 }
 
 QString Mpv_Controller::position()
@@ -81,6 +96,7 @@ void Mpv_Controller::set_volume(double volume)
 {
     mpv->set_volume(volume);
 }
+
 
 bool Mpv_Controller::has_audio()
 {

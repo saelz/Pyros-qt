@@ -44,6 +44,7 @@ const configtab::setting configtab::settings[] = {
     {"cbz_thumbnail_pages","3",new QIntValidator(1, 5)},
     {"keybind/focus-file-viewer","CTRL+f",nullptr},
     {"thumbnail_dir","~/.cache/PyrosQT",nullptr},
+    {"show_video_remaining_time",false,nullptr},
 };
 
 
@@ -80,6 +81,7 @@ configtab::configtab(QTabWidget *parent) :
         create_checkbox_settings_entry(page_layout,"Use tag history",TAG_HISTORY);
         create_checkbox_settings_entry(page_layout,"Use video player for gifs",GIFS_AS_VIDEO);
         create_lineedit_settings_entry(page_layout,"Timestamp format",TIMESTAMP);
+        create_checkbox_settings_entry(page_layout,"Show Remaing time for videos instead of duration",SHOW_REMAINING_TIME);
         page_layout->insertStretch(-1);
     }
 

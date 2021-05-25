@@ -28,6 +28,7 @@ void mpv_widget::init()
 
     mpv_observe_property(mpv, 0, "pause", MPV_FORMAT_STRING);
     mpv_observe_property(mpv, 0, "duration", MPV_FORMAT_DOUBLE);
+    mpv_observe_property(mpv, 0, "time-remaining", MPV_FORMAT_DOUBLE);
     mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
     mpv_observe_property(mpv, 0, "volume", MPV_FORMAT_STRING);
 
@@ -87,6 +88,8 @@ void mpv_widget::handle_mpv_event(mpv_event *event)
 
         } else if (check_prop(prop,MPV_FORMAT_DOUBLE, "volume")) {
             emit volume_changed(*(double *)prop->data);
+        } else if (check_prop(prop,MPV_FORMAT_DOUBLE, "time-remaining")) {
+            emit remaining_changed(*(double *)prop->data);
 
         } else if (check_prop(prop,MPV_FORMAT_STRING, "pause")) {
             if (**(char**)prop->data == 'n')
