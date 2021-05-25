@@ -21,6 +21,7 @@ Overlay_Volume_Button::Overlay_Volume_Button(bool *active_ptr,Overlay *parent): 
 
     connect(this,&Overlay_Volume_Button::clicked,this,&Overlay_Volume_Button::volume_change_request);
     connect(this,&Overlay_Volume_Button::clicked,this,&Overlay_Volume_Button::toggle_popup);
+    connect(this,&Overlay_Volume_Button::unselected,this,&Overlay_Volume_Button::hide_popup);
     connect(this,&Overlay_Volume_Button::middle_button_clicked,this,&Overlay_Volume_Button::toggle_mute);
 }
 

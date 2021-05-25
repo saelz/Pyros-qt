@@ -113,16 +113,6 @@ Overlay::~Overlay()
             delete widget;
 }
 
-Overlay_Widget::~Overlay_Widget(){};
-
-bool Overlay_Widget::check_hover(QMouseEvent *e)
-{
-    if (rect.contains(e->pos()))
-        return true;
-    return false;
-}
-
-
 void Overlay::paintEvent(QPaintEvent *)
 {
     if (state == HIDDEN)
@@ -257,17 +247,20 @@ bool Overlay::mouseMoved(QMouseEvent *e)
 
 bool Overlay::mouseClicked(QMouseEvent *e)
 {
+    bool result = false;
 
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
-            if (widget->check_hover(e)){
+            if ( !result && widget->check_hover(e)){
                 last_pressed_widget = widget;
-                return true;
+                result = true;
+            } else {
+                widget->unselected();
             }
         }
     }
 
-    return false;
+    return result;
 }
 
 bool Overlay::mouseReleased(QMouseEvent *e)

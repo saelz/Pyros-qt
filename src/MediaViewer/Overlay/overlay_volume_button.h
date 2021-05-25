@@ -21,6 +21,7 @@ public:
 public slots:
     int draw(QPainter &p,int x, int y) override;
     inline void toggle_popup(){if (has_audio) popup_visible = !popup_visible;emit request_redraw();};
+    inline void hide_popup(){if (popup_visible) toggle_popup();};
     void set_volume(double vol);
     void set_mute_state(bool is_muted);
     inline void toggle_mute(){set_mute_state(!muted);};

@@ -6,6 +6,7 @@
 Overlay_Combo_Box::Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *parent) : Overlay_Button("",active_ptr,tooltip,parent)
 {
     connect(this,&Overlay_Combo_Box::clicked,this,&Overlay_Combo_Box::toggle_drop_down);
+    connect(this,&Overlay_Combo_Box::unselected,this,&Overlay_Combo_Box::hide_drop_down);
 }
 
 bool Overlay_Combo_Box::activate_hover(QMouseEvent *e)
@@ -146,3 +147,8 @@ void Overlay_Combo_Box::toggle_drop_down()
     emit request_redraw();
 }
 
+void Overlay_Combo_Box::hide_drop_down()
+{
+    if (display_dropdown)
+        toggle_drop_down();
+}

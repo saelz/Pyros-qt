@@ -30,6 +30,7 @@ public slots:
 signals:
     void toggle_changed();
     void clicked() override;
+    void unselected() override;
     void request_redraw(void);
 
 };

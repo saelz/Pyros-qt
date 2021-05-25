@@ -31,6 +31,7 @@ public slots:
 
 private slots:
     void toggle_drop_down();
+    void hide_drop_down();
 
 signals:
     void entry_changed(int);
