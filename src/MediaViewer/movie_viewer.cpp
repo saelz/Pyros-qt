@@ -3,9 +3,7 @@
 
 #include "movie_viewer.h"
 
-Movie_Viewer::Movie_Viewer(QLabel *label) : Image_Viewer(label)
-{
-}
+Movie_Viewer::Movie_Viewer(QLabel *label) : Image_Viewer(label){}
 
 Movie_Viewer::~Movie_Viewer()
 {
@@ -21,9 +19,6 @@ void Movie_Viewer::set_file(char *path){
     movie->start();
     orignal_size = movie->currentImage().size();
     controller = new Movie_Controller(movie);
-
-    if (movie->frameCount()*movie->nextFrameDelay() < 2000)
-        controller->show_milliseconds = true;
 
     emit controller->duration_changed(controller->duration());
     ((Movie_Controller*)controller)->playback_changed(movie->state());
@@ -45,6 +40,13 @@ void Movie_Viewer::set_size(QSize newsize){
     scaled_size = newsize;
 
     movie->setScaledSize(newsize);
+
+    // redraw frame
+    int current_frame = movie->currentFrameNumber();
+    if (movie->jumpToNextFrame())
+        movie->jumpToFrame(current_frame);
+    else if (movie->frameCount() == 1)
+        controller->pause();
 }
 
 Movie_Controller::Movie_Controller(QMovie *movie) : Playback_Controller(movie),movie(movie)

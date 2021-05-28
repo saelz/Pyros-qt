@@ -80,10 +80,6 @@ void duplicate_selector::update_file()
     emit update_file_count(QString::number(file_position+1)+"/"+QString::number(m_files.count()));
     ui->mediaviewer->set_file(file);
 
-    /*ui->cbz_buttons->setVisible(ui->mediaviewer->is_multipaged());
-    ui->image_buttons->setVisible(ui->mediaviewer->is_resizable());
-
-    ui->file_tags->setTagsFromFile(m_pFile);*/
     ui->duplicate_radio->setAutoExclusive(false);
     ui->duplicate_radio->setChecked(false);
     ui->duplicate_radio->setAutoExclusive(true);
