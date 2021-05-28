@@ -198,16 +198,11 @@ void MediaViewer::enterEvent(QEvent *e)
     if (is_dragable())
         setCursor(Qt::OpenHandCursor);
 
-    overlay->auto_hide = false;
-    overlay->set_visible();
-
     e->accept();
 }
 
 void MediaViewer::leaveEvent(QEvent *e)
 {
-    overlay->set_hidden();
-    overlay->auto_hide = true;
     unsetCursor();
 
     e->accept();

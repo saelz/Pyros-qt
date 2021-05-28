@@ -174,7 +174,7 @@ void Overlay::set_visible()
         if (auto_hide_timer.isActive())
             auto_hide_timer.stop();
 
-        auto_hide_timer.start(3000);
+        auto_hide_timer.start(1500);
     } else {
         auto_hide_timer.stop();
     }
@@ -237,6 +237,7 @@ void Overlay::set_file(PyrosFile *file)
 
 bool Overlay::mouseMoved(QMouseEvent *e)
 {
+    set_visible();
     foreach(Overlay_Bar *bar,overlay_bars)
         foreach(Overlay_Widget *widget,bar->widgets)
             if (widget->activate_hover(e))
