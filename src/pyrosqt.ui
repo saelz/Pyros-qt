@@ -101,7 +101,6 @@
      <string>Files</string>
     </property>
     <addaction name="actionImport_Files"/>
-    <addaction name="actionFind_Duplicates"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
