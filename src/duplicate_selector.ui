@@ -29,31 +29,6 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QPushButton" name="prev_button">
-         <property name="toolTip">
-          <string>Previous</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources/resources.qrc">
-           <normaloff>:/data/icons/left_arrow.png</normaloff>:/data/icons/left_arrow.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="next_button">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources/resources.qrc">
-           <normaloff>:/data/icons/right_arrow.png</normaloff>:/data/icons/right_arrow.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
         <layout class="QHBoxLayout" name="radio_buttons">
          <item>
           <widget class="QRadioButton" name="superior_file_radio">
@@ -92,20 +67,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="file_metadata">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="file_count">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="apply_button">
          <property name="enabled">
           <bool>false</bool>
@@ -132,8 +93,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../resources/resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

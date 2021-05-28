@@ -47,6 +47,7 @@ private:
     void update_radio_buttons();
 
 signals:
+    void update_file_count(QString);
     void files_removed(QVector<QByteArray>);
 };
 

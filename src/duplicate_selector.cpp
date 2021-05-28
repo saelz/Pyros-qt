@@ -3,6 +3,11 @@
 
 #include <pyros.h>
 
+#include "MediaViewer/Overlay/overlay.h"
+#include "MediaViewer/Overlay/overlay_text.h"
+#include "MediaViewer/Overlay/overlay_button.h"
+#include "MediaViewer/mediaviewer.h"
+
 #include "duplicate_selector.h"
 #include "ui_duplicate_selector.h"
 #include "configtab.h"
@@ -25,14 +30,27 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     connect(next_bind,   &QAction::triggered,this, &duplicate_selector::next_file);
     connect(prev_bind,   &QAction::triggered,this, &duplicate_selector::prev_file);
 
-    connect(ui->next_button,   &QPushButton::released,this, &duplicate_selector::next_file);
-    connect(ui->prev_button,   &QPushButton::released,this, &duplicate_selector::prev_file);
-
     connect(ui->duplicate_radio,&QRadioButton::clicked,this,&duplicate_selector::duplicate_checked);
     connect(ui->not_duplicate_radio,&QRadioButton::clicked,this,&duplicate_selector::not_duplicate_checked);
     connect(ui->superior_file_radio,&QRadioButton::clicked,this,&duplicate_selector::superior_checked);
 
     connect(ui->apply_button,&QPushButton::clicked,this,&duplicate_selector::apply);
+
+    Overlay_Text *overlay_file_count = new Overlay_Text("File count",ui->mediaviewer->overlay);
+
+    Overlay_Button *overlay_next_button = new Overlay_Button(":/data/icons/right_arrow.png",nullptr,"Next file",ui->mediaviewer->overlay);
+    Overlay_Button *overlay_prev_button = new Overlay_Button(":/data/icons/left_arrow.png",nullptr,"Prev file",ui->mediaviewer->overlay);
+
+    ui->mediaviewer->overlay->main_bar.widgets.prepend(overlay_next_button);
+    ui->mediaviewer->overlay->main_bar.widgets.prepend(overlay_prev_button);
+
+    ui->mediaviewer->overlay->main_bar.widgets.append(overlay_file_count);
+
+
+    connect(overlay_next_button,&Overlay_Button::clicked,this,&duplicate_selector::next_file);
+    connect(overlay_prev_button,&Overlay_Button::clicked,this,&duplicate_selector::prev_file);
+
+    connect(this,&duplicate_selector::update_file_count,overlay_file_count,&Overlay_Text::set_text);
 
     for(int i = 0;i < m_files.length(); i++)
         file_statuses.append(NONE);
@@ -59,16 +77,8 @@ void duplicate_selector::update_file()
     }
     PyrosFile *file = m_files.at(file_position);
 
-    QString filecount = QString::number(file_position+1)+"/"+QString::number(m_files.count());
-    ui->file_count->setText(filecount);
-
+    emit update_file_count(QString::number(file_position+1)+"/"+QString::number(m_files.count()));
     ui->mediaviewer->set_file(file);
-    if (file != nullptr){
-        QLocale locale = this->locale();
-        ui->file_metadata->setText(locale.formattedDataSize(file->file_size)+
-                                   " "+
-                                   file->mime);
-    }
 
     /*ui->cbz_buttons->setVisible(ui->mediaviewer->is_multipaged());
     ui->image_buttons->setVisible(ui->mediaviewer->is_resizable());
