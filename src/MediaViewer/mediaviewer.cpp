@@ -11,6 +11,8 @@
 
 #include <pyros.h>
 
+#include "../pyrosdb.h"
+
 #include "mediaviewer.h"
 #include "mpv_widget.h"
 #include "../configtab.h"
@@ -71,6 +73,8 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     seek_right->setShortcut(QKeySequence("Right"));
     seek_left->setShortcut(QKeySequence("Left"));
 
+
+
     pause->setAutoRepeat(false);
 
     addAction(pause);
@@ -82,25 +86,33 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     connect(seek_left,&QAction::triggered,overlay,&Overlay::rewind);
     connect(toggle_mute,&QAction::triggered,overlay,&Overlay::toggle_playback_mute_state);
 
+    connect(this,&MediaViewer::file_changed,overlay,&Overlay::set_file);
+
 }
 
 MediaViewer::~MediaViewer()
 {
+    foreach(PyrosFile *file,files)
+        Pyros_Close_File(file);
     if (viewer != nullptr)
         delete viewer;
 }
 
-void MediaViewer::set_file(PyrosFile* file)
+void MediaViewer::set_file()
 {
-   int used_layer = LABEL_LAYER;
+    PyrosFile *file;
+    int used_layer = LABEL_LAYER;
 
-     if (viewer != nullptr){
+    if (viewer != nullptr){
         delete viewer;
         viewer = nullptr;
     }
 
-    if (file == nullptr)
-        return;
+    if (file_position < 0 || file_position >= files.length())
+        goto hide;
+
+    if ((file = files.at(file_position)) == nullptr)
+        goto hide;
 
     if (!strcmp(file->mime,"image/gif") &&
             !ct::setting_value(ct::GIFS_AS_VIDEO).toBool()){
@@ -137,11 +149,83 @@ void MediaViewer::set_file(PyrosFile* file)
     update_scale();
 
 
-    overlay->set_file(file);
+    emit file_changed(file);
+    emit position_changed(file_position);
     overlay->set_visible();
 
     // somtimes when the layer gets switched overlay won't be repainted, this forces a repaint
     QTimer::singleShot(10,overlay,SLOT(repaint()));
+    return;
+
+    hide:
+    stacked_widget->setCurrentIndex(used_layer);
+    emit file_changed(nullptr);
+    QTimer::singleShot(10,overlay,SLOT(repaint()));
+    return;
+
+}
+
+void MediaViewer::set_files(QVector<PyrosFile*> files,int inital_pos)
+{
+    this->files = files;
+    set_current_file(inital_pos);
+}
+
+void MediaViewer::next_file()
+{
+    set_current_file(file_position+1);
+}
+
+void MediaViewer::prev_file()
+{
+    set_current_file(file_position-1);
+}
+
+void MediaViewer::set_current_file(int position)
+{
+
+    if (files.length() <= 0){
+        file_position = -1;
+        emit update_file_count("");
+        set_file();
+        return;
+    }
+
+    if (position >= files.length())
+        position = files.length()-1;
+    else if (position < 0)
+        position = 0;
+
+    if (file_position == position)
+        return;
+
+
+    file_position = position;
+    emit update_file_count(QString::number(file_position+1)+"/"+QString::number(files.count()));
+
+    set_file();
+}
+
+void MediaViewer::hide_files(QVector<QByteArray> hashes)
+{
+    int pos = file_position;
+    for (int i  = files.length()-1;i >= 0;i--) {
+        PyrosFile *file = files.at(i);
+        if (file == nullptr)
+            continue;
+
+        for (int j  = hashes.length()-1;j >= 0;j--) {
+            if (!hashes.at(j).compare(file->hash)){
+                files.removeAt(i);
+                file_position = -1;
+                emit file_removed_at(i);
+                Pyros_Close_File(file);
+                hashes.removeAt(j);
+            }
+        }
+    }
+
+    set_current_file(pos);
 
 }
 
@@ -180,6 +264,28 @@ void MediaViewer::prev_page()
             scroll_area->verticalScrollBar()->setValue(0);
             emit overlay->update_file_info(viewer->get_info());
     }
+}
+
+void MediaViewer::delete_file()
+{
+    PyrosTC *ptc = PyrosTC::get();
+
+    PyrosFile *m_pFile = files.at(file_position);
+    if (m_pFile == nullptr)
+        return;
+
+    QVector<QByteArray> file_hashes;
+    file_hashes.append(m_pFile->hash);
+
+    files.remove(file_position);
+
+    int pos = file_position;
+    file_position = -1;
+    set_current_file(pos);
+
+    ptc->delete_file(m_pFile);
+
+    emit file_deleted(file_hashes);
 }
 
 bool MediaViewer::is_dragable()
@@ -312,7 +418,7 @@ void MediaViewer::mouseMoveEvent(QMouseEvent *e)
 
 }
 
-void MediaViewer::bind_keys(QWidget *widget)
+void MediaViewer::bind_keys(QWidget *widget,bool are_files_deletable)
 {
     QAction *lock_media_overlay = ct::create_binding(ct::KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Lock Media Viewer Overlay",widget);
     QAction *zoom_in_bind = ct::create_binding(ct::KEY_ZOOM_IN,"Zoom in",widget);
@@ -320,6 +426,8 @@ void MediaViewer::bind_keys(QWidget *widget)
     QAction *next_page_bind = ct::create_binding(ct::KEY_NEXT_PAGE,"Next page",widget);
     QAction *prev_page_bind = ct::create_binding(ct::KEY_PREV_PAGE,"Previous page",widget);
     QAction *focus_file_viewer = ct::create_binding(ct::KEY_FOCUS_FILE_VIEWER,"Focus file viewer",widget);
+    QAction *next_bind = ct::create_binding(ct::KEY_NEXT_FILE,"Next file",widget);
+    QAction *prev_bind = ct::create_binding(ct::KEY_PREV_FILE,"Previous file",widget);
 
     connect(lock_media_overlay, &QAction::triggered,this, &MediaViewer::lock_overlay);
     connect(zoom_in_bind, &QAction::triggered,this, &MediaViewer::zoom_in);
@@ -327,4 +435,12 @@ void MediaViewer::bind_keys(QWidget *widget)
     connect(next_page_bind, &QAction::triggered,this, &MediaViewer::next_page);
     connect(prev_page_bind, &QAction::triggered,this, &MediaViewer::prev_page);
     connect(focus_file_viewer, &QAction::triggered,this, &MediaViewer::set_focus);
+    connect(next_bind,&QAction::triggered,this,&MediaViewer::next_file);
+    connect(prev_bind,&QAction::triggered,this,&MediaViewer::prev_file);
+
+    if (are_files_deletable){
+        QAction *delete_bind = ct::create_binding(ct::KEY_DELETE_FILE,"Delete",this);
+        connect(delete_bind, &QAction::triggered,this, &MediaViewer::delete_file);
+        files_deletable = true;
+    }
 }

@@ -30,6 +30,9 @@ class MediaViewer : public QWidget
     Viewer *viewer = nullptr;
     QPoint last_mouse_pos;
 
+    QVector<PyrosFile*> files;
+    int file_position = -1;
+
     bool mouse_clicked = false;
 
 public:
@@ -38,15 +41,21 @@ public:
 
 
     Overlay *overlay;
+    bool files_deletable;
 
-    void bind_keys(QWidget *widget);
+    void bind_keys(QWidget *widget,bool files_deletable = false);
 
 public slots:
-    void set_file(PyrosFile* file);
+    void set_files(QVector<PyrosFile*> files,int inital_pos = 0);
+    void next_file();
+    void prev_file();
+    void set_current_file(int position);
+    void hide_files(QVector<QByteArray> hashes);
 
 
     void next_page();
     void prev_page();
+    void delete_file();
 
     void zoom_out();
     void zoom_in();
@@ -55,10 +64,12 @@ public slots:
 
     void set_focus();
 
+    inline const PyrosFile *file_at(int i){return files.at(i);};
 
 private:
     Viewer::SCALE_TYPE scale_type = Viewer::SCALE_TYPE::BOTH;
 
+    void set_file();
     bool is_dragable();
     void resizeEvent(QResizeEvent *) override;
     void enterEvent(QEvent *) override;
@@ -69,8 +80,14 @@ private:
     void mouseMoveEvent(QMouseEvent *event) override;
 
     void update_scale();
+
 signals:
     void lock_overlay();
+    void file_removed_at(int);
+    void file_changed(PyrosFile *file);
+    void position_changed(int);
+    void update_file_count(QString);
+    void file_deleted(QVector<QByteArray>);
 };
 
 #endif // MEDIAVIEWER_H

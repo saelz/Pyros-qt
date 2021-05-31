@@ -21,23 +21,17 @@ class duplicate_selector : public Tab
         NONE
     };
 
+    int position;
+
 public:
     explicit duplicate_selector(QVector<PyrosFile*> files,QTabWidget *parent = nullptr);
     ~duplicate_selector();
 
-public slots:
-    void hide_files(QVector<QByteArray> hashes);
-
 private:
     Ui::duplicate_selector *ui;
-    int file_position = 0;
-
-    QVector<PyrosFile*> m_files;
     QVector<DUPLICATE_STATUS> file_statuses;
 
     void update_file();
-    void next_file();
-    void prev_file();
     void apply();
 
     void duplicate_checked();
@@ -46,9 +40,14 @@ private:
 
     void update_radio_buttons();
 
+private slots:
+    void file_hidden(int);
+    void set_position(int);
+
 signals:
-    void update_file_count(QString);
+    void hide_files(QVector<QByteArray>);
     void files_removed(QVector<QByteArray>);
+
 };
 
 #endif // DUPLICATE_SELECTOR_H

@@ -25,31 +25,23 @@ public:
     explicit FileViewer(QVector<PyrosFile*> files,int inital_pos = 0,QTabWidget *parent = nullptr);
     ~FileViewer();
 
-    void set_file();
 
 private:
     Ui::FileViewer *ui;
 
     PyrosFile *m_pFile;
-    QVector<PyrosFile*> m_files;
-    int position;
 
 private slots:
 
+    void set_file(PyrosFile *file);
     void select_tag_bar();
-    void next_file();
-    void prev_file();
-    void delete_file();
     void add_tag(QVector<QByteArray> tags);
     void remove_tag(QVector<QByteArray> tags);
 
-public slots:
-    void hide_files(QVector<QByteArray> hashes);
-
 signals:
     void file_deleted(QVector<QByteArray>);
+    void hide_files(QVector<QByteArray>);
     void new_search_with_selected_tags(QVector<QByteArray>);
-    void update_file_count(QString);
 
 };
 

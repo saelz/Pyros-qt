@@ -22,6 +22,9 @@ using ct = configtab;
 
 Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(viewer)
 {
+    Overlay_Button *overlay_next_button = new Overlay_Button(":/data/icons/right_arrow.png",nullptr,"Next file",this);
+    Overlay_Button *overlay_prev_button = new Overlay_Button(":/data/icons/left_arrow.png",nullptr,"Prev file",this);
+
     Overlay_Button *lock_button = new Overlay_Button(":/data/icons/lock.png",nullptr,"Lock Overlay",this,true);
     Overlay_Button *zoom_out_button = new Overlay_Button(":/data/icons/zoom_out.png",&show_zoom,"Zoom out",this);
     Overlay_Button *zoom_in_button = new Overlay_Button(":/data/icons/zoom_in.png",&show_zoom,"Zoom in",this);
@@ -36,6 +39,9 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
 
     Overlay_Spacer *spacer = new Overlay_Spacer(&main_bar.unused_space);
     Overlay_Combo_Box *auto_scale = new Overlay_Combo_Box(&show_zoom,"Scale",this);
+
+    Overlay_Text *overlay_file_count = new Overlay_Text("File count",this);
+    Overlay_Button *overlay_delete_button = new Overlay_Button(":/data/icons/trash.png",&parent->files_deletable,"Delete file",this);
 
     auto_scale->entries.append({"Fit Both",Viewer::SCALE_TYPE::BOTH});
     auto_scale->entries.append({"Fit Height",Viewer::SCALE_TYPE::HEIGHT});
@@ -56,8 +62,15 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     connect(this,&Overlay::update_time_info,time_text,&Overlay_Text::set_text);
     connect(this,&Overlay::update_size_info,size_text,&Overlay_Text::set_text);
 
-    connect(auto_scale,&Overlay_Combo_Box::entry_changed,parent,&MediaViewer::set_scale);
+    connect(overlay_next_button,&Overlay_Button::clicked,parent,&MediaViewer::next_file);
+    connect(overlay_prev_button,&Overlay_Button::clicked,parent,&MediaViewer::prev_file);
 
+    connect(parent,&MediaViewer::update_file_count,overlay_file_count,&Overlay_Text::set_text);
+    connect(auto_scale,&Overlay_Combo_Box::entry_changed,parent,&MediaViewer::set_scale);
+    connect(overlay_delete_button,&Overlay_Button::clicked,parent,&MediaViewer::delete_file);
+
+    main_bar.widgets.append(overlay_prev_button);
+    main_bar.widgets.append(overlay_next_button);
 
     main_bar.widgets.append(zoom_out_button);
     main_bar.widgets.append(zoom_in_button);
@@ -71,6 +84,8 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     main_bar.widgets.append(size_text);
     main_bar.widgets.append(mime_text);
     main_bar.widgets.append(time_text);
+    main_bar.widgets.append(overlay_file_count);
+    main_bar.widgets.append(overlay_delete_button);
 
     // playback bar
     Overlay_Button *pause_button = new Overlay_Button(":/data/icons/pause.png",nullptr,"Pause",this,true,":/data/icons/next.png");
@@ -191,7 +206,7 @@ void Overlay::set_hidden()
 void Overlay::set_file(PyrosFile *file)
 {
     this->file = file;
-    if (viewer != nullptr){
+    if (viewer != nullptr && file != nullptr){
         QDateTime timestamp;
         timestamp.setTime_t(file->import_time);
 
