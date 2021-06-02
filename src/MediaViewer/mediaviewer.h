@@ -41,7 +41,7 @@ public:
 
 
     Overlay *overlay;
-    bool files_deletable;
+    bool files_deletable = false;
 
     void bind_keys(QWidget *widget,bool files_deletable = false);
 
