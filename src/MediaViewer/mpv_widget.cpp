@@ -201,7 +201,6 @@ void mpv_widget::set_volume(double volume)
 {
     if (mpv) {
         const char *args[] = {"set","volume",QString::number(volume*100).toUtf8(), NULL};
-        stop_playback_updates = true;
         mpv_command_async(mpv, 0, args);
     }
 
