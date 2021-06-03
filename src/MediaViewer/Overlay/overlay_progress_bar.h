@@ -14,7 +14,7 @@ public:
     Overlay_Progress_Bar(int *available_space,Overlay *parent);
     int draw(QPainter &p,int x, int y) override;
     void draw_progress(QPainter &p);
-    bool activate_hover(QMouseEvent *e) override;
+    bool activate_hover(QPoint local_pos) override;
 
 public slots:
     void set_progress(int progress,int max);

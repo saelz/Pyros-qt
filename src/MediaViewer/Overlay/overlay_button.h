@@ -23,7 +23,7 @@ public:
 public slots:
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
-    bool activate_hover(QMouseEvent *e) override;
+    bool activate_hover(QPoint local_pos) override;
     inline void set_toggle_state(bool state){is_toggled = state;emit request_redraw();};
     inline void toggle(){is_toggled = !is_toggled;emit toggle_changed();};
 

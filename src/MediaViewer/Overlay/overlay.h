@@ -62,6 +62,7 @@ public slots:
     bool mouseMoved(QMouseEvent *e);
     bool mouseClicked(QMouseEvent *e);
     bool mouseReleased(QMouseEvent *e);
+    bool mouseScroll(QWheelEvent *e);
     void toggle_lock();
 
 private:

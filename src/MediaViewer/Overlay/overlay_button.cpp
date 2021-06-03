@@ -1,5 +1,4 @@
 #include <QToolTip>
-#include <QMouseEvent>
 
 #include "overlay.h"
 #include "overlay_button.h"
@@ -40,12 +39,12 @@ Overlay_Button::Overlay_Button(QByteArray icon_path,bool *active_ptr,QString too
     this->tooltip = tooltip;
 }
 
-bool Overlay_Button::activate_hover(QMouseEvent *e)
+bool Overlay_Button::activate_hover(QPoint pos)
 {
     bool inital_status = highlighed;
-    if (rect.contains(e->pos())){
+    if (rect.contains(pos)){
         highlighed = true;
-        QToolTip::showText(e->globalPos(),tooltip);
+        QToolTip::showText(QCursor::pos(),tooltip);
     } else {
         highlighed = false;
     }
@@ -53,6 +52,7 @@ bool Overlay_Button::activate_hover(QMouseEvent *e)
    if (inital_status != highlighed){
        emit request_redraw();
    }
+
    return highlighed;
 }
 

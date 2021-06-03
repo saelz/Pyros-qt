@@ -1,5 +1,3 @@
-#include <QMouseEvent>
-
 #include "overlay_volume_button.h"
 
 Overlay_Volume_Button::Overlay_Volume_Button(bool *active_ptr,Overlay *parent): Overlay_Button(":/data/icons/volume_med",active_ptr,"Volume",parent)
@@ -25,12 +23,12 @@ Overlay_Volume_Button::Overlay_Volume_Button(bool *active_ptr,Overlay *parent): 
     connect(this,&Overlay_Volume_Button::middle_button_clicked,this,&Overlay_Volume_Button::toggle_mute);
 }
 
-bool Overlay_Volume_Button::check_hover(QMouseEvent *e)
+bool Overlay_Volume_Button::check_hover(QPoint pos)
 {
-    if (Overlay_Widget::check_hover(e))
+    if (Overlay_Widget::check_hover(pos))
         return true;
 
-    return popup_visible && popup_rect.contains(e->pos());
+    return popup_visible && popup_rect.contains(pos);
 }
 
 int Overlay_Volume_Button::draw(QPainter &p,int x,int y)
@@ -60,16 +58,34 @@ int Overlay_Volume_Button::draw(QPainter &p,int x,int y)
 
 }
 
-bool Overlay_Volume_Button::activate_hover(QMouseEvent *e)
+bool Overlay_Volume_Button::activate_hover(QPoint pos)
 {
-    if (popup_visible && popup_rect.contains(e->pos())){
-        hover_volume = (popup_rect.bottom()-e->pos().y())/(double)popup_rect.height();
+    if (popup_visible && popup_rect.contains(pos)){
+        hover_volume = (popup_rect.bottom()-pos.y())/(double)popup_rect.height();
         return true;
     } else {
         hover_volume = -1;
     }
 
-    return Overlay_Button::activate_hover(e);
+    return Overlay_Button::activate_hover(pos);
+}
+
+bool Overlay_Volume_Button::scroll(QPoint angleDelta)
+{
+    if (!has_audio || angleDelta.y() == 0)
+        return false;
+
+    double new_vol = volume_level + angleDelta.y()/20;;
+
+    if (new_vol > 100)
+        new_vol = 100;
+    else if (new_vol < 0)
+        new_vol = 0;
+
+    emit change_volume(new_vol/100);
+    set_volume(new_vol);
+
+    return true;
 }
 
 void Overlay_Volume_Button::set_volume(double vol)

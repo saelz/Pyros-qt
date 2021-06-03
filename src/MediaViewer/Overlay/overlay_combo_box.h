@@ -20,14 +20,14 @@ public:
     QVector<Combo_Entry> entries;
     int requested_width(QPainter &p) override;
     int draw(QPainter &p,int x, int y) override;
-    bool activate_hover(QMouseEvent *e) override;
+    bool activate_hover(QPoint local_pos) override;
 
 
     int selected_entry = 0;
     int highlighted_entry = -1;
 
 public slots:
-    bool check_hover(QMouseEvent *e) override;
+    bool check_hover(QPoint local_pos) override;
 
 private slots:
     void toggle_drop_down();

@@ -8,6 +8,7 @@
 class QStackedWidget;
 class QLabel;
 class QScrollArea;
+class QScrollEvent;
 
 class mpv_widget;
 class Viewer;
@@ -78,6 +79,7 @@ private:
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *) override;
 
     void update_scale();
 

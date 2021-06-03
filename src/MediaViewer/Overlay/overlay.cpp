@@ -255,7 +255,7 @@ bool Overlay::mouseMoved(QMouseEvent *e)
     set_visible();
     foreach(Overlay_Bar *bar,overlay_bars)
         foreach(Overlay_Widget *widget,bar->widgets)
-            if (widget->activate_hover(e))
+            if (widget->activate_hover(e->pos()))
                 return true;
 
     return false;
@@ -263,11 +263,13 @@ bool Overlay::mouseMoved(QMouseEvent *e)
 
 bool Overlay::mouseClicked(QMouseEvent *e)
 {
+    set_visible();
+
     bool result = false;
 
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
-            if ( !result && widget->check_hover(e)){
+            if ( !result && widget->check_hover(e->pos())){
                 last_pressed_widget = widget;
                 result = true;
             } else {
@@ -282,9 +284,11 @@ bool Overlay::mouseClicked(QMouseEvent *e)
 bool Overlay::mouseReleased(QMouseEvent *e)
 {
 
+    set_visible();
+
     foreach(Overlay_Bar *bar,overlay_bars){
         foreach(Overlay_Widget *widget,bar->widgets){
-            if (widget->check_hover(e)){
+            if (widget->check_hover(e->pos())){
                 if (last_pressed_widget == widget && viewer != nullptr){
                     if (e->button() == Qt::MiddleButton)
                         widget->middle_button_clicked();
@@ -297,6 +301,18 @@ bool Overlay::mouseReleased(QMouseEvent *e)
     }
 
     last_pressed_widget = nullptr;
+    return false;
+}
+
+bool Overlay::mouseScroll(QWheelEvent *e)
+{
+    set_visible();
+    foreach(Overlay_Bar *bar,overlay_bars)
+        foreach(Overlay_Widget *widget,bar->widgets)
+            if (widget->check_hover(e->position().toPoint()))
+                if (widget->scroll(e->angleDelta()))
+                    return true;
+
     return false;
 }
 

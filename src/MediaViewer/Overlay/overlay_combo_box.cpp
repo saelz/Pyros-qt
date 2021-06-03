@@ -1,4 +1,3 @@
-#include <QMouseEvent>
 #include <QToolTip>
 
 #include "overlay_combo_box.h"
@@ -9,28 +8,17 @@ Overlay_Combo_Box::Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *p
     connect(this,&Overlay_Combo_Box::unselected,this,&Overlay_Combo_Box::hide_drop_down);
 }
 
-bool Overlay_Combo_Box::activate_hover(QMouseEvent *e)
+bool Overlay_Combo_Box::activate_hover(QPoint pos)
 {
-    bool inital_status = highlighed;
     int last_highlighted_entry = highlighted_entry;
 
     if (entries.empty())
         return false;
 
-    if (rect.contains(e->pos())){
-        highlighed = true;
-        if (!display_dropdown)
-            QToolTip::showText(e->globalPos(),tooltip);
-
-    } else {
-        highlighed = false;
-    }
-
-
     if (display_dropdown){
         highlighted_entry = -1;
         for(int i = 0;i < dropdownrect.length();i++){
-            if (dropdownrect[i].contains(e->pos())){
+            if (dropdownrect[i].contains(pos)){
                 if (selected_entry  > i)
                     highlighted_entry = i;
                 else
@@ -42,22 +30,24 @@ bool Overlay_Combo_Box::activate_hover(QMouseEvent *e)
 
     }
 
-    if (inital_status != highlighed ||
-            last_highlighted_entry != highlighted_entry){
+    if (last_highlighted_entry != highlighted_entry){
         emit request_redraw();
+        return true;
+    } else {
+        return Overlay_Button::activate_hover(pos);
     }
 
-    return (highlighted_entry != -1 || highlighed);
+    return false;
 }
 
-bool Overlay_Combo_Box::check_hover(QMouseEvent *e)
+bool Overlay_Combo_Box::check_hover(QPoint pos)
 {
-    if (Overlay_Widget::check_hover(e))
+    if (Overlay_Widget::check_hover(pos))
         return true;
 
     if (display_dropdown)
         for(int i = 0;i < dropdownrect.length();i++)
-            if (dropdownrect[i].contains(e->pos()))
+            if (dropdownrect[i].contains(pos))
                 return true;
 
     return false;

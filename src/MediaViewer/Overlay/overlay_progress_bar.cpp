@@ -10,10 +10,10 @@ Overlay_Progress_Bar::Overlay_Progress_Bar(int *available_space,Overlay *parent)
     connect(this,SIGNAL(request_redraw()),parent,SLOT(repaint()));
 }
 
-bool Overlay_Progress_Bar::activate_hover(QMouseEvent *e)
+bool Overlay_Progress_Bar::activate_hover(QPoint pos)
 {
-    if (rect.contains(e->pos())){
-        hover_progress = (e->pos().x()-rect.left())/(double)rect.width();
+    if (rect.contains(pos)){
+        hover_progress = (pos.x()-rect.left())/(double)rect.width();
         return true;
     }
 

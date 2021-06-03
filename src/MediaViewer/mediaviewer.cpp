@@ -418,6 +418,14 @@ void MediaViewer::mouseMoveEvent(QMouseEvent *e)
 
 }
 
+void MediaViewer::wheelEvent(QWheelEvent *e)
+{
+    if (overlay->mouseScroll(e)) return;
+
+    e->accept();
+
+}
+
 void MediaViewer::bind_keys(QWidget *widget,bool are_files_deletable)
 {
     QAction *lock_media_overlay = ct::create_binding(ct::KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Lock Media Viewer Overlay",widget);
