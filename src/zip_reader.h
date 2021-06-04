@@ -36,8 +36,6 @@ class zip_reader
         lf_filename     = 30,
     };
 
-    const int buff_size = 1024;
-
     QByteArray m_file;
     QVector<zipped_file> m_files;
 
@@ -48,7 +46,7 @@ class zip_reader
     qint64 find_next(QFile &file,qint64 starting_pos,QByteArray header);
 
 #ifdef ENABLE_ZLIB
-    QByteArray uncompress(const QByteArray &data);
+    QByteArray uncompress(const QByteArray &data,unsigned final_size);
 #endif
 public:
     zip_reader();

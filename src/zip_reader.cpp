@@ -149,12 +149,11 @@ int zip_reader::file_count()
     return m_files.length();
 }
 #ifdef ENABLE_ZLIB
-QByteArray zip_reader::uncompress(const QByteArray &data)
+QByteArray zip_reader::uncompress(const QByteArray &data,unsigned final_size)
 {
     z_stream stream;
-    QByteArray result;
+    QByteArray result(final_size+1,'\0');
     int ret;
-    char buffer[buff_size];
 
     stream.zalloc = Z_NULL;
     stream.zfree  = Z_NULL;
@@ -167,29 +166,25 @@ QByteArray zip_reader::uncompress(const QByteArray &data)
     if (ret != Z_OK)
         return QByteArray();
 
-    do{
-        stream.avail_out = buff_size;
-        stream.next_out  = (Bytef*)buffer;
+    stream.avail_out = final_size+1;
+    stream.next_out  = (Bytef*)result.data();
 
-        ret = inflate(&stream,Z_NO_FLUSH);
-        if (ret != Z_OK){
-            qDebug("ERROR");
-            switch (ret) {
-            case Z_DATA_ERROR:
-                qDebug("Invalid compressed data");
-                break;
-            case Z_MEM_ERROR:
-                qDebug("Not enough memory");
-                break;
-            }
-            isValid = false;
-            inflateEnd(&stream);
-            return QByteArray();
+    ret = inflate(&stream,Z_NO_FLUSH);
+    if (ret != Z_OK){
+        qDebug("Error uncompressing file");
+        switch (ret) {
+        case Z_DATA_ERROR:
+            qDebug("Invalid compressed data");
+            break;
+        case Z_MEM_ERROR:
+            qDebug("Not enough memory");
+            break;
         }
+        isValid = false;
+        inflateEnd(&stream);
+        return QByteArray();
+    }
 
-        result.append(buffer,buff_size - stream.avail_out);
-
-    } while (stream.avail_out == 0);
 
     inflateEnd(&stream);
     return result;
@@ -228,7 +223,7 @@ QByteArray zip_reader::get_file_data(int i)
         data.prepend(0x01);//FLG
         data.prepend(0x78);//CMF
 
-        data = uncompress(data);
+        data = uncompress(data,zfile.uncompressed_size);
 #else
         isValid = false;
         file.close();

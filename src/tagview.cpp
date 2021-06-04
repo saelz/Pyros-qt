@@ -51,7 +51,7 @@ TagView::TagView(QWidget *parent) :
     QTreeView(parent)
 {
 
-    tag_model = new TagTreeModel("Tag");
+    tag_model = new TagTreeModel("Tag",this);
     sort_model = new QSortFilterProxyModel(this);
 
     sort_model->setSourceModel(tag_model);
