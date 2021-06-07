@@ -71,6 +71,13 @@ TagView::TagView(QWidget *parent) :
     contextMenu->addAction("Remove Tag",        this, &TagView::remove_tag);
     contextMenu->addAction("Remove Ext",        this, &TagView::remove_ext);
 
+    QAction *copy_bind = new QAction("Copy Tag",this);
+    copy_bind->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    copy_bind->setShortcut(QKeySequence("CTRL+C"));
+    addAction(copy_bind);
+
+    connect(copy_bind,&QAction::triggered,this,&TagView::copy_tag);
+
     connect(this, &TagView::customContextMenuRequested, this, &TagView::onCustomContextMenu);
 
     setItemDelegate(new TagDelegate(sort_model,this));
