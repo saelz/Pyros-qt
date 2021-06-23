@@ -24,36 +24,35 @@ class FileDelegate : public QStyledItemDelegate {
         : QStyledItemDelegate(parent),model(model) {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                const QModelIndex &index) const {
-      QStyledItemDelegate::paint(painter, option, index);
-      PyrosFile *pFile = model->file(index);
+           const QModelIndex &index) const {
 
-      if (pFile == nullptr)
-          return;
 
-      QString text = pFile->mime;
-      QColor color;
+        PyrosFile *pFile = model->file(index);
 
-      QVector<ct::color_setting> file_colors = ct::get_file_colors();
-      foreach(ct::color_setting tag_color,file_colors)
-          if (text.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
-              color = tag_color.color;
+        if (pFile == nullptr)
+            return;
 
-      if (!color.isValid())
-          return;
+        QString mime = pFile->mime;
+        QColor color;
 
-      painter->setPen(color);
+        QVector<ct::color_setting> file_colors = ct::get_file_colors();
+        foreach(ct::color_setting tag_color,file_colors)
+            if (mime.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
+                color = tag_color.color;
 
-      QPixmap k = model->data(index,Qt::DecorationRole).value<QPixmap>();
-      QRect rect = option.rect;
+        QPixmap pix = model->data(index,Qt::DecorationRole).value<QPixmap>();
 
-      int vspacing = rect.height()-k.height();
-      if (vspacing != 0)
-          rect.setTop(rect.top()+vspacing/2);
-      rect.setLeft(rect.left()+2);
-      rect.setWidth(k.width());
-      rect.setHeight(k.height());
-      painter->drawRect(rect);
+        QPoint loc = option.rect.center() - pix.rect().center();
+        painter->drawPixmap(loc, pix);
+
+        if (!color.isValid())
+            return;
+
+        QRect rect = QRect(loc.x(),loc.y(),pix.width(),pix.height());
+        painter->setPen(color);
+
+        painter->drawRect(rect);
+
     }
 
 };
