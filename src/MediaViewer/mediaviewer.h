@@ -2,6 +2,7 @@
 #define MEDIAVIEWER_H
 
 #include <QWidget>
+#include <QTimer>
 
 #include "viewer.h"
 
@@ -44,14 +45,29 @@ public:
     Overlay *overlay;
     bool files_deletable = false;
 
+    bool slideshows_enabled           = false;
+    bool slideshow_active             = false;
+    int  slideshow_wait_time          = 1000;
+    bool slideshow_watch_entire_video = false;
+    bool slideshow_random_order       = false;
+    bool slideshow_loop               = false;
+
+    QTimer slide_timer;
+
     void bind_keys(QWidget *widget,bool files_deletable = false);
+    inline void set_slideshows_enabled(bool slideshows_enabled){this->slideshows_enabled = slideshows_enabled;};
 
 public slots:
     void set_files(QVector<PyrosFile*> files,int inital_pos = 0);
     void next_file();
     void prev_file();
+    void random_file();
     void set_current_file(int position);
     void hide_files(QVector<QByteArray> hashes);
+
+    void open_slideshow_conf();
+    void toggle_slideshow();
+    void next_slide();
 
 
     void next_page();
@@ -90,6 +106,8 @@ signals:
     void position_changed(int);
     void update_file_count(QString);
     void file_deleted(QVector<QByteArray>);
+    void slideshow_ended();
+    void slideshow_started();
 };
 
 #endif // MEDIAVIEWER_H

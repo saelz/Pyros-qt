@@ -13,6 +13,7 @@
         <file>icons/volume_med.png</file>
         <file>icons/volume_low.png</file>
         <file>icons/mute.png</file>
+        <file>icons/slideshow_pause.png</file>
+        <file>icons/slideshow_play.png</file>
     </qresource>
-    <qresource prefix="/"/>
 </RCC>

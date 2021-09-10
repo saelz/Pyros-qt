@@ -42,6 +42,7 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
 
     Overlay_Text *overlay_file_count = new Overlay_Text("File count",this);
     Overlay_Button *overlay_delete_button = new Overlay_Button(":/data/icons/trash.png",&parent->files_deletable,"Delete file",this);
+    Overlay_Button *overlay_slideshow_button = new Overlay_Button(":/data/icons/slideshow_pause.png",&parent->slideshows_enabled,"Start Slideshow",this,true,":/data/icons/slideshow_play.png");
 
     auto_scale->entries.append({"Fit Both",Viewer::SCALE_TYPE::BOTH});
     auto_scale->entries.append({"Fit Height",Viewer::SCALE_TYPE::HEIGHT});
@@ -69,9 +70,15 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     connect(auto_scale,&Overlay_Combo_Box::entry_changed,parent,&MediaViewer::set_scale);
     connect(overlay_delete_button,&Overlay_Button::clicked,parent,&MediaViewer::delete_file);
 
+    connect(overlay_slideshow_button,&Overlay_Button::clicked,parent,&MediaViewer::open_slideshow_conf);
+    connect(overlay_slideshow_button,&Overlay_Button::right_button_clicked,parent,&MediaViewer::toggle_slideshow);
+    connect(parent,&MediaViewer::slideshow_started,overlay_slideshow_button,&Overlay_Button::set_toggled);
+    connect(parent,&MediaViewer::slideshow_ended,overlay_slideshow_button,&Overlay_Button::set_not_toggled);
+
     main_bar.widgets.append(overlay_prev_button);
     main_bar.widgets.append(overlay_next_button);
 
+    main_bar.widgets.append(overlay_slideshow_button);
     main_bar.widgets.append(zoom_out_button);
     main_bar.widgets.append(zoom_in_button);
     main_bar.widgets.append(prev_page_button);
@@ -292,6 +299,8 @@ bool Overlay::mouseReleased(QMouseEvent *e)
                 if (last_pressed_widget == widget && viewer != nullptr){
                     if (e->button() == Qt::MiddleButton)
                         widget->middle_button_clicked();
+                    else if (e->button() == Qt::RightButton)
+                        widget->right_button_clicked();
                     else
                         widget->clicked();
                     return true;

@@ -109,11 +109,11 @@ void FileView::onCustomContextMenu(const QPoint &point)
 
 void FileView::invertSelection()
 {
-     QModelIndex topLeft;
-     QModelIndex bottomRight;
+    QModelIndex topLeft;
+    QModelIndex bottomRight;
 
-     topLeft = file_model->index(0, 0, QModelIndex());
-     bottomRight = file_model->index(file_model->rowCount()-1,
+    topLeft = file_model->index(0, 0, QModelIndex());
+    bottomRight = file_model->index(file_model->rowCount()-1,
                                      file_model->columnCount()-1, QModelIndex());
 
     QItemSelection selection(topLeft,bottomRight);

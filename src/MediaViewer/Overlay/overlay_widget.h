@@ -18,6 +18,7 @@ public:
     virtual inline void clicked(){};
     virtual inline void unselected(){};
     virtual inline void middle_button_clicked(){clicked();};
+    virtual inline void right_button_clicked(){clicked();};
     virtual inline bool scroll(QPoint){return false;};
     virtual bool check_hover(QPoint local_pos);
     QString tooltip;

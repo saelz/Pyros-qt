@@ -30,6 +30,7 @@ SOURCES += \
     src/MediaViewer/movie_viewer.cpp \
     src/MediaViewer/mpv_widget.cpp \
     src/MediaViewer/playback_controller.cpp \
+    src/MediaViewer/slideshowconfdialog.cpp \
     src/MediaViewer/text_viewer.cpp \
     src/MediaViewer/unsupported_viewer.cpp \
     src/MediaViewer/video_viewer.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     src/MediaViewer/movie_viewer.h \
     src/MediaViewer/mpv_widget.h \
     src/MediaViewer/playback_controller.h \
+    src/MediaViewer/slideshowconfdialog.h \
     src/MediaViewer/text_viewer.h \
     src/MediaViewer/unsupported_viewer.h \
     src/MediaViewer/video_viewer.h \
@@ -97,7 +99,8 @@ FORMS += \
     src/fileimport.ui \
     src/fileviewer.ui \
     src/pyrosqt.ui \
-    src/searchtab.ui
+    src/searchtab.ui \
+    src/slideshowconfdialog.ui
 
 packagesExist(zlib) {
    DEFINES += ENABLE_ZLIB

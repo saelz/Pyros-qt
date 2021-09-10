@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QTimer>
 #include <QFunctionPointer>
+#include <QRandomGenerator>
 
 #include <pyros.h>
 
@@ -16,6 +17,7 @@
 #include "mediaviewer.h"
 #include "mpv_widget.h"
 #include "../configtab.h"
+#include "slideshowconfdialog.h"
 
 #include "Overlay/overlay.h"
 
@@ -25,6 +27,7 @@
 #include "text_viewer.h"
 #include "cbz_viewer.h"
 #include "video_viewer.h"
+
 
 using ct = configtab;
 
@@ -54,7 +57,7 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     scroll_area->setWidget(label);
 
     overlay = new Overlay(&viewer,this);
-    overlay->setBaseSize(this->size());
+    overlay->setBaseSize(size());
 
 
     stacked_widget->setMouseTracking(true);
@@ -88,6 +91,8 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
 
     connect(this,&MediaViewer::file_changed,overlay,&Overlay::set_file);
 
+    slide_timer.setSingleShot(true);
+    connect(&slide_timer, &QTimer::timeout, this, &MediaViewer::next_slide);
 }
 
 MediaViewer::~MediaViewer()
@@ -173,17 +178,23 @@ void MediaViewer::set_files(QVector<PyrosFile*> files,int inital_pos)
 
 void MediaViewer::next_file()
 {
+    slideshow_active = false;
     set_current_file(file_position+1);
 }
 
 void MediaViewer::prev_file()
 {
+    slideshow_active = false;
     set_current_file(file_position-1);
+}
+
+void MediaViewer::random_file()
+{
+    set_current_file(QRandomGenerator::global()->bounded(files.length()));
 }
 
 void MediaViewer::set_current_file(int position)
 {
-
     if (files.length() <= 0){
         file_position = -1;
         emit update_file_count("");
@@ -229,6 +240,54 @@ void MediaViewer::hide_files(QVector<QByteArray> hashes)
 
 }
 
+void MediaViewer::open_slideshow_conf()
+{
+    SlideshowConfDialog dialog(this);
+    if (slideshow_active || dialog.exec())
+        toggle_slideshow();
+    else
+        emit slideshow_ended();
+}
+
+void MediaViewer::toggle_slideshow()
+{
+
+    slideshow_active = !slideshow_active;
+    if (slideshow_active){
+        emit slideshow_started();
+        slide_timer.start(slideshow_wait_time);
+    } else {
+        emit slideshow_ended();
+    }
+}
+
+void MediaViewer::next_slide()
+{
+    if (slideshow_active){
+
+        if (slideshow_random_order){
+            random_file();
+        } else if (!(viewer != nullptr && viewer->next_page())) {
+            if (slideshow_loop && file_position >= files.length()-1){
+                set_current_file(0);
+                slide_timer.start(slideshow_wait_time);
+                return;
+            }
+
+            next_file();
+            if (file_position >= files.length()-1 && !slideshow_loop)
+                slideshow_active = false;
+            else
+                slideshow_active = true;
+        }
+        slide_timer.start(slideshow_wait_time);
+
+    } else {
+        emit slideshow_ended();
+        slide_timer.stop();
+    }
+}
+
 void MediaViewer::zoom_in()
 {
     overlay->set_visible();
@@ -250,6 +309,7 @@ void MediaViewer::zoom_out()
 void MediaViewer::next_page()
 {
     overlay->set_visible();
+    slideshow_active = false;
     if (viewer != nullptr && viewer->next_page()){
             scroll_area->verticalScrollBar()->setValue(0);
             emit overlay->update_file_info(viewer->get_info());
@@ -260,6 +320,7 @@ void MediaViewer::next_page()
 void MediaViewer::prev_page()
 {
     overlay->set_visible();
+    slideshow_active = false;
     if (viewer != nullptr && viewer->prev_page()){
             scroll_area->verticalScrollBar()->setValue(0);
             emit overlay->update_file_info(viewer->get_info());

@@ -45,6 +45,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
     connect(ui->mediaviewer,&MediaViewer::file_changed,this,&FileViewer::set_file);
 
     ui->mediaviewer->bind_keys(this,true);
+    ui->mediaviewer->set_slideshows_enabled(true);
     ui->mediaviewer->set_files(new_files,inital_pos);
 }
 
