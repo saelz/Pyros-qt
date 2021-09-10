@@ -62,7 +62,7 @@ QString Movie_Controller::duration()
 
 QString Movie_Controller::position()
 {
-    return QString::number(movie->currentFrameNumber());
+    return QString::number(movie->currentFrameNumber()+1);
 }
 
 QString Movie_Viewer::get_info()
@@ -75,7 +75,7 @@ QString Movie_Viewer::get_info()
 
 void Movie_Controller::set_position(int frame)
 {
-    emit update_progress(frame,movie->frameCount());
+    emit update_progress(frame,movie->frameCount()-1);
     emit position_changed(position());
 }
 
