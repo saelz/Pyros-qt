@@ -15,5 +15,6 @@
         <file>icons/mute.png</file>
         <file>icons/slideshow_pause.png</file>
         <file>icons/slideshow_play.png</file>
+        <file>icons/checkmark.png</file>
     </qresource>
 </RCC>

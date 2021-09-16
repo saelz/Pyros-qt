@@ -18,7 +18,6 @@ class duplicate_selector : public Tab
         SUPERIOR,
         DUPLICATE,
         NOT_DUPLICATE,
-        NONE
     };
 
     int position;
@@ -31,22 +30,20 @@ private:
     Ui::duplicate_selector *ui;
     QVector<DUPLICATE_STATUS> file_statuses;
 
-    void update_file();
+    void check_file_status();
     void apply();
-
-    void duplicate_checked();
-    void not_duplicate_checked();
-    void superior_checked();
-
-    void update_radio_buttons();
 
 private slots:
     void file_hidden(int);
     void set_position(int);
+    void entry_changed(int);
 
 signals:
     void hide_files(QVector<QByteArray>);
     void files_removed(QVector<QByteArray>);
+    void set_dupe_combo_box_status(int);
+    void set_apply_button_enabled(bool);
+    void hide_combo_box_entry(int,bool);
 
 };
 

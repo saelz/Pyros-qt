@@ -11,6 +11,7 @@ class Overlay_Text : public QObject,public Overlay_Widget
 {
     Q_OBJECT
     QString text;
+    int padding = 5;
 public:
     Overlay_Text(QString tooltip,Overlay *parent);
     int requested_width(QPainter &p) override;

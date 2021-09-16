@@ -12,7 +12,7 @@ class Overlay_Volume_Button : public Overlay_Button{
     bool muted = false;
     QRect popup_rect;
 public:
-    Overlay_Volume_Button(bool *active_ptr,Overlay *parent);
+    Overlay_Volume_Button(bool *visible_ptr,Overlay *parent);
     QImage icon_low;
     QImage icon_med;
     QImage icon_mute;

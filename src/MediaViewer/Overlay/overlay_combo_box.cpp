@@ -2,7 +2,7 @@
 
 #include "overlay_combo_box.h"
 
-Overlay_Combo_Box::Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *parent) : Overlay_Button("",active_ptr,tooltip,parent)
+Overlay_Combo_Box::Overlay_Combo_Box(bool *visible_ptr,QString tooltip,Overlay *parent) : Overlay_Button("",visible_ptr,tooltip,parent)
 {
     connect(this,&Overlay_Combo_Box::clicked,this,&Overlay_Combo_Box::toggle_drop_down);
     connect(this,&Overlay_Combo_Box::unselected,this,&Overlay_Combo_Box::hide_drop_down);
@@ -53,19 +53,43 @@ bool Overlay_Combo_Box::check_hover(QPoint pos)
     return false;
 }
 
+void Overlay_Combo_Box::set_entry(int value)
+{
+    for(int i = 0;i < entries.length();i++){
+        if (entries.at(i).value == value){
+            if (selected_entry != i){
+                selected_entry = i;
+                emit request_redraw();
+                emit entry_changed(value);
+            }
+            return;
+        }
+    }
+    selected_entry = -1;
+}
+
 int Overlay_Combo_Box::requested_width(QPainter &p)
 {
-    if ((active == nullptr || (*active)) && !entries.isEmpty())
-        return p.boundingRect(0,0,0,0,0,entries[selected_entry].name).width()+3;
-    else
+    if ((visible == nullptr || (*visible)) && !entries.isEmpty()){
+        if (selected_entry < 0 || selected_entry >= entries.length())
+            return p.boundingRect(0,0,0,0,0,"     ").width()+3;
+        else
+            return p.boundingRect(0,0,0,0,0,entries[selected_entry].name).width()+3;
+    } else {
         return 0;
+    }
 }
 
 int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
 {
-    if ((active == nullptr || (*active)) && !entries.isEmpty()){
-        Combo_Entry current_entry = entries[selected_entry];
+    if ((visible == nullptr || (*visible)) && !entries.isEmpty()){
+        Combo_Entry current_entry;
         int used_width;
+
+        if (selected_entry < 0 || selected_entry >= entries.length())
+            current_entry = {"     ",-1,true};
+        else
+            current_entry = entries[selected_entry];
 
         rect = p.boundingRect(x,y,0,0,0,current_entry.name);
 
@@ -82,16 +106,25 @@ int Overlay_Combo_Box::draw(QPainter &p,int x,int y)
             QRect bounding_text = rect;
             y -= bounding_text.height();
 
-            int longest_drop_down = 0;
-            for(int i = 1;i < entries.length();i++)
-                if (entries[longest_drop_down].name.length() < entries[i].name.length())
-                    longest_drop_down = i;
+            int longest_drop_down = -1;
+            int dropdown_width;
 
-            int dropdown_width = p.boundingRect(0,0,0,0,0,entries[longest_drop_down].name).width();
+            for(int i = 0;i < entries.length();i++){
+                if (entries[i].hidden || entries[i].value == current_entry.value)
+                    continue;
+
+                if (longest_drop_down == -1 || entries[longest_drop_down].name.length() < entries[i].name.length())
+                    longest_drop_down = i;
+            }
+
+            if (longest_drop_down == -1)
+                dropdown_width = 0;
+            else
+                dropdown_width = p.boundingRect(0,0,0,0,0,entries[longest_drop_down].name).width();
 
 
             for(int i = 0;i < entries.length();i++){
-                if (entries[i].value != current_entry.value){
+                if (!entries[i].hidden && entries[i].value != current_entry.value){
                     y -= bounding_text.height();
 
                     bounding_text = p.boundingRect(bounding_text.x(),y,0,0,0,entries[i].name);
@@ -141,4 +174,30 @@ void Overlay_Combo_Box::hide_drop_down()
 {
     if (display_dropdown)
         toggle_drop_down();
+}
+
+void Overlay_Combo_Box::add_entry(QString name,int value)
+{
+    entries.append({name,value,false});
+}
+
+void Overlay_Combo_Box::remove_entry(int value)
+{
+    for(int i = 0;i < entries.length();i++){
+        if (entries[i].value == value){
+            entries.removeAt(i);
+            return;
+        }
+    }
+}
+
+void Overlay_Combo_Box::set_entry_hidden_state(int value,bool is_hidden)
+{
+    for(int i = 0;i < entries.length();i++){
+        if (entries[i].value == value){
+            entries[i].hidden = is_hidden;
+            return;
+        }
+    }
+
 }

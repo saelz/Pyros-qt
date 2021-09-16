@@ -1,17 +1,17 @@
 #include "overlay_volume_button.h"
 
-Overlay_Volume_Button::Overlay_Volume_Button(bool *active_ptr,Overlay *parent): Overlay_Button(":/data/icons/volume_med",active_ptr,"Volume",parent)
+Overlay_Volume_Button::Overlay_Volume_Button(bool *visible_ptr,Overlay *parent): Overlay_Button(":/data/icons/volume_med",visible_ptr,"Volume",parent)
 {
     icon_low = QImage(":/data/icons/volume_low");
     icon_mute = QImage(":/data/icons/mute.png");
 
     icon_low = icon_low.scaled(
-                QSize(width,height),
+                QSize(icon_width,height),
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation);
 
     icon_mute = icon_mute.scaled(
-                QSize(width,height),
+                QSize(icon_width,height),
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation);
 
@@ -47,10 +47,10 @@ int Overlay_Volume_Button::draw(QPainter &p,int x,int y)
     if (has_audio){
         return Overlay_Button::draw(p,x,y);
     } else {
-        if (active == nullptr || (*active)){
-            rect = QRect(x,y-width,width,height);
-            p.drawImage(rect,icon_mute.scaled(width,height));
-            return width+3;
+        if (visible == nullptr || (*visible)){
+            rect = QRect(x,y-icon_width,icon_width,height);
+            p.drawImage(rect,icon_mute.scaled(icon_width,height));
+            return icon_width+3;
         } else {
             return 0;
         }

@@ -8,7 +8,7 @@ Overlay_Widget::~Overlay_Widget(){};
 bool Overlay_Widget::check_hover(QPoint position)
 {
 
-    if (rect.contains(position))
+    if (is_enabled && rect.contains(position))
         return true;
     return false;
 }

@@ -22,5 +22,7 @@ public:
     virtual inline bool scroll(QPoint){return false;};
     virtual bool check_hover(QPoint local_pos);
     QString tooltip;
+
+    bool is_enabled = true;
 };
 #endif // OVERLAY_WIDGET_H

@@ -18,7 +18,7 @@ void Overlay_Text::set_text(QString new_text)
 
 int Overlay_Text::requested_width(QPainter &p)
 {
-    return p.boundingRect(0,0,0,0,0,text).width()+5;
+    return p.boundingRect(0,0,0,0,0,text).width()+padding;
 }
 
 int Overlay_Text::draw(QPainter &p,int x,int y)
@@ -27,5 +27,5 @@ int Overlay_Text::draw(QPainter &p,int x,int y)
     rect.adjust(0,-rect.height(),0,-rect.height());
     p.drawText(rect,text);
 
-    return rect.width()+5;
+    return rect.width()+padding;
 }

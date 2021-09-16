@@ -10,11 +10,12 @@ class Overlay_Combo_Box : public Overlay_Button
     bool display_dropdown = false;
     QVector<QRect> dropdownrect;
 public:
-    Overlay_Combo_Box(bool *active_ptr,QString tooltip,Overlay *parent);
+    Overlay_Combo_Box(bool *visible_ptr,QString tooltip,Overlay *parent);
 
     struct Combo_Entry{
         QString name;
         int value;
+        bool hidden;
     };
 
     QVector<Combo_Entry> entries;
@@ -28,6 +29,10 @@ public:
 
 public slots:
     bool check_hover(QPoint local_pos) override;
+    void set_entry(int value);
+    void add_entry(QString name,int value);
+    void remove_entry(int value);
+    void set_entry_hidden_state(int value,bool is_hidden);
 
 private slots:
     void toggle_drop_down();

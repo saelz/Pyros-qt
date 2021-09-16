@@ -44,10 +44,10 @@ Overlay::Overlay(Viewer **viewer,MediaViewer *parent) : QWidget(parent),viewer(v
     Overlay_Button *overlay_delete_button = new Overlay_Button(":/data/icons/trash.png",&parent->files_deletable,"Delete file",this);
     Overlay_Button *overlay_slideshow_button = new Overlay_Button(":/data/icons/slideshow_pause.png",&parent->slideshows_enabled,"Start Slideshow",this,true,":/data/icons/slideshow_play.png");
 
-    auto_scale->entries.append({"Fit Both",Viewer::SCALE_TYPE::BOTH});
-    auto_scale->entries.append({"Fit Height",Viewer::SCALE_TYPE::HEIGHT});
-    auto_scale->entries.append({"Fit Width",Viewer::SCALE_TYPE::WIDTH});
-    auto_scale->entries.append({"Original size",Viewer::SCALE_TYPE::ORIGINAL});
+    auto_scale->add_entry("Fit Both",Viewer::SCALE_TYPE::BOTH);
+    auto_scale->add_entry("Fit Height",Viewer::SCALE_TYPE::HEIGHT);
+    auto_scale->add_entry("Fit Width",Viewer::SCALE_TYPE::WIDTH);
+    auto_scale->add_entry("Original size",Viewer::SCALE_TYPE::ORIGINAL);
 
     connect(lock_button,&Overlay_Button::clicked,this,&Overlay::toggle_lock);
     connect(parent,&MediaViewer::lock_overlay,lock_button,&Overlay_Button::clicked);
