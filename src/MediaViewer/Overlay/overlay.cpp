@@ -1,6 +1,7 @@
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QLocale>
+#include <QAction>
 
 #include <pyros.h>
 
@@ -227,6 +228,29 @@ void Overlay::set_file(PyrosFile *file)
 
         if ((playback_bar.active = (*viewer)->controller != nullptr)){
             Playback_Controller *controller = (*viewer)->controller;
+
+            QAction *pause = new QAction("Pause",controller);
+            QAction *seek_right = new QAction("Seek right",controller);
+            QAction *seek_left = new QAction("Seek left",controller);
+
+            pause->setShortcut(QKeySequence("Space"));
+            seek_right->setShortcut(QKeySequence("Right"));
+            seek_left->setShortcut(QKeySequence("Left"));
+
+            pause->setAutoRepeat(false);
+
+            addAction(pause);
+            addAction(seek_right);
+            addAction(seek_left);
+
+            connect(pause,&QAction::triggered,this,&Overlay::pause);
+            connect(seek_left,&QAction::triggered,this,&Overlay::rewind);
+            connect(seek_right,&QAction::triggered,this,&Overlay::fast_forward);
+
+            connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
+            connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);
+            connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
+
             connect(controller,&Playback_Controller::duration_changed,this,&Overlay::update_playback_duration);
             connect(controller,&Playback_Controller::position_changed,this,&Overlay::update_playback_position);
             connect(controller,&Playback_Controller::playback_state_changed,this,&Overlay::update_playback_state);
@@ -234,9 +258,7 @@ void Overlay::set_file(PyrosFile *file)
             connect(controller,&Playback_Controller::volume_changed,this,&Overlay::update_playback_volume);
             connect(controller,&Playback_Controller::has_audio_changed,this,&Overlay::update_playback_has_audio);
 
-            connect(this,&Overlay::pause,controller,&Playback_Controller::pause);
-            connect(this,&Overlay::rewind,controller,&Playback_Controller::rewind);
-            connect(this,&Overlay::fast_forward,controller,&Playback_Controller::fast_forward);
+
             connect(this,&Overlay::change_progress,controller,&Playback_Controller::set_progress);
             connect(this,&Overlay::change_volume,controller,&Playback_Controller::set_volume);
 
