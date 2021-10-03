@@ -14,7 +14,7 @@
 
 using ct = configtab;
 
-TagCompleter::TagCompleter(const QStringList& tags,QVector<QString> *tag_history, QObject * parent) :
+TagCompleter::TagCompleter(const QStringList *tags,QVector<QString> *tag_history, QObject * parent) :
     QCompleter(parent), m_list(tags), m_model(),tag_history(tag_history)
 {
 
@@ -51,7 +51,7 @@ void TagCompleter::update(QString text)   {
             if (!t.isEmpty() && t.contains(comparison_text))
                 filtered.append(t);
     } else {
-        foreach(QString t,m_list)
+        foreach(QString t,*m_list)
             if (t.startsWith(comparison_text))
                 filtered.append(t);
     }
@@ -67,10 +67,11 @@ TagLineEdit::TagLineEdit(QWidget *parent) :
 {
     PyrosTC *ptc = PyrosTC::get();
 
-    PyrosTC::all_tags_cb cb= [&](QStringList tags){
+    PyrosTC::all_tags_cb cb= [&](QStringList *tags){
         completer = new TagCompleter(tags,&tag_history, this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
         completer->setWidget(this);
+        tag_list = tags;
 
         connect(completer, QOverload<const QString &>::of(&QCompleter::activated),
                 this, &TagLineEdit::update_completion);
@@ -122,7 +123,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 void TagLineEdit::process_tag()
 {
     QSettings settings;
-    const QByteArray tag = text().toUtf8();
+    const QByteArray tag = text().toUtf8().toLower();
     hist_location = 0;
 
 

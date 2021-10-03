@@ -25,10 +25,11 @@ public:
     typedef std::function<void(QVector<PyrosFile*>)> search_cb;
     typedef std::function<void(QVector<PyrosTag*>)> tag_cb;
     typedef std::function<void(int)> import_progress_cb;
-    typedef std::function<void(QStringList)> all_tags_cb;
+    typedef std::function<void(QStringList*)> all_tags_cb;
     typedef void(PyrosExtFunc)(PyrosDB*,const char*,const char*);
 
 private:
+    QStringList known_tags;
 
     enum REQUEST_FLAGS{
         NONE        = 0x00,

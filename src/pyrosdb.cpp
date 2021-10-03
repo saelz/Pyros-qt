@@ -1,14 +1,13 @@
 #include "pyrosdb.h"
 #include "filemodel.h"
 
-#include <QtDebug>
 #include <QSettings>
 
 PyrosTC *PyrosTC::instance = 0;
 
 QVector<const char*> PyrosWorker::QVBA_to_QVc(QVector<QByteArray> &vec)
 {
-     QVector<const char*> cvec;
+    QVector<const char*> cvec;
 
     foreach(QByteArray item,vec)
         cvec.push_back(item);
@@ -93,7 +92,6 @@ void PyrosWorker::import(PyrosDB *db, QVector<QByteArray> files,bool use_tag_fil
     Pyros_Commit(db);
 
     for(size_t i = 0; i < hashes->length;i++){
-        qDebug("H%s\n",(char*)hashes->list[i]);
         PyrosFile *pFile = Pyros_Get_File_From_Hash(db,(char*)hashes->list[i]);
         if (pFile != nullptr)
             return_files.push_back(pFile);
@@ -342,11 +340,7 @@ void PyrosTC::tag_return(QVector<PyrosTag*> tags)
 void PyrosTC::return_all_tags(QStringList tags)
 {
     struct request req = requests.front();
-
-    if (!req.discard && !req.sender.isNull()){
-        req.at_cb(tags);
-    }
-
+    known_tags = tags;
     requests.pop_front();
 }
 
@@ -360,12 +354,21 @@ void PyrosTC::progress(int prog)
 void PyrosTC::add_tags(QVector<QByteArray> hashes, QVector<QByteArray> tags)
 {
     if (db == nullptr) return;
+
+    foreach(QByteArray tag, tags)
+        if (!known_tags.contains(tag.toLower()))
+            known_tags.append(tag.toLower());
+
     emit sig_add_tags(db,hashes,tags);
 }
 
 void PyrosTC::add_tags(QByteArray hash, QVector<QByteArray> tags)
 {
     if (db == nullptr) return;
+    foreach(QByteArray tag, tags)
+        if (!known_tags.contains(tag.toLower()))
+            known_tags.append(tag.toLower());
+
     emit sig_add_tags_to_file(db,hash,tags);
 }
 
@@ -453,10 +456,18 @@ void PyrosTC::remove_ext(QVector<QByteArray> tags)
 
 void PyrosTC::get_all_tags(QPointer<QObject>sender,all_tags_cb cb)
 {
+    static qint64 last_check = 0;
     struct request req = {sender,OVERRIDE,nullptr,nullptr,nullptr,cb,false};
     if (db == nullptr) return;
-    push_request(req);
-    emit sig_get_all_tags(db);
+
+    req.at_cb(&known_tags);
+
+    if (QDateTime::currentSecsSinceEpoch()-last_check >= 1800 /*30 min*/){
+        last_check = QDateTime::currentSecsSinceEpoch();
+
+        push_request(req);
+        emit sig_get_all_tags(db);
+    }
 }
 
 void PyrosTC::merge_files(QByteArray superior_file,QVector<QByteArray> duplicates)

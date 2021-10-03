@@ -13,14 +13,14 @@ class TagCompleter : public QCompleter
     Q_OBJECT
 
 public:
-    TagCompleter(const QStringList& tags,QVector<QString> *tag_history, QObject * parent);
+    TagCompleter(const QStringList *tags,QVector<QString> *tag_history, QObject * parent);
     void update(QString text);
 
     inline void toggle_hist_mode(){ hist_mode = !hist_mode;}
 
     inline void set_hist_false(){hist_mode = false;}
 private:
-    QStringList m_list;
+    const QStringList *m_list;
     QStringListModel m_model;
     QVector<QString> *tag_history;
     bool hist_mode = false;
@@ -37,6 +37,8 @@ public:
 private:
     void keyPressEvent(QKeyEvent *) override;
     QVector<QString> tag_history;
+    QStringList *tag_list;
+
     int hist_location = 0;
     TagCompleter *completer = nullptr;
     int relation_type = PYROS_TAG_RELATION_FLAGS::PYROS_FILE_RELATIONSHIP;
