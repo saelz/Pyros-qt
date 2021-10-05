@@ -24,5 +24,6 @@ public:
     QString tooltip;
 
     bool is_enabled = true;
+    bool tooltip_enabled = true;
 };
 #endif // OVERLAY_WIDGET_H

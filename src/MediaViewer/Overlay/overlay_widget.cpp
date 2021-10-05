@@ -16,7 +16,7 @@ bool Overlay_Widget::check_hover(QPoint position)
 
 bool Overlay_Widget::activate_hover(QPoint position)
 {
-    if (!tooltip.isEmpty() && rect.contains(position))
+    if (tooltip_enabled  && !tooltip.isEmpty() && rect.contains(position))
         QToolTip::showText(QCursor::pos(),tooltip);
     return false;
 }

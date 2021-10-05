@@ -33,7 +33,7 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     ui->mediaviewer->set_files(files);
 
     Overlay_Combo_Box *dupe_combo_box = new Overlay_Combo_Box(nullptr,"Duplicate Status",ui->mediaviewer->overlay);
-    Overlay_Button *apply_button = new Overlay_Button(":/data/icons/checkmark.png",nullptr,"Apply",ui->mediaviewer->overlay,false,"","Apply");
+    Overlay_Button *apply_button = new Overlay_Button(":/data/icons/checkmark.png",nullptr,QString(),ui->mediaviewer->overlay,false,"","Apply");
 
     dupe_combo_box->add_entry("Not Duplicate",NOT_DUPLICATE);
     dupe_combo_box->add_entry("Duplicate",DUPLICATE);

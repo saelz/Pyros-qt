@@ -45,7 +45,8 @@ bool Overlay_Button::activate_hover(QPoint pos)
     bool inital_status = highlighed;
     if (rect.contains(pos) && is_enabled){
         highlighed = true;
-        QToolTip::showText(QCursor::pos(),tooltip);
+        if (tooltip_enabled)
+            QToolTip::showText(QCursor::pos(),tooltip);
     } else {
         highlighed = false;
     }

@@ -356,8 +356,8 @@ void PyrosTC::add_tags(QVector<QByteArray> hashes, QVector<QByteArray> tags)
     if (db == nullptr) return;
 
     foreach(QByteArray tag, tags)
-        if (!known_tags.contains(tag.toLower()))
-            known_tags.append(tag.toLower());
+        if (!known_tags.contains(tag))
+            known_tags.append(tag);
 
     emit sig_add_tags(db,hashes,tags);
 }
@@ -366,8 +366,8 @@ void PyrosTC::add_tags(QByteArray hash, QVector<QByteArray> tags)
 {
     if (db == nullptr) return;
     foreach(QByteArray tag, tags)
-        if (!known_tags.contains(tag.toLower()))
-            known_tags.append(tag.toLower());
+        if (!known_tags.contains(tag))
+            known_tags.append(tag);
 
     emit sig_add_tags_to_file(db,hash,tags);
 }

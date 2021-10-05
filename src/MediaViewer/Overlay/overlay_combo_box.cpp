@@ -167,6 +167,8 @@ void Overlay_Combo_Box::toggle_drop_down()
     }
 
     display_dropdown = !display_dropdown;
+    tooltip_enabled = !display_dropdown; /*display tooltip if no dropdown*/
+
     emit request_redraw();
 }
 
