@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QKeyEvent>
 #include <QAbstractItemView>
+#include <QListView>
 
 #include <pyros.h>
 
@@ -17,6 +18,9 @@ using ct = configtab;
 TagCompleter::TagCompleter(const QStringList *tags,QVector<QString> *tag_history, QObject * parent) :
     QCompleter(parent), m_list(tags), m_model(),tag_history(tag_history)
 {
+    QListView *view = (QListView *)popup();
+    view->setUniformItemSizes(true);
+    view->setLayoutMode(QListView::Batched);
 
     connect(this, QOverload<const QString &>::of(&QCompleter::activated),
         this, &TagCompleter::set_hist_false);

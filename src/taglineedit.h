@@ -19,6 +19,7 @@ public:
     inline void toggle_hist_mode(){ hist_mode = !hist_mode;}
 
     inline void set_hist_false(){hist_mode = false;}
+
 private:
     const QStringList *m_list;
     QStringListModel m_model;
