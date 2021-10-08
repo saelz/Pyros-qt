@@ -138,7 +138,9 @@ void MediaViewer::set_file()
 
     emit file_changed(file);
     emit position_changed(file_position);
-    overlay->set_visible();
+
+    if (!slideshow_active)
+        overlay->set_visible();
 
     // somtimes when the layer gets switched overlay won't be repainted, this forces a repaint
     QTimer::singleShot(10,overlay,SLOT(repaint()));
@@ -256,7 +258,7 @@ void MediaViewer::next_slide()
                 return;
             }
 
-            next_file();
+            set_current_file(file_position+1);
             if (file_position >= files.length()-1 && !slideshow_loop)
                 slideshow_active = false;
             else
