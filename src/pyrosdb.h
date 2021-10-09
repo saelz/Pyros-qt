@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QObject>
 #include <QPointer>
+#include <functional>
 
 #include <pyros.h>
 
@@ -36,24 +37,35 @@ private:
         OVERRIDE    = 0x02,
     };
 
-    struct request{
-        QPointer<QObject> sender;
+    class Request{
+    public:
+        Request(uint flags,std::function<void()> execute_cmd);
+        Request(QPointer<QObject> sender,uint flags,search_cb s_cb,import_progress_cb ip_cb,std::function<void()> execute_cmd);
+        Request(QPointer<QObject> sender,uint flags,tag_cb cb,std::function<void()> execute_cmd);
+        Request(QPointer<QObject> sender,uint flags,all_tags_cb cb,std::function<void()> execute_cmd);
+
+        QPointer<QObject> sender = nullptr;
         uint flags;
         search_cb s_cb;
-        import_progress_cb ip_cb;
-        tag_cb t_cb;
-        all_tags_cb at_cb;
-        bool discard;
+        import_progress_cb ip_cb = nullptr;
+        tag_cb t_cb = nullptr;
+        all_tags_cb at_cb = nullptr;
+        bool discard = false;
+        bool active = false;
+        std::function<void()> execute_cmd = nullptr;
     };
-    QVector<struct request> requests;
+    QVector<Request> requests;
 
-    void push_request(struct request req);
+    void push_request(Request req);
+    void process_requests();
 
 public slots:
     void search_return(QVector<PyrosFile*> files);
     void progress(int prog);
     void tag_return(QVector<PyrosTag*> tags);
     void return_all_tags(QStringList tags);
+
+    void request_finsished();
 
 signals:
     void sig_add_tags(PyrosDB *db,QVector<QByteArray> hashes, QVector<QByteArray>tags);
@@ -129,6 +141,7 @@ signals:
     void report_progress(int);
     void tag_return(QVector<PyrosTag*>);
     void return_all_tags(QStringList);
+    void request_finished();
 };
 
 Q_DECLARE_METATYPE(QVector<QByteArray>)
