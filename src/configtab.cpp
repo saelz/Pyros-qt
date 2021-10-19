@@ -184,18 +184,24 @@ QVBoxLayout *configtab::new_page(QString title)
     QPushButton *button = new QPushButton(title);
     QScrollArea *scroll_area = new QScrollArea();
     QVBoxLayout *layout = new QVBoxLayout();
+    QWidget *widget = new QWidget();
 
     button->setFlat(true);
     connect(button,&QPushButton::clicked,this,&configtab::set_page);
 
     config_buttons.push_back(button);
     button_column->addWidget(button);
-    pages->addWidget(scroll_area);
-    scroll_area->setLayout(layout);
-    scroll_area->setFrameShadow(QFrame::Sunken);
-    scroll_area->setFrameStyle(QFrame::StyledPanel);
+    widget->setLayout(layout);
+
 
     create_header(layout,title,header_size);
+
+    scroll_area->setFrameShadow(QFrame::Sunken);
+    scroll_area->setFrameStyle(QFrame::StyledPanel);
+    scroll_area->setWidget(widget);
+    scroll_area->setWidgetResizable(true);
+
+    pages->addWidget(scroll_area);
 
     return layout;
 }
