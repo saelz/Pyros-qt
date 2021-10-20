@@ -136,15 +136,16 @@ private:
         QValidator*validator;
     };
 
+    int left_margin = 15;
 
 
     static const setting settings[];
 
     static QVector<binding> active_bindings;
 
-    QVBoxLayout *new_page(QString title);
+    QBoxLayout *new_page(QString title);
     void set_page();
-    void create_header(QBoxLayout *layout,QString text,int size);
+    QBoxLayout *create_header(QBoxLayout *layout,QString text,int size);
 
     void create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
     void create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set);

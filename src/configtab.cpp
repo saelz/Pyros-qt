@@ -54,7 +54,7 @@ configtab::configtab(QTabWidget *parent) :
     Tab(parent)
 {
 
-    QVBoxLayout *page_layout;
+    QBoxLayout *page_layout;
 
     QVBoxLayout *vbox = new QVBoxLayout();
     QHBoxLayout *hbox = new QHBoxLayout();
@@ -87,8 +87,8 @@ configtab::configtab(QTabWidget *parent) :
 
     page_layout = new_page("Tags");
     {
-        create_header(page_layout,"Tag Colors",sub_header_size);
-        SettingArrayList *arraylist = new SettingArrayList(page_layout->widget(),"tagcolor",{{"prefix","Tag",false},{"color","Color",true}});
+        QBoxLayout *sub_layout = create_header(page_layout,"Tag Colors",sub_header_size);
+        SettingArrayList *arraylist = new SettingArrayList(sub_layout->widget(),"tagcolor",{{"prefix","Tag",false},{"color","Color",true}});
         page_layout->addWidget(arraylist);
         setting_array_items.append(arraylist);
 
@@ -97,45 +97,46 @@ configtab::configtab(QTabWidget *parent) :
 
     page_layout = new_page("Files");
     {
-        create_header(page_layout,"File Color",sub_header_size);
-        SettingArrayList *arraylist = new SettingArrayList(page_layout->widget(),"filecolor",{{"prefix","Mime/Type",false},{"color","Tag Color",true}});
+        QBoxLayout *sub_layout = create_header(page_layout,"File Color",sub_header_size);
+        SettingArrayList *arraylist = new SettingArrayList(sub_layout->widget(),"filecolor",{{"prefix","Mime/Type",false},{"color","Tag Color",true}});
         page_layout->addWidget(arraylist);
         setting_array_items.append(arraylist);
 
-        create_header(page_layout,"Thumbnails",sub_header_size);
-        create_lineedit_settings_entry(page_layout,"Thumbnail storage directory",THUMBNAIL_DIR);
-        create_lineedit_settings_entry(page_layout,"Thumbnail size",THUMBNAIL_SIZE);
-        create_checkbox_settings_entry(page_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
-        create_checkbox_settings_entry(page_layout,"Use interal cbz/zip thumbnailer",USE_CBZ_THUMBNAILER);
-        create_lineedit_settings_entry(page_layout,"Number of pages to show in cbz/zip thumbnail",CBZ_THUMB_PAGE_COUNT);
-        create_checkbox_settings_entry(page_layout,"Use external thumbnailers from /usr/share/thumbnailers/",USE_EXTERNAL_THUMBNAILER);
+        sub_layout = create_header(page_layout,"Thumbnails",sub_header_size);
+        create_lineedit_settings_entry(sub_layout,"Thumbnail storage directory",THUMBNAIL_DIR);
+        create_lineedit_settings_entry(sub_layout,"Thumbnail size",THUMBNAIL_SIZE);
+        create_checkbox_settings_entry(sub_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
+        create_checkbox_settings_entry(sub_layout,"Use interal cbz/zip thumbnailer",USE_CBZ_THUMBNAILER);
+        create_lineedit_settings_entry(sub_layout,"Number of pages to show in cbz/zip thumbnail",CBZ_THUMB_PAGE_COUNT);
+        create_checkbox_settings_entry(sub_layout,"Use external thumbnailers from /usr/share/thumbnailers/",USE_EXTERNAL_THUMBNAILER);
 
         page_layout->insertStretch(-1);
     }
     page_layout = new_page("Key Binds");
     {
-        create_lineedit_settings_entry(page_layout,"New Search tab",KEY_NEW_SEARCH);
-        create_lineedit_settings_entry(page_layout,"New Import tab",KEY_NEW_IMPORT);
-        create_lineedit_settings_entry(page_layout,"Focus tag bar",KEY_FOCUS_TAG_BAR);
-        create_lineedit_settings_entry(page_layout,"Delete file",KEY_DELETE_FILE);
-        create_lineedit_settings_entry(page_layout,"Close Tab",KEY_CLOSE_TAB);
+        QBoxLayout *sub_layout = create_header(page_layout,"Tabs",sub_header_size);
+        create_lineedit_settings_entry(sub_layout,"New Search tab",KEY_NEW_SEARCH);
+        create_lineedit_settings_entry(sub_layout,"New Import tab",KEY_NEW_IMPORT);
+        create_lineedit_settings_entry(sub_layout,"Focus tag bar",KEY_FOCUS_TAG_BAR);
+        create_lineedit_settings_entry(sub_layout,"Delete file",KEY_DELETE_FILE);
+        create_lineedit_settings_entry(sub_layout,"Close Tab",KEY_CLOSE_TAB);
 
-        create_header(page_layout,"Search",sub_header_size);
-        create_lineedit_settings_entry(page_layout,"Invert file selection",KEY_INVERT_SELECTION);
-        create_lineedit_settings_entry(page_layout,"Focus search bar",KEY_FOCUS_SEARCH_BAR);
-        create_lineedit_settings_entry(page_layout,"Focus file grid",KEY_FOCUS_FILE_GRID);
-        create_lineedit_settings_entry(page_layout,"Refresh",KEY_REFRESH);
+        sub_layout = create_header(page_layout,"Search",sub_header_size);
+        create_lineedit_settings_entry(sub_layout,"Invert file selection",KEY_INVERT_SELECTION);
+        create_lineedit_settings_entry(sub_layout,"Focus search bar",KEY_FOCUS_SEARCH_BAR);
+        create_lineedit_settings_entry(sub_layout,"Focus file grid",KEY_FOCUS_FILE_GRID);
+        create_lineedit_settings_entry(sub_layout,"Refresh",KEY_REFRESH);
 
-        create_header(page_layout,"File Viewer",sub_header_size);
-        create_lineedit_settings_entry(page_layout,"Focus file viewer",KEY_FOCUS_FILE_VIEWER);
-        create_lineedit_settings_entry(page_layout,"Next file",KEY_NEXT_FILE);
-        create_lineedit_settings_entry(page_layout,"Previous file",KEY_PREV_FILE);
-        create_lineedit_settings_entry(page_layout,"Zoom in",KEY_ZOOM_IN);
-        create_lineedit_settings_entry(page_layout,"Zoom out",KEY_ZOOM_OUT);
-        create_lineedit_settings_entry(page_layout,"Next page",KEY_NEXT_PAGE);
-        create_lineedit_settings_entry(page_layout,"Previous page",KEY_PREV_PAGE);
-        create_lineedit_settings_entry(page_layout,"Toggle Mute",KEY_TOGGLE_MUTE);
-        create_lineedit_settings_entry(page_layout,"Lock Overlay",KEY_LOCK_MEDIA_VIEWER_OVERLAY);
+        sub_layout = create_header(page_layout,"File Viewer",sub_header_size);
+        create_lineedit_settings_entry(sub_layout,"Focus file viewer",KEY_FOCUS_FILE_VIEWER);
+        create_lineedit_settings_entry(sub_layout,"Next file",KEY_NEXT_FILE);
+        create_lineedit_settings_entry(sub_layout,"Previous file",KEY_PREV_FILE);
+        create_lineedit_settings_entry(sub_layout,"Zoom in",KEY_ZOOM_IN);
+        create_lineedit_settings_entry(sub_layout,"Zoom out",KEY_ZOOM_OUT);
+        create_lineedit_settings_entry(sub_layout,"Next page",KEY_NEXT_PAGE);
+        create_lineedit_settings_entry(sub_layout,"Previous page",KEY_PREV_PAGE);
+        create_lineedit_settings_entry(sub_layout,"Toggle Mute",KEY_TOGGLE_MUTE);
+        create_lineedit_settings_entry(sub_layout,"Lock Overlay",KEY_LOCK_MEDIA_VIEWER_OVERLAY);
 
         page_layout->insertStretch(-1);
     }
@@ -179,12 +180,14 @@ QAction *configtab::create_binding(Setting set,QString name,QWidget *widget)
     return action;
 }
 
-QVBoxLayout *configtab::new_page(QString title)
+QBoxLayout *configtab::new_page(QString title)
 {
     QPushButton *button = new QPushButton(title);
     QScrollArea *scroll_area = new QScrollArea();
     QVBoxLayout *layout = new QVBoxLayout();
     QWidget *widget = new QWidget();
+
+    QBoxLayout *sub_layout;
 
     button->setFlat(true);
     connect(button,&QPushButton::clicked,this,&configtab::set_page);
@@ -194,7 +197,7 @@ QVBoxLayout *configtab::new_page(QString title)
     widget->setLayout(layout);
 
 
-    create_header(layout,title,header_size);
+    sub_layout = create_header(layout,title,header_size);
 
     scroll_area->setFrameShadow(QFrame::Sunken);
     scroll_area->setFrameStyle(QFrame::StyledPanel);
@@ -203,7 +206,7 @@ QVBoxLayout *configtab::new_page(QString title)
 
     pages->addWidget(scroll_area);
 
-    return layout;
+    return sub_layout;
 }
 
 void configtab::set_page()
@@ -221,15 +224,21 @@ void configtab::set_page()
 }
 
 
-void configtab::create_header(QBoxLayout *layout,QString text, int size)
+QBoxLayout *configtab::create_header(QBoxLayout *layout,QString text, int size)
 {
     QLabel *header = new QLabel(text);
     QFont font = QFont();
+    QVBoxLayout *sub_layout = new QVBoxLayout();
+
     font.setPointSize(size);
     header->setFont(font);
     layout->insertSpacing(-1,8);
     layout->addWidget(header);
     layout->insertSpacing(-1,3);
+
+    sub_layout->setContentsMargins(left_margin,0,0,0);
+    layout->addLayout(sub_layout);
+    return sub_layout;
 
 }
 
