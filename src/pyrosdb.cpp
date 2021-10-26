@@ -314,11 +314,11 @@ PyrosTC* PyrosTC::get()
 void PyrosTC::push_request(Request req)
 {
     if (req.flags & OVERRIDE){
-        for(int i = 1; i < requests.length(); i++){
+        for(int i = 0; i < requests.length(); i++){
             Request *r = &requests[i];
             if (!r->discard  && r->sender == req.sender &&
                     r->flags == req.flags){
-                requests[i].discard = true;
+                r->discard = true;
                 break;
             }
         }
