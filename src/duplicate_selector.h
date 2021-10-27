@@ -30,10 +30,13 @@ private:
     Ui::duplicate_selector *ui;
     QVector<DUPLICATE_STATUS> file_statuses;
 
-    void check_file_status();
-    void apply();
+    bool check_file_status();
 
 private slots:
+    void apply();
+    void mark_duplicate();
+    void mark_not_duplicate();
+    void mark_superior();
     void file_hidden(int);
     void set_position(int);
     void entry_changed(int);

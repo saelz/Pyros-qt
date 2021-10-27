@@ -22,6 +22,26 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     ui->setupUi(this);
     set_title("Duplicate Selector");
 
+    QAction *apply_bind = new QAction("apply",this);
+    QAction *mark_duplicate_bind = new QAction("mark duplicate",this);
+    QAction *mark_not_duplicate_bind = new QAction("mark not duplicate",this);
+    QAction *mark_superior_bind = new QAction("mark superior",this);
+
+    apply_bind->setShortcut(QKeySequence("CTRL+Return"));
+    mark_duplicate_bind->setShortcut(QKeySequence("D"));
+    mark_not_duplicate_bind->setShortcut(QKeySequence("N"));
+    mark_superior_bind->setShortcut(QKeySequence("S"));
+
+    addAction(apply_bind);
+    addAction(mark_duplicate_bind);
+    addAction(mark_not_duplicate_bind);
+    addAction(mark_superior_bind);
+
+    connect(apply_bind,&QAction::triggered,this,&duplicate_selector::apply);
+    connect(mark_duplicate_bind,&QAction::triggered,this,&duplicate_selector::mark_duplicate);
+    connect(mark_not_duplicate_bind,&QAction::triggered,this,&duplicate_selector::mark_not_duplicate);
+    connect(mark_superior_bind,&QAction::triggered,this,&duplicate_selector::mark_superior);
+
     connect(this,&duplicate_selector::hide_files,ui->mediaviewer,&MediaViewer::hide_files);
     connect(ui->mediaviewer,&MediaViewer::position_changed,this,&duplicate_selector::set_position);
     connect(ui->mediaviewer,&MediaViewer::file_removed_at,this,&duplicate_selector::file_hidden);
@@ -62,6 +82,9 @@ void duplicate_selector::apply()
     QByteArray superior_file;
     QVector<QByteArray> duplicates;
     PyrosTC *ptc = PyrosTC::get();
+
+    if (!check_file_status())
+        return;
 
     for(int i = 0; i < file_statuses.length(); i++){
         const PyrosFile *file = ui->mediaviewer->file_at(i);
@@ -104,7 +127,7 @@ void duplicate_selector::entry_changed(int value)
     check_file_status();
 }
 
-void duplicate_selector::check_file_status()
+bool duplicate_selector::check_file_status()
 {
     bool superior_file_found = false;
     bool duplicate_file_found = false;
@@ -121,4 +144,27 @@ void duplicate_selector::check_file_status()
         emit hide_combo_box_entry(SUPERIOR,false);
 
     emit set_apply_button_enabled(duplicate_file_found && superior_file_found);
+
+    return duplicate_file_found && superior_file_found;
+}
+
+void duplicate_selector::mark_duplicate()
+{
+    emit set_dupe_combo_box_status(DUPLICATE);
+}
+
+void duplicate_selector::mark_not_duplicate()
+{
+    emit set_dupe_combo_box_status(NOT_DUPLICATE);
+}
+
+void duplicate_selector::mark_superior()
+{
+    bool superior_file_found = false;
+    foreach(DUPLICATE_STATUS status,file_statuses)
+        if (status == SUPERIOR)
+            superior_file_found = true;
+
+    if (!superior_file_found)
+        emit set_dupe_combo_box_status(SUPERIOR);
 }
