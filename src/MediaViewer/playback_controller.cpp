@@ -10,8 +10,10 @@ QString Playback_Controller::milliToStr(int milli)
     duration = duration.addMSecs(milli);
 
     if (show_milliseconds)
-        return QString::asprintf("%02d:%02d.%03d",duration.minute(),duration.second(),duration.msec());
+        return duration.toString("mm:ss.zzz");
+    else if (show_hours)
+        return duration.toString("hh:mm:ss");
     else
-        return QString::asprintf("%02d:%02d",duration.minute(),duration.second());
+        return duration.toString("mm:ss");
 
 }

@@ -12,6 +12,7 @@ protected:
 
 public:
     bool show_milliseconds = false;
+    bool show_hours = false;
 
     Playback_Controller(QObject *parent);
     virtual QString duration() = 0;
