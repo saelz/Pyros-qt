@@ -213,6 +213,8 @@ void MediaViewer::hide_files(QVector<QByteArray> hashes)
             if (!hashes.at(j).compare(file->hash)){
                 files.removeAt(i);
                 file_position = -1;
+                if (i < pos)
+                    pos--;
                 emit file_removed_at(i);
                 Pyros_Close_File(file);
                 hashes.removeAt(j);
