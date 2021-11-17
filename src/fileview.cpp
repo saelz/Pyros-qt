@@ -2,6 +2,7 @@
 #include "pyrosqt.h"
 #include "pyrosdb.h"
 #include "configtab.h"
+#include "thumbnailer.h"
 
 #include <QWindow>
 #include <QStatusBar>
@@ -365,7 +366,7 @@ void FileView::regenerate_thumbnail()
     foreach(QModelIndex index,indexes){
         PyrosFile *pFile = file(index);
         if (pFile != nullptr)
-            FileModel::delete_thumbnail(file_model->file(index)->hash);
+            Thumbnailer::delete_thumbnail(file_model->file(index)->hash);
     }
     file_model->load_thumbnails(indexes);
 }

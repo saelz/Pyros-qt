@@ -6,18 +6,11 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include <pyros.h>
+#include "thumbnailer.h"
 
 class FileModel : public QAbstractTableModel
 {
     Q_OBJECT
-    struct thumbnail_item{
-        int last_known_index;
-        QVariant thumbnail;
-        QByteArray path;
-        QByteArray hash;
-        QByteArray mime;
-    };
-
 
 public:
     FileModel(QObject *parent = nullptr);
@@ -27,20 +20,6 @@ public:
         PyrosFile* pFile;
         QVariant thumbnail;
     };
-
-    struct external_thumbnailer{
-        QString cmd;
-        QList<QByteArray> support_mimes;
-    };
-
-    static QVector <external_thumbnailer> loaded_thumbnailers;
-    static QVariant internal_image_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
-    static QVariant internal_cbz_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
-    static QVariant external_thumbnailer(thumbnail_item item,QByteArray &thumbpath);
-
-    static void delete_thumbnail(QByteArray hash);
-
-    static FileModel::thumbnail_item generateThumbnail (thumbnail_item item);
 
     QVector<file_item> files() const;
 
@@ -63,7 +42,6 @@ public:
     int indexToNum(const QModelIndex &index) const;
     QModelIndex numToIndex(const int num) const;
 
-    void startThumbnailer(QVector<QModelIndex> *visible_files);
     void load_thumbnails(QModelIndex topLeft,int rows);
     void load_thumbnails(QModelIndexList indexes);
 
@@ -81,15 +59,14 @@ private:
 
     QVector<file_item> m_files;
 
-    void append_thumbnail_items(QVector<thumbnail_item> &items,int start_row,int end_row,int column_count);
+    void append_thumbnail_items(QVector<Thumbnailer::thumbnail_item> &items,int start_row,int end_row,int column_count);
 
-    QFutureWatcher<thumbnail_item> *thumbnailer;
-    void load_thumbnailers();
+    Thumbnailer *thumbnailer;
     void reset_thumbnailer();
 
 
 private slots:
-    void displayThumbnail(int num);
+    void displayThumbnail(Thumbnailer::thumbnail_item item);
 
 };
 

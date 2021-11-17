@@ -1,7 +1,8 @@
 #include "pyrosdb.h"
-#include "filemodel.h"
+#include "thumbnailer.h"
 
 #include <QSettings>
+#include <QDateTime>
 
 PyrosTC *PyrosTC::instance = 0;
 
@@ -125,7 +126,7 @@ void PyrosWorker::get_tags_from_hash(PyrosDB *db, QByteArray hash)
 void PyrosWorker::delete_file(PyrosDB *db, PyrosFile*pFile)
 {
     Pyros_Remove_File(db,pFile);
-    FileModel::delete_thumbnail(pFile->hash);
+    Thumbnailer::delete_thumbnail(pFile->hash);
     Pyros_Close_File(pFile);
     Pyros_Commit(db);
     emit request_finished();
@@ -135,7 +136,7 @@ void PyrosWorker::delete_files(PyrosDB *db, QVector<PyrosFile*>files)
 {
     foreach(PyrosFile*pFile,files){
         Pyros_Remove_File(db,pFile);
-        FileModel::delete_thumbnail(pFile->hash);
+        Thumbnailer::delete_thumbnail(pFile->hash);
         Pyros_Close_File(pFile);
     }
     Pyros_Commit(db);
@@ -186,7 +187,7 @@ void PyrosWorker::get_all_tags(PyrosDB *db)
 void PyrosWorker::merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByteArray> duplicates)
 {
     foreach(QByteArray duplicate,duplicates){
-        FileModel::delete_thumbnail(duplicate);
+        Thumbnailer::delete_thumbnail(duplicate);
         Pyros_Merge_Hashes(db,superior_file,duplicate,true);
     }
     emit request_finished();

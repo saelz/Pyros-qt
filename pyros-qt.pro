@@ -51,6 +51,7 @@ SOURCES += \
     src/taglineedit.cpp \
     src/tagtreemodel.cpp \
     src/tagview.cpp \
+    src/thumbnailer.cpp \
     src/zip_reader.cpp
 
 HEADERS += \
@@ -88,6 +89,7 @@ HEADERS += \
     src/taglineedit.h \
     src/tagtreemodel.h \
     src/tagview.h \
+    src/thumbnailer.h \
     src/zip_reader.h
 
 LIBS += -lpyros
