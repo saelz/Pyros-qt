@@ -8,7 +8,7 @@
 class Playback_Controller: public QObject{
     Q_OBJECT
 protected:
-    QString milliToStr(int milli);
+    QString milliToStr(unsigned long milli);
 
 public:
     bool show_milliseconds = false;

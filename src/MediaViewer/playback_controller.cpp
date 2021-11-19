@@ -1,19 +1,20 @@
-#include <QTime>
+#include <QString>
 
 #include "playback_controller.h"
 
 Playback_Controller::Playback_Controller(QObject *parent) : QObject(parent){};
 
-QString Playback_Controller::milliToStr(int milli)
+QString Playback_Controller::milliToStr(unsigned long milli)
 {
-    QTime duration(0,0,0);
-    duration = duration.addMSecs(milli);
+    unsigned long sec = milli/1000%60;
+    unsigned long min = milli/(1000*60)%60;
+    unsigned long hour =milli/(1000*60*60);
 
     if (show_milliseconds)
-        return duration.toString("mm:ss.zzz");
+        return QString::asprintf("%02lu:%02lu.%03lu",min,sec,milli);
     else if (show_hours)
-        return duration.toString("hh:mm:ss");
+        return QString::asprintf("%lu:%02lu:%02lu",hour,min,sec);
     else
-        return duration.toString("mm:ss");
+        return QString::asprintf("%02lu:%02lu",min,sec);
 
 }
