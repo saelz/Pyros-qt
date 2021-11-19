@@ -16,7 +16,16 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("PyrosQT");
     QCoreApplication::setApplicationName("Pyros");
     for (int i = 1; i < argc;i++){
-        if (!strcmp(argv[i],"--thumbnail")){
+        if (!strcmp(argv[i],"--help") ||!strcmp(argv[i],"-h")){
+            // :^)
+            qInfo("Usage:\t%s [OPTION]\n"
+                  "\nOPTIONS:\n"
+                  " --thumbnail <INTPUT_FILE> <OUTPUT_PATH>\tGenerate a thumbnail of file to output location\n"
+                  " --search <TAG>...\t\t\t\tOpen with intal search set to specified tags\n"
+                  " --help \t\t\t\t\tShow this message\n",
+                  argv[0]);
+            return 0;
+        } else if (!strcmp(argv[i],"--thumbnail")){
             QVector<QByteArray> arguments;
             for (int j = i+1; j < argc;j++)
                 arguments.append(argv[j]);
