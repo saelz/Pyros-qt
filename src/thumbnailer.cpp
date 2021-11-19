@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <QVector>
 
+#include <pyros.h>
+
 #include "thumbnailer.h"
 #include "configtab.h"
 #include "zip_reader.h"
@@ -12,6 +14,32 @@ using ct = configtab;
 QVector<struct Thumbnailer::external_thumbnailer> Thumbnailer::loaded_thumbnailers = QVector<struct Thumbnailer::external_thumbnailer>();
 
 constexpr char Thumbnailer::thumbnail_extention[7];
+Thumbnailer::thumbnail_item::thumbnail_item(){}
+Thumbnailer::thumbnail_item::thumbnail_item(QByteArray path,QByteArray output_path,QByteArray mime) :
+    path(path),output_path(output_path),mime(mime)
+{
+    thumbnail = QPixmap();
+}
+
+Thumbnailer::thumbnail_item::thumbnail_item(PyrosFile *file, int id) :id(id)
+{
+    thumbnail = QPixmap();
+    path = file->path;
+    hash = file->hash;
+    mime = file->mime;
+    output_path = ct::setting_value(ct::THUMBNAIL_DIR).toByteArray();
+
+    if (output_path.startsWith('~'))
+        output_path = QDir::homePath().toUtf8()+output_path.mid(1);
+
+    output_path += '/'+ct::setting_value(ct::THUMBNAIL_SIZE).toByteArray();
+
+    QDir dir(output_path);
+    if (!dir.exists())
+        dir.mkpath(".");
+
+    output_path += hash+Thumbnailer::thumbnail_extention;
+}
 
 Thumbnailer::Thumbnailer(QObject *parent) : QObject(parent)
 {
@@ -38,67 +66,52 @@ void Thumbnailer::start_thumbnailing(QVector<thumbnail_item> items)
 Thumbnailer::thumbnail_item Thumbnailer::generate_thumbnail(thumbnail_item item)
 {
     QPixmap thumbnail;
-    QByteArray thumb_path = ct::setting_value(ct::THUMBNAIL_DIR).toByteArray();
 
-    if (thumb_path.startsWith('~'))
-        thumb_path = QDir::homePath().toUtf8()+thumb_path.mid(1);
-
-    thumb_path += '/'+ct::setting_value(ct::THUMBNAIL_SIZE).toByteArray();
-
-    QDir dir(thumb_path);
-    if (!dir.exists())
-        dir.mkpath(".");
-
-    thumb_path += item.hash+thumbnail_extention;
-
-    if (thumbnail.load(thumb_path)) {//thumbnail already exists
+    if (thumbnail.load(item.output_path)) {//thumbnail already exists
         item.thumbnail = thumbnail;
     } else {
         item.thumbnail = QPixmap();
         if (ct::setting_value(ct::USE_INTERNAL_IMAGE_THUMBNAILER).toBool() &&
                 item.mime.startsWith("image/")){
-            item.thumbnail = Thumbnailer::image_thumbnailer(item);
+            Thumbnailer::image_thumbnailer(item);
 
         } else if (ct::setting_value(ct::USE_CBZ_THUMBNAILER).toBool() &&
                (!item.mime.compare("application/vnd.comicbook+zip") ||
             !item.mime.compare("application/zip"))){
-            item.thumbnail = Thumbnailer::cbz_thumbnailer(item);
+            Thumbnailer::cbz_thumbnailer(item);
         }
 
         if (item.thumbnail.isNull()){
             if (ct::setting_value(ct::USE_EXTERNAL_THUMBNAILER).toBool())
-                item.thumbnail = Thumbnailer::external_thumbnailer(item,thumb_path);
+                Thumbnailer::external_thumbnailer(item);
             if (item.thumbnail.isNull())
                 item.thumbnail = QPixmap(":/data/icons/nothumb.png");
         }  else{
-            save_thumbnail(item.thumbnail,thumb_path);
+            save_thumbnail(item);
         }
     }
 
     return item;
 }
 
-QPixmap Thumbnailer::image_thumbnailer(thumbnail_item item){
+bool Thumbnailer::image_thumbnailer(thumbnail_item &item){
     QPixmap original_image;
     if (original_image.load(item.path)){
-        QPixmap thumbnail;
         if (original_image.height() > original_image.width())
-            thumbnail = original_image.scaledToHeight(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
+            item.thumbnail = original_image.scaledToHeight(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
         else
-            thumbnail = original_image.scaledToWidth(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
-
-        return thumbnail;
+            item.thumbnail = original_image.scaledToWidth(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
+        return true;
     }
-    return QPixmap();
+    return false;
 }
 
-QPixmap Thumbnailer::cbz_thumbnailer(thumbnail_item item)
+bool Thumbnailer::cbz_thumbnailer(thumbnail_item &item)
 {
-    QPixmap thumbnail;
     zip_reader reader;
     reader.read_file(item.path);
     if (!reader.isValid)
-        return QPixmap();
+        return false;;
 
     QVector<QPixmap> pages;
     int page_count = (reader.file_count() < ct::setting_value(ct::CBZ_THUMB_PAGE_COUNT).toInt()) ? reader.file_count() : ct::setting_value(ct::CBZ_THUMB_PAGE_COUNT).toInt();
@@ -143,13 +156,14 @@ QPixmap Thumbnailer::cbz_thumbnailer(thumbnail_item item)
         p.drawRect(hspacing*i,(pages.length()-(i+1))*vspacing,img->width(),img->height());
     }
 
-    thumbnail.convertFromImage(surface);
-    return thumbnail;
+    if (item.thumbnail.convertFromImage(surface))
+        return true;
+    return false;
 }
 
-void Thumbnailer::save_thumbnail(QPixmap thumbnail,QByteArray &thumbpath)
+void Thumbnailer::save_thumbnail(thumbnail_item &item)
 {
-    thumbnail.save(thumbpath,"PNG");
+    item.thumbnail.save(item.output_path,"PNG");
 }
 
 void Thumbnailer::load_external_thumbnailers()
@@ -191,7 +205,7 @@ void Thumbnailer::load_external_thumbnailers()
 
 }
 
-QPixmap Thumbnailer::external_thumbnailer(thumbnail_item item,QByteArray& thumbpath)
+bool Thumbnailer::external_thumbnailer(thumbnail_item &item)
 {
     foreach(struct external_thumbnailer nailer,Thumbnailer::loaded_thumbnailers){
         foreach(QByteArray mime,nailer.support_mimes){
@@ -199,7 +213,7 @@ QPixmap Thumbnailer::external_thumbnailer(thumbnail_item item,QByteArray& thumbp
                 QString cmd  = nailer.cmd;
                 cmd.replace("%i",item.path);
                 cmd.replace("%u",item.path);
-                cmd.replace("%o",thumbpath);
+                cmd.replace("%o",item.output_path);
                 cmd.replace("%s",ct::setting_value(ct::THUMBNAIL_SIZE).toString());
 
                 QStringList cmd_list = cmd.split(' ');
@@ -209,13 +223,12 @@ QPixmap Thumbnailer::external_thumbnailer(thumbnail_item item,QByteArray& thumbp
                     cmd_list.pop_back();
 
                 QProcess::execute(cmd,cmd_list);
-                QPixmap thumbnail;
-                if (thumbnail.load(thumbpath))
-                    return QPixmap(thumbnail);
+                if (item.thumbnail.load(item.output_path))
+                    return true;
             }
         }
     }
-    return QPixmap();
+    return false;
 }
 
 

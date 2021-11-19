@@ -121,9 +121,7 @@ void FileModel::load_thumbnails(QModelIndexList indexes)
 
         if (pFile != nullptr){
             m_files[indexToNum(index)].thumbnail = QVariant();
-            items.append({indexToNum(index),
-                  QPixmap(),
-                  pFile->path,pFile->hash,pFile->mime});
+            items.append(Thumbnailer::thumbnail_item(pFile,indexToNum(index)));
         }
     }
 
@@ -139,7 +137,7 @@ void FileModel::append_thumbnail_items(QVector<Thumbnailer::thumbnail_item> &ite
             if (pFile == nullptr ||
                     m_files[indexToNum(current)].thumbnail != QVariant())
                 continue;
-            items.append({indexToNum(current),QPixmap(),pFile->path,pFile->hash,pFile->mime});
+            items.append(Thumbnailer::thumbnail_item(pFile,indexToNum(current)));
         }
     }
 }
@@ -169,7 +167,7 @@ void FileModel::load_thumbnails(QModelIndex topLeft,int rows)
 void FileModel::displayThumbnail(Thumbnailer::thumbnail_item item)
 {
     int i;
-    for (i = item.last_known_index; i >= 0; i--){
+    for (i = item.id; i >= 0; i--){
         if (i >= m_files.length())
             continue;
         if (item.path == m_files[i].pFile->path){
