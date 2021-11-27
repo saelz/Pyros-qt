@@ -24,10 +24,10 @@ SOURCES += \
     src/MediaViewer/Overlay/overlay_text.cpp \
     src/MediaViewer/Overlay/overlay_volume_button.cpp \
     src/MediaViewer/Overlay/overlay_widget.cpp \
+    src/MediaViewer/animation_viewer.cpp \
     src/MediaViewer/cbz_viewer.cpp \
     src/MediaViewer/image_viewer.cpp \
     src/MediaViewer/mediaviewer.cpp \
-    src/MediaViewer/movie_viewer.cpp \
     src/MediaViewer/mpv_widget.cpp \
     src/MediaViewer/playback_controller.cpp \
     src/MediaViewer/slideshowconfdialog.cpp \
@@ -63,10 +63,10 @@ HEADERS += \
     src/MediaViewer/Overlay/overlay_text.h \
     src/MediaViewer/Overlay/overlay_volume_button.h \
     src/MediaViewer/Overlay/overlay_widget.h \
+    src/MediaViewer/animation_viewer.h \
     src/MediaViewer/cbz_viewer.h \
     src/MediaViewer/image_viewer.h \
     src/MediaViewer/mediaviewer.h \
-    src/MediaViewer/movie_viewer.h \
     src/MediaViewer/mpv_widget.h \
     src/MediaViewer/playback_controller.h \
     src/MediaViewer/slideshowconfdialog.h \

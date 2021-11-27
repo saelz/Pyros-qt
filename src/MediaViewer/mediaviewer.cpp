@@ -23,7 +23,7 @@
 
 #include "unsupported_viewer.h"
 #include "image_viewer.h"
-#include "movie_viewer.h"
+#include "animation_viewer.h"
 #include "text_viewer.h"
 #include "cbz_viewer.h"
 #include "video_viewer.h"
@@ -103,7 +103,7 @@ void MediaViewer::set_file()
 
     if (!strcmp(file->mime,"image/gif") &&
             !ct::setting_value(ct::GIFS_AS_VIDEO).toBool()){
-        viewer = new Movie_Viewer(label);
+        viewer = new Animation_Viewer(label);
 
     } else if (!qstrcmp(file->mime,"image/gif") ||
            !qstrncmp(file->mime,"audio/",6) ||
