@@ -85,6 +85,44 @@ MediaViewer::~MediaViewer()
         delete viewer;
 }
 
+bool MediaViewer::is_apng(char *path)
+{
+    QFile file(path);
+    char buf[4000];
+    qint64 bytes_read;
+    int check_pos = 0;
+    char check[] = "acTL";
+    int end_check_pos = 0;
+    char end_check[] = "IDAT";
+
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    while((bytes_read = file.read(buf,4000)) > 0){
+        for (qint64 i = 0; i <= bytes_read;i++ ) {
+            if (buf[i] == check[check_pos]){
+                check_pos++;
+            } else {
+                check_pos = 0;
+            }
+
+            if (buf[i] == end_check[end_check_pos])
+                end_check_pos++;
+            else
+                end_check_pos = 0;
+
+            if (check_pos == sizeof(check)/sizeof(*check)){
+                return true;
+            } else if (end_check_pos == sizeof(end_check)/sizeof(*end_check)){
+                return false;
+            }
+
+
+        }
+    }
+    return false;
+}
+
 void MediaViewer::set_file()
 {
     PyrosFile *file;
@@ -107,7 +145,8 @@ void MediaViewer::set_file()
 
     } else if (!qstrcmp(file->mime,"image/gif") ||
            !qstrncmp(file->mime,"audio/",6) ||
-           !qstrncmp(file->mime,"video/",6)){
+           !qstrncmp(file->mime,"video/",6) ||
+           (!qstrcmp(file->mime,"image/png") && is_apng(file->path))){
         used_layer = VIDEO_LAYER;
         viewer = new Video_Viewer(video_player);
 

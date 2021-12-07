@@ -40,6 +40,7 @@ class MediaViewer : public QWidget
 public:
     explicit MediaViewer(QWidget *parent = nullptr);
     ~MediaViewer();
+    static bool is_apng(char*);
 
 
     Overlay *overlay;
