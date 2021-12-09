@@ -76,6 +76,7 @@ public:
         KEY_DELETE_FILE,
         KEY_CLOSE_TAB,
         KEY_REFRESH,
+        KEY_APPLY,
         THUMBNAIL_SIZE,
         CBZ_THUMB_PAGE_COUNT,
         KEY_FOCUS_FILE_VIEWER,

@@ -40,6 +40,8 @@ FileImport::FileImport(QTabWidget *parent) :
     ui->setupUi(this);
     set_title("Import");
 
+    QAction *apply_bind = ct::create_binding(ct::KEY_APPLY,"Insert",this);
+
     QAction *insert_bind = ct::create_binding(ct::KEY_FOCUS_TAG_BAR,"Insert",this);
     connect(insert_bind, &QAction::triggered,this, &FileImport::select_tag_bar);
 
@@ -49,6 +51,9 @@ FileImport::FileImport(QTabWidget *parent) :
     filecontextMenu = new QMenu(this);
     ui->selected_files->setContextMenuPolicy(Qt::CustomContextMenu);
     filecontextMenu->addAction("Remove File",this,&FileImport::remove_selected_files);
+
+
+    connect(apply_bind,&QAction::triggered,this,&FileImport::import_files);
 
     connect(ui->selected_files, &QListView::customContextMenuRequested, this, &FileImport::create_file_context_menu);
 

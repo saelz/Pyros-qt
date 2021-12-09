@@ -22,17 +22,15 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     ui->setupUi(this);
     set_title("Duplicate Selector");
 
-    QAction *apply_bind = new QAction("apply",this);
+    QAction *apply_bind = ct::create_binding(ct::KEY_APPLY,"Insert",this);
     QAction *mark_duplicate_bind = new QAction("mark duplicate",this);
     QAction *mark_not_duplicate_bind = new QAction("mark not duplicate",this);
     QAction *mark_superior_bind = new QAction("mark superior",this);
 
-    apply_bind->setShortcut(QKeySequence("CTRL+Return"));
     mark_duplicate_bind->setShortcut(QKeySequence("D"));
     mark_not_duplicate_bind->setShortcut(QKeySequence("N"));
     mark_superior_bind->setShortcut(QKeySequence("S"));
 
-    addAction(apply_bind);
     addAction(mark_duplicate_bind);
     addAction(mark_not_duplicate_bind);
     addAction(mark_superior_bind);

@@ -40,6 +40,7 @@ const configtab::setting configtab::settings[] = {
     {"keybind/delete-file","CTRL+del",nullptr},
     {"keybind/close-tab","CTRL+w",nullptr},
     {"keybind/refresh","CTRL+r",nullptr},
+    {"keybind/apply","CTRL+Return",nullptr},
     {"thumbnail_size","256",new QIntValidator(25, 999)},
     {"cbz_thumbnail_pages","3",new QIntValidator(1, 5)},
     {"keybind/focus-file-viewer","CTRL+f",nullptr},
@@ -77,11 +78,11 @@ configtab::configtab(QTabWidget *parent) :
 
     page_layout = new_page("General");
     {
-        create_combo_settings_entry(page_layout,"Theme",THEME,{"Default" ,"Dark Theme"});
         create_checkbox_settings_entry(page_layout,"Use tag history",TAG_HISTORY);
         create_checkbox_settings_entry(page_layout,"Use video player for gifs",GIFS_AS_VIDEO);
         create_lineedit_settings_entry(page_layout,"Timestamp format",TIMESTAMP);
         create_checkbox_settings_entry(page_layout,"Show Remaing time for videos instead of duration",SHOW_REMAINING_TIME);
+        create_combo_settings_entry(page_layout,"Theme",THEME,{"Default" ,"Dark Theme"});
         page_layout->insertStretch(-1);
     }
 
@@ -114,11 +115,14 @@ configtab::configtab(QTabWidget *parent) :
     }
     page_layout = new_page("Key Binds");
     {
-        QBoxLayout *sub_layout = create_header(page_layout,"Tabs",sub_header_size);
-        create_lineedit_settings_entry(sub_layout,"New Search tab",KEY_NEW_SEARCH);
-        create_lineedit_settings_entry(sub_layout,"New Import tab",KEY_NEW_IMPORT);
+        QBoxLayout *sub_layout = create_header(page_layout,"General",sub_header_size);
         create_lineedit_settings_entry(sub_layout,"Focus tag bar",KEY_FOCUS_TAG_BAR);
         create_lineedit_settings_entry(sub_layout,"Delete file",KEY_DELETE_FILE);
+        create_lineedit_settings_entry(sub_layout,"Apply",KEY_APPLY);
+
+        sub_layout = create_header(page_layout,"Tabs",sub_header_size);
+        create_lineedit_settings_entry(sub_layout,"New Search tab",KEY_NEW_SEARCH);
+        create_lineedit_settings_entry(sub_layout,"New Import tab",KEY_NEW_IMPORT);
         create_lineedit_settings_entry(sub_layout,"Close Tab",KEY_CLOSE_TAB);
 
         sub_layout = create_header(page_layout,"Search",sub_header_size);
@@ -147,6 +151,9 @@ configtab::configtab(QTabWidget *parent) :
 
     setLayout(vbox);
 
+    QAction *apply_bind = create_binding(KEY_APPLY,"Insert",this);
+
+    connect(apply_bind,&QAction::triggered,this,&configtab::apply);
     connect(apply_button, &QPushButton::clicked,this,&configtab::apply);
 }
 
