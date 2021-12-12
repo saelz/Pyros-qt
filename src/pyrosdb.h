@@ -77,9 +77,9 @@ signals:
     void sig_get_tags_from_hash(PyrosDB* db,QByteArray hash);
     void sig_delete_file(PyrosDB* db,PyrosFile*file);
     void sig_delete_files(PyrosDB* db,QVector<PyrosFile*>files);
-    void sig_ext_func(PyrosDB *db,QVector<QByteArray>,QVector<QByteArray>,PyrosTC::PyrosExtFunc*);
+    void sig_tag_relation_func(PyrosDB *db,QVector<QByteArray>,QVector<QByteArray>,PyrosTC::PyrosExtFunc*);
     void sig_close(PyrosDB *db);
-    void sig_remove_ext(PyrosDB*,QVector<QByteArray>);
+    void sig_remove_relationship(PyrosDB*,QVector<QByteArray>);
     void sig_get_all_tags(PyrosDB *);
     void sig_merge_files(PyrosDB *,QByteArray,QVector<QByteArray>);
 
@@ -108,7 +108,7 @@ public:
     void get_all_tags(QPointer<QObject>sender,all_tags_cb cb);
     void close_db();
 
-    void remove_ext(QVector<QByteArray> tags);
+    void remove_relationship(QVector<QByteArray> tags);
 
     void merge_files(QByteArray superior_file,QVector<QByteArray> duplicates);
 };
@@ -130,9 +130,9 @@ public slots:
     void get_tags_from_hash(PyrosDB* db,QByteArray hash);
     void delete_file(PyrosDB* db,PyrosFile*);
     void delete_files(PyrosDB* db,QVector<PyrosFile*>files);
-    void ext_func(PyrosDB *db,QVector<QByteArray>,QVector<QByteArray>,PyrosTC::PyrosExtFunc*);
+    void tag_relation_func(PyrosDB *db,QVector<QByteArray>,QVector<QByteArray>,PyrosTC::PyrosExtFunc*);
     void close_db(PyrosDB *db);
-    void remove_ext(PyrosDB *db,QVector<QByteArray>tags);
+    void remove_relationship(PyrosDB *db,QVector<QByteArray>tags);
     void get_all_tags(PyrosDB *db);
     void merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByteArray> duplicates);
 

@@ -63,13 +63,13 @@ TagView::TagView(QWidget *parent) :
     contextMenu = new QMenu(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    contextMenu->addAction("Copy Tag",          this, &TagView::copy_tag);
-    contextMenu->addAction("Search in new tab", this, &TagView::create_search_with_selected_tags);
-    contextMenu->addAction("Add Parent",        this, &TagView::add_parent);
-    contextMenu->addAction("Add Alias",         this, &TagView::add_alias);
-    contextMenu->addAction("Add Child",         this, &TagView::add_child);
-    contextMenu->addAction("Remove Tag",        this, &TagView::remove_tag);
-    contextMenu->addAction("Remove Ext",        this, &TagView::remove_ext);
+    contextMenu->addAction("Copy Tag",                this, &TagView::copy_tag);
+    contextMenu->addAction("Search in new tab",       this, &TagView::create_search_with_selected_tags);
+    contextMenu->addAction("Add Parent",              this, &TagView::add_parent);
+    contextMenu->addAction("Add Alias",               this, &TagView::add_alias);
+    contextMenu->addAction("Add Child",               this, &TagView::add_child);
+    contextMenu->addAction("Remove Tag",              this, &TagView::remove_tag);
+    contextMenu->addAction("Remove Tag Relationship", this, &TagView::remove_relationship);
 
     QAction *copy_bind = new QAction("Copy Tag",this);
     copy_bind->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -112,7 +112,7 @@ void TagView::add_tag_as_child(TagItem::TAG_TYPE type,QString tag){
     }
 }
 
-void TagView::remove_ext(){
+void TagView::remove_relationship(){
     QVector<QByteArray> tags;
 
     QItemSelectionModel *select = selectionModel();
@@ -132,7 +132,7 @@ void TagView::remove_ext(){
         }
     }
     PyrosTC *ptc = PyrosTC::get();
-    ptc->remove_ext(tags);
+    ptc->remove_relationship(tags);
 }
 
 void TagView::add_alias(){

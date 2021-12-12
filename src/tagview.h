@@ -43,7 +43,7 @@ public slots:
 
 private slots:
 
-    void remove_ext();
+    void remove_relationship();
 
     void add_alias();
     void add_parent();

@@ -143,7 +143,7 @@ void PyrosWorker::delete_files(PyrosDB *db, QVector<PyrosFile*>files)
     emit request_finished();
 }
 
-void PyrosWorker::ext_func(PyrosDB* db,QVector<QByteArray> tags, QVector<QByteArray> sub_tags,PyrosTC::PyrosExtFunc ExtFunc)
+void PyrosWorker::tag_relation_func(PyrosDB* db,QVector<QByteArray> tags, QVector<QByteArray> sub_tags,PyrosTC::PyrosExtFunc ExtFunc)
 {
     foreach(QByteArray tag,tags){
         foreach(QByteArray sub_tag,sub_tags){
@@ -161,7 +161,7 @@ void PyrosWorker::close_db(PyrosDB *db)
     emit request_finished();
 }
 
-void PyrosWorker::remove_ext(PyrosDB*db,QVector<QByteArray> tags)
+void PyrosWorker::remove_relationship(PyrosDB*db,QVector<QByteArray> tags)
 {
     QVector<const char*> ctags  = QVBA_to_QVc(tags);
     for(int i = 1; i < ctags.count();i+=2)
@@ -248,14 +248,14 @@ PyrosTC::PyrosTC()
     connect(this,&PyrosTC::sig_delete_files,
         worker,&PyrosWorker::delete_files);
 
-    connect(this,&PyrosTC::sig_ext_func,
-        worker,&PyrosWorker::ext_func);
+    connect(this,&PyrosTC::sig_tag_relation_func,
+        worker,&PyrosWorker::tag_relation_func);
 
     connect(this,&PyrosTC::sig_close,
         worker,&PyrosWorker::close_db);
 
-    connect(this,&PyrosTC::sig_remove_ext,
-        worker,&PyrosWorker::remove_ext);
+    connect(this,&PyrosTC::sig_remove_relationship,
+        worker,&PyrosWorker::remove_relationship);
 
 
     connect(this,&PyrosTC::sig_merge_files,
@@ -479,7 +479,7 @@ void PyrosTC::add_alias(QVector<QByteArray> tag, QVector<QByteArray> alises)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_ext_func(db,tag,alises,Pyros_Add_Alias);
+        emit sig_tag_relation_func(db,tag,alises,Pyros_Add_Alias);
     }));
 }
 
@@ -487,7 +487,7 @@ void PyrosTC::add_parent(QVector<QByteArray> tag, QVector<QByteArray> parents)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_ext_func(db,tag,parents,Pyros_Add_Parent);
+        emit sig_tag_relation_func(db,tag,parents,Pyros_Add_Parent);
     }));
 }
 
@@ -495,7 +495,7 @@ void PyrosTC::add_child(QVector<QByteArray> tag, QVector<QByteArray> children)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_ext_func(db,tag,children,Pyros_Add_Child);
+        emit sig_tag_relation_func(db,tag,children,Pyros_Add_Child);
     }));
 }
 
@@ -508,11 +508,11 @@ void PyrosTC::close_db()
     }));
 }
 
-void PyrosTC::remove_ext(QVector<QByteArray> tags)
+void PyrosTC::remove_relationship(QVector<QByteArray> tags)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_remove_ext(db,tags);
+        emit sig_remove_relationship(db,tags);
     }));
 }
 
