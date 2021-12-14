@@ -15,8 +15,8 @@
 
 using ct = configtab;
 
-TagCompleter::TagCompleter(const QStringList *tags,QVector<QString> *tag_history, QObject * parent) :
-    QCompleter(parent), m_list(tags), m_model(),tag_history(tag_history)
+TagCompleter::TagCompleter(const QStringList *tags,QVector<QString> *tag_history,int relation_type, QObject * parent) :
+    QCompleter(parent), m_list(tags), m_model(),tag_history(tag_history),relation_type(relation_type)
 {
     QListView *view = (QListView *)popup();
     view->setUniformItemSizes(true);
@@ -35,6 +35,8 @@ void TagCompleter::update(QString text)   {
         return;
     }
 
+
+
     if (text.at(0) == '-'){
         if (text.length() == 1){
             popup()->hide();
@@ -44,6 +46,14 @@ void TagCompleter::update(QString text)   {
         comparison_text = text.mid(1);
     } else {
         comparison_text = text;
+    }
+
+    if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_SEARCH_RELATIONSHIP && comparison_text.startsWith("explicit:")){
+        comparison_text = comparison_text.mid(comparison_text.indexOf(':')+1);
+        if (comparison_text.isEmpty()){
+            popup()->hide();
+            return;
+        }
     }
 
     if (caseSensitivity() == Qt::CaseInsensitive)
@@ -72,7 +82,7 @@ TagLineEdit::TagLineEdit(QWidget *parent) :
     PyrosTC *ptc = PyrosTC::get();
 
     PyrosTC::all_tags_cb cb= [&](QStringList *tags){
-        completer = new TagCompleter(tags,&tag_history, this);
+        completer = new TagCompleter(tags,&tag_history,relation_type, this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
         completer->setWidget(this);
         tag_list = tags;

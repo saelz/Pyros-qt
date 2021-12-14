@@ -13,7 +13,7 @@ class TagCompleter : public QCompleter
     Q_OBJECT
 
 public:
-    TagCompleter(const QStringList *tags,QVector<QString> *tag_history, QObject * parent);
+    TagCompleter(const QStringList *tags,QVector<QString> *tag_history,int relation_type, QObject * parent);
     void update(QString text);
 
     inline void toggle_hist_mode(){ hist_mode = !hist_mode;}
@@ -25,6 +25,7 @@ private:
     QStringListModel m_model;
     QVector<QString> *tag_history;
     bool hist_mode = false;
+    int relation_type;
 };
 
 class TagLineEdit : public QLineEdit
