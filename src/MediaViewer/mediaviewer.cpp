@@ -68,8 +68,10 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
     setMouseTracking(true);
 
     QAction *toggle_mute = ct::create_binding(ct::KEY_TOGGLE_MUTE,"Toggle mute",this);
+    //QAction *toggle_fullscreen = ct::create_binding(ct::KEY_FULLSCREEN,"Toggle Fullscreen",this);
 
     connect(toggle_mute,&QAction::triggered,overlay,&Overlay::toggle_playback_mute_state);
+    //connect(toggle_fullscreen,&QAction::triggered,this,&MediaViewer::toggle_fullscreen);
 
     connect(this,&MediaViewer::file_changed,overlay,&Overlay::set_file);
 
@@ -537,4 +539,24 @@ void MediaViewer::bind_keys(QWidget *widget,bool are_files_deletable)
         connect(delete_bind, &QAction::triggered,this, &MediaViewer::delete_file);
         files_deletable = true;
     }
+}
+
+void MediaViewer::toggle_fullscreen()
+{
+    static QLayout *l = layout();
+    static QObject *p = parent();
+    if (stacked_widget->isFullScreen()){
+        if (l != nullptr){
+            setParent((QWidget*)p);
+            l->addWidget(this);
+            showNormal();
+            show();
+        }
+    }else{
+        setLayout(nullptr);
+        setParent(nullptr);
+        showFullScreen();
+        show();
+    }
+
 }

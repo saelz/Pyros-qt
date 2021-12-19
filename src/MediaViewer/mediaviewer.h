@@ -82,6 +82,8 @@ public slots:
 
     void set_focus();
 
+    void toggle_fullscreen();
+
     inline const PyrosFile *file_at(int i){return files.at(i);};
 
 private:

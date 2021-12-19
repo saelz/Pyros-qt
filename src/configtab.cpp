@@ -15,48 +15,203 @@
 #include <QVBoxLayout>
 #include <QAction>
 
-const configtab::setting configtab::settings[] = {
-    {"use_tag_history",true,nullptr},
-    {"treat_gifs_as_video",false,nullptr},
-    {"timestamp_format","MM/dd/yy",nullptr},
-    {"theme","Default",nullptr},
-    {"use_interal_image-thumbnailer",true,nullptr},
-    {"use_interal_cbz-thumbnailer",true,nullptr},
-    {"use_exernal_thumbnailer",true,nullptr},
-    {"keybind/new-search-tab","CTRL+t",nullptr},
-    {"keybind/new-import-tab","CTRL+i",nullptr},
-    {"keybind/focus-tag-bar","i",nullptr},
-    {"keybind/invert-selection","SHIFT+i",nullptr},
-    {"keybind/focus-search-bar","a",nullptr},
-    {"keybind/focus-file-grid","CTRL+f",nullptr},
-    {"keybind/lock-media-overlay","CTRL+l",nullptr},
-    {"keybind/toggle-mute","m",nullptr},
-    {"keybind/next-file","CTRL+n",nullptr},
-    {"keybind/prev-file","CTRL+p",nullptr},
-    {"keybind/zoom-in","CTRL++",nullptr},
-    {"keybind/zoom-out","CTRL+-",nullptr},
-    {"keybind/next-page",">",nullptr},
-    {"keybind/prev-page","<",nullptr},
-    {"keybind/delete-file","CTRL+del",nullptr},
-    {"keybind/close-tab","CTRL+w",nullptr},
-    {"keybind/refresh","CTRL+r",nullptr},
-    {"keybind/apply","CTRL+Return",nullptr},
-    {"thumbnail_size","256",new QIntValidator(25, 999)},
-    {"cbz_thumbnail_pages","3",new QIntValidator(1, 5)},
-    {"keybind/focus-file-viewer","CTRL+f",nullptr},
-    {"thumbnail_dir","~/.cache/PyrosQT",nullptr},
-    {"show_video_remaining_time",false,nullptr},
+const configtab::Setting_Item configtab::settings[] = {
+    {TAG_HISTORY,"General","Use tag history",
+     "use_tag_history",true,BOOL,
+     nullptr},
+
+    {GIFS_AS_VIDEO,"General","Use video player for gifs",
+     "treat_gifs_as_video",false,BOOL,
+     nullptr},
+
+    {TIMESTAMP,"General","Timestamp format",
+     "timestamp_format","MM/dd/yy",STRING,
+     nullptr},
+
+    {SHOW_REMAINING_TIME,"General","Show remaining time for videos instead of duration",
+     "show_video_remaining_time",false,BOOL,
+     nullptr},
+
+    {THEME,"General","Theme",
+     "theme",QStringList(std::initializer_list<QString>({"Default","Dark Theme"})),COMBO,
+     nullptr},
+
+    {TAG_COLOR,"Tags.Tag Color","Tag",
+     "tagcolor",QVariant(),COLOR,
+     nullptr},
+
+    {FILE_COLOR,"Files.File Border","Mime/Type",
+     "filecolor",QVariant(),COLOR,
+     nullptr},
+
+    {THUMBNAIL_DIR,"Files.Thumbnails","Location used for thumbnail storage",
+     "thumbnail_dir","~/.cache/PyrosQT",STRING,
+     nullptr},
+
+    {THUMBNAIL_SIZE,"Files.Thumbnails","Thumbnails size",
+     "thumbnail_size","256",STRING,
+     new QIntValidator(25, 999)},
+
+    {USE_INTERNAL_IMAGE_THUMBNAILER,"Files.Thumbnails","Use internal image thumbnailer",
+     "use_interal_image-thumbnailer",true,BOOL,
+     nullptr},
+
+    {USE_CBZ_THUMBNAILER,"Files.Thumbnails","Use internal cbz/zip thumbnailer",
+     "use_interal_cbz-thumbnailer",true,BOOL,
+     nullptr},
+
+    {CBZ_THUMB_PAGE_COUNT,"Files.Thumbnails","Number of pages to show in cbz/zip thumbnail",
+     "cbz_thumbnail_pages","3",STRING,
+     new QIntValidator(1, 5)},
+
+    {USE_EXTERNAL_THUMBNAILER,"Files.Thumbnails","Use external thumbnailers from /usr/share/thumbnailers",
+     "use_exernal_thumbnailer",true,BOOL,
+     nullptr},
+
+    {KEY_FOCUS_TAG_BAR,"Key Binds.General","Focus tag bar",
+     "keybind/focus-tag-bar","i",STRING,
+     nullptr},
+
+    {KEY_DELETE_FILE,"Key Binds.General","Delete file",
+     "keybind/delete-file","CTRL+del",STRING,
+     nullptr},
+
+    {KEY_APPLY,"Key Binds.Tabs","Apply",
+     "keybind/apply","CTRL+Return",STRING,
+     nullptr},
+
+    {KEY_NEW_SEARCH,"Key Binds.Tabs","New Search tab",
+     "keybind/new-search-tab","CTRL+t",STRING,
+     nullptr},
+
+    {KEY_NEW_IMPORT,"Key Binds.Tabs","New Import tab",
+     "keybind/new-import-tab","CTRL+i",STRING,
+     nullptr},
+
+    {KEY_CLOSE_TAB,"Key Binds.Tabs","Close tab",
+     "keybind/close-tab","CTRL+w",STRING,
+     nullptr},
+
+    {KEY_INVERT_SELECTION,"Key Binds.Search","Invert file selection",
+     "keybind/invert-selection","SHIFT+i",STRING,
+     nullptr},
+
+    {KEY_FOCUS_SEARCH_BAR,"Key Binds.Search","Focus search bar",
+     "keybind/focus-search-bar","a",STRING,
+     nullptr},
+
+    {KEY_FOCUS_FILE_GRID,"Key Binds.Search","Focus file grid",
+     "keybind/focus-file-grid","CTRL+f",STRING,
+     nullptr},
+
+    {KEY_REFRESH,"Key Binds.Search","refresh",
+     "keybind/refresh","CTRL+r",STRING,
+     nullptr},
+
+    {KEY_FOCUS_FILE_VIEWER,"Key Binds.File Viewer","Focus File Viewer",
+     "keybind/focus-file-viewer","CTRL+f",STRING,
+     nullptr},
+
+    {KEY_NEXT_FILE,"Key Binds.File Viewer","Next file",
+     "keybind/next-file","CTRL+n",STRING,
+     nullptr},
+
+    {KEY_PREV_FILE,"Key Binds.File Viewer","Previous file",
+     "keybind/prev-file","CTRL+p",STRING,
+     nullptr},
+
+    {KEY_ZOOM_IN,"Key Binds.File Viewer","Zoom in",
+     "keybind/zoom-in","CTRL++",STRING,
+     nullptr},
+
+    {KEY_ZOOM_OUT,"Key Binds.File Viewer","Zoom out",
+     "keybind/zoom-out","CTRL+-",STRING,
+     nullptr},
+
+    {KEY_NEXT_PAGE,"Key Binds.File Viewer","Next page",
+     "keybind/next-page",">",STRING,
+     nullptr},
+
+    {KEY_PREV_PAGE,"Key Binds.File Viewer","Previous page",
+     "keybind/prev-page","<",STRING,
+     nullptr},
+
+    {KEY_FULLSCREEN,"Key Binds.File Viewer","Toggle Fullscreen",
+     "keybind/fullscreen","CTRL+SHIFT+f",STRING,
+     nullptr},
+
+    {KEY_TOGGLE_MUTE,"Key Binds.File Viewer","Toggle Mute",
+     "keybind/toggle-mute","m",STRING,
+     nullptr},
+
+    {KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Key Binds.File Viewer","Lock Overlay to stop it from automatically hiding",
+     "keybind/lock-media-overlay","CTRL+l",STRING,
+     nullptr},
 };
 
 
 QVector<configtab::binding> configtab::active_bindings;
 
+configtab::Setting_Group::Setting_Group(QString name,Setting_Group *parent):name(name),parent(parent){}
+bool configtab::Setting_Group::get_subgroup(QString name,configtab::Setting_Group *&group)
+{
+    for (int i = 0; i < sub_groups.count(); i++) {
+        if (sub_groups.at(i).name == name){
+            group = &sub_groups[i];
+            return false;
+        }
+    }
+
+    sub_groups.append(Setting_Group(name,this));
+    group = &sub_groups.last();
+    return true;
+}
+
+void configtab::Setting_Group::apply()
+{
+    QSettings settings;
+    QVariant value;
+    foreach(Setting_Group_Item item,items){
+        switch (item.item->type){
+        case STRING:{
+            QLineEdit *lineedit = qobject_cast<QLineEdit *>(item.widget);
+            value = lineedit->text();
+            break;
+        }
+        case BOOL:{
+            continue;
+            QCheckBox *checkbox = qobject_cast<QCheckBox *>(item.widget);
+            value = checkbox->checkState();
+            break;
+        }
+        case COMBO:{
+            QComboBox *combobox = qobject_cast<QComboBox *>(item.widget);
+            value = combobox->currentText();
+            break;
+        }
+        case COLOR:
+            SettingArrayList *arraylist = qobject_cast<SettingArrayList *>(item.widget);
+            arraylist->apply();
+            break;
+        }
+
+        int pos = 0;
+        QString str = value.toString();
+        QValidator *validator = item.item->validator;
+
+        if (validator == nullptr || validator->validate(str,pos) == QValidator::Acceptable)
+            settings.setValue(item.item->key,value);
+        else
+            qDebug() << "Invalid value" << str.toUtf8() << "for setting" << item.item->key << '\n';
+    }
+
+    foreach(Setting_Group sub_group,sub_groups)
+        sub_group.apply();
+}
+
 configtab::configtab(QTabWidget *parent) :
     Tab(parent)
 {
-
-    QBoxLayout *page_layout;
-
     QVBoxLayout *vbox = new QVBoxLayout();
     QHBoxLayout *hbox = new QHBoxLayout();
     QHBoxLayout *button_layout = new QHBoxLayout();
@@ -75,79 +230,10 @@ configtab::configtab(QTabWidget *parent) :
     hbox->addLayout(button_column);
     hbox->addWidget(pages);
 
-
-    page_layout = new_page("General");
-    {
-        create_checkbox_settings_entry(page_layout,"Use tag history",TAG_HISTORY);
-        create_checkbox_settings_entry(page_layout,"Use video player for gifs",GIFS_AS_VIDEO);
-        create_lineedit_settings_entry(page_layout,"Timestamp format",TIMESTAMP);
-        create_checkbox_settings_entry(page_layout,"Show Remaing time for videos instead of duration",SHOW_REMAINING_TIME);
-        create_combo_settings_entry(page_layout,"Theme",THEME,{"Default" ,"Dark Theme"});
-        page_layout->insertStretch(-1);
-    }
-
-    page_layout = new_page("Tags");
-    {
-        QBoxLayout *sub_layout = create_header(page_layout,"Tag Colors",sub_header_size);
-        SettingArrayList *arraylist = new SettingArrayList(sub_layout->widget(),"tagcolor",{{"prefix","Tag",false},{"color","Color",true}});
-        page_layout->addWidget(arraylist);
-        setting_array_items.append(arraylist);
-
-        page_layout->insertStretch(-1);
-    }
-
-    page_layout = new_page("Files");
-    {
-        QBoxLayout *sub_layout = create_header(page_layout,"File Color",sub_header_size);
-        SettingArrayList *arraylist = new SettingArrayList(sub_layout->widget(),"filecolor",{{"prefix","Mime/Type",false},{"color","Tag Color",true}});
-        page_layout->addWidget(arraylist);
-        setting_array_items.append(arraylist);
-
-        sub_layout = create_header(page_layout,"Thumbnails",sub_header_size);
-        create_lineedit_settings_entry(sub_layout,"Thumbnail storage directory",THUMBNAIL_DIR);
-        create_lineedit_settings_entry(sub_layout,"Thumbnail size",THUMBNAIL_SIZE);
-        create_checkbox_settings_entry(sub_layout,"Use interal image thumbnailer",USE_INTERNAL_IMAGE_THUMBNAILER);
-        create_checkbox_settings_entry(sub_layout,"Use interal cbz/zip thumbnailer",USE_CBZ_THUMBNAILER);
-        create_lineedit_settings_entry(sub_layout,"Number of pages to show in cbz/zip thumbnail",CBZ_THUMB_PAGE_COUNT);
-        create_checkbox_settings_entry(sub_layout,"Use external thumbnailers from /usr/share/thumbnailers/",USE_EXTERNAL_THUMBNAILER);
-
-        page_layout->insertStretch(-1);
-    }
-    page_layout = new_page("Key Binds");
-    {
-        QBoxLayout *sub_layout = create_header(page_layout,"General",sub_header_size);
-        create_lineedit_settings_entry(sub_layout,"Focus tag bar",KEY_FOCUS_TAG_BAR);
-        create_lineedit_settings_entry(sub_layout,"Delete file",KEY_DELETE_FILE);
-        create_lineedit_settings_entry(sub_layout,"Apply",KEY_APPLY);
-
-        sub_layout = create_header(page_layout,"Tabs",sub_header_size);
-        create_lineedit_settings_entry(sub_layout,"New Search tab",KEY_NEW_SEARCH);
-        create_lineedit_settings_entry(sub_layout,"New Import tab",KEY_NEW_IMPORT);
-        create_lineedit_settings_entry(sub_layout,"Close Tab",KEY_CLOSE_TAB);
-
-        sub_layout = create_header(page_layout,"Search",sub_header_size);
-        create_lineedit_settings_entry(sub_layout,"Invert file selection",KEY_INVERT_SELECTION);
-        create_lineedit_settings_entry(sub_layout,"Focus search bar",KEY_FOCUS_SEARCH_BAR);
-        create_lineedit_settings_entry(sub_layout,"Focus file grid",KEY_FOCUS_FILE_GRID);
-        create_lineedit_settings_entry(sub_layout,"Refresh",KEY_REFRESH);
-
-        sub_layout = create_header(page_layout,"File Viewer",sub_header_size);
-        create_lineedit_settings_entry(sub_layout,"Focus file viewer",KEY_FOCUS_FILE_VIEWER);
-        create_lineedit_settings_entry(sub_layout,"Next file",KEY_NEXT_FILE);
-        create_lineedit_settings_entry(sub_layout,"Previous file",KEY_PREV_FILE);
-        create_lineedit_settings_entry(sub_layout,"Zoom in",KEY_ZOOM_IN);
-        create_lineedit_settings_entry(sub_layout,"Zoom out",KEY_ZOOM_OUT);
-        create_lineedit_settings_entry(sub_layout,"Next page",KEY_NEXT_PAGE);
-        create_lineedit_settings_entry(sub_layout,"Previous page",KEY_PREV_PAGE);
-        create_lineedit_settings_entry(sub_layout,"Toggle Mute",KEY_TOGGLE_MUTE);
-        create_lineedit_settings_entry(sub_layout,"Lock Overlay",KEY_LOCK_MEDIA_VIEWER_OVERLAY);
-
-        page_layout->insertStretch(-1);
-    }
-
+    load_setting_groups();
 
     button_column->insertStretch(-1);
-    config_buttons[0]->click();
+    setting_group_top.sub_groups.at(0).button->click();
 
     setLayout(vbox);
 
@@ -157,20 +243,27 @@ configtab::configtab(QTabWidget *parent) :
     connect(apply_button, &QPushButton::clicked,this,&configtab::apply);
 }
 
-configtab::~configtab()
-{
-}
+configtab::~configtab(){}
 
-QVariant configtab::setting_value(Setting setting)
+QVariant configtab::setting_value(Setting setting_id)
 {
     QSettings set;
-    QVariant value = set.value(settings[setting].name,settings[setting].default_val);
-    QString data = value.toString();
-    int pos = 0;
-    if (settings[setting].validator == nullptr || settings[setting].validator->validate(data,pos) == QValidator::Acceptable)
-        return value;
-    else
-        return settings[setting].default_val;
+    QVariant value;
+    QString data;
+    Setting_Item setting;
+    for (unsigned i= 0; i < sizeof(settings)/sizeof(*settings); i++) {
+        if (settings[i].id == setting_id){
+            value = set.value(settings[i].key,settings[i].default_val);
+            data = value.toString();
+            int pos = 0;
+            if (settings[i].validator == nullptr || settings[i].validator->validate(data,pos) == QValidator::Acceptable)
+                return value;
+            else
+                return settings[i].default_val;
+
+        }
+    }
+    return QVariant();
 }
 
 QString configtab::setting_name(Setting setting)
@@ -187,9 +280,9 @@ QAction *configtab::create_binding(Setting set,QString name,QWidget *widget)
     return action;
 }
 
-QBoxLayout *configtab::new_page(QString title)
+void configtab::new_page(Setting_Group *group)
 {
-    QPushButton *button = new QPushButton(title);
+    QPushButton *button = new QPushButton(group->name);
     QScrollArea *scroll_area = new QScrollArea();
     QVBoxLayout *layout = new QVBoxLayout();
     QWidget *widget = new QWidget();
@@ -199,12 +292,12 @@ QBoxLayout *configtab::new_page(QString title)
     button->setFlat(true);
     connect(button,&QPushButton::clicked,this,&configtab::set_page);
 
-    config_buttons.push_back(button);
+    group->button = button;
     button_column->addWidget(button);
     widget->setLayout(layout);
 
 
-    sub_layout = create_header(layout,title,header_size);
+    sub_layout = create_header(layout,group->name,header_size);
 
     scroll_area->setFrameShadow(QFrame::Sunken);
     scroll_area->setFrameStyle(QFrame::StyledPanel);
@@ -213,21 +306,22 @@ QBoxLayout *configtab::new_page(QString title)
 
     pages->addWidget(scroll_area);
 
-    return sub_layout;
+    group->layout = sub_layout;
 }
 
 void configtab::set_page()
 {
     QPushButton* button = qobject_cast<QPushButton*>(sender());
-
-    for (int i = 0; i < config_buttons.length(); i++) {
-        if (config_buttons[i] == button){
-            config_buttons[i]->setEnabled(false);
+    for (int i = 0; i < setting_group_top.sub_groups.length(); i++) {
+        Setting_Group group = setting_group_top.sub_groups.at(i);
+        if (group.button == button){
+            group.button->setEnabled(false);
             pages->setCurrentIndex(i);
         } else {
-            config_buttons[i]->setEnabled(true);
+            group.button->setEnabled(true);
         }
     }
+
 }
 
 
@@ -250,23 +344,23 @@ QBoxLayout *configtab::create_header(QBoxLayout *layout,QString text, int size)
 }
 
 
-void configtab::create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set)
+void configtab::create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
 {
-    QCheckBox *checkbox = new QCheckBox(display_text);
+    QCheckBox *checkbox = new QCheckBox(item.item->name);
     QFont font = QFont();
     font.setPointSize(font_size);
 
     checkbox->setFont(font);
-    checkbox->setChecked(setting_value(set).toBool());
+    checkbox->setChecked(setting_value(item.item->id).toBool());
 
-    settings_items.append({checkbox,BOOL,set});
     layout->addWidget(checkbox);
+    item.widget = checkbox;
 }
 
-void configtab::create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set)
+void configtab::create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
 {
     QHBoxLayout *container = new QHBoxLayout();
-    QLabel *label = new QLabel(display_text+":");
+    QLabel *label = new QLabel(item.item->name+":");
     QLineEdit *text_box = new QLineEdit();
     QFont font = QFont();
     font.setPointSize(font_size);
@@ -274,17 +368,17 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout,QString displa
     container->addWidget(label);
     container->addWidget(text_box);
     label->setFont(font);
-    text_box->setText(setting_value(set).toString());
+    text_box->setText(setting_value(item.item->id).toString());
 
-    settings_items.append({text_box,STRING,set});
     layout->addLayout(container);
+    item.widget = text_box;
 }
 
 
-void configtab::create_combo_settings_entry(QBoxLayout *layout,QString display_text,Setting set,QStringList combo_items)
+void configtab::create_combo_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
 {
     QHBoxLayout *container = new QHBoxLayout();
-    QLabel *label = new QLabel(display_text+":");
+    QLabel *label = new QLabel(item.item->name+":");
     QComboBox *combobox = new QComboBox();
     QFont font = QFont();
     font.setPointSize(font_size);
@@ -294,12 +388,12 @@ void configtab::create_combo_settings_entry(QBoxLayout *layout,QString display_t
     container->addWidget(combobox);
     label->setFont(font);
 
-    QString selected_item = setting_value(set).toString();
+    QStringList combo_items = item.item->default_val.toStringList();
     combobox->addItems(combo_items);
-    combobox->setCurrentText(selected_item);
+    combobox->setCurrentText(setting_value(item.item->id).toString());
 
-    settings_items.append({combobox,COMBO,set});
     layout->addLayout(container);
+    item.widget = combobox;
 
 }
 
@@ -307,31 +401,7 @@ void configtab::apply()
 {
     QSettings settings;
 
-    foreach(settings_item item,settings_items){
-        QVariant value;
-        if (item.type == STRING){
-            QLineEdit *lineedit = qobject_cast<QLineEdit *>(item.widget);
-            value = lineedit->text();
-        } else if (item.type == BOOL){
-            QCheckBox *checkbox = qobject_cast<QCheckBox *>(item.widget);
-            value = checkbox->checkState();
-        } else if (item.type == COMBO){
-            QComboBox *checkbox = qobject_cast<QComboBox *>(item.widget);
-            value = checkbox->currentText();
-        }
-
-        int pos = 0;
-        QString str = value.toString();
-        QValidator *validator = this->settings[item.setting].validator;
-
-        if (validator == nullptr || validator->validate(str,pos) == QValidator::Acceptable)
-            settings.setValue(setting_name(item.setting),value);
-        else
-            qDebug() << "Invalid value" << str.toUtf8() << "for setting" << setting_name(item.setting) << '\n';
-    }
-
-    foreach(SettingArrayList *arraylist, setting_array_items)
-        arraylist->apply();
+    setting_group_top.apply();
 
     update_bindings();
 
@@ -377,6 +447,66 @@ void configtab::update_bindings()
             active_bindings[i].action->setShortcut(QKeySequence(setting_value(active_bindings[i].set).toString()));
         }
     }
+}
+
+void configtab::load_setting_groups()
+{
+    Setting_Group *current_group = &setting_group_top;
+    int depth = 0;
+
+    for (unsigned i= 0; i < sizeof(settings)/sizeof(*settings); i++) {
+        reset:
+        if (settings[i].group == current_group->name){
+            current_group->items.append({&(settings[i]),nullptr});
+            switch (settings[i].type){
+            case BOOL:
+                create_checkbox_settings_entry(current_group->layout,current_group->items.last());
+                break;
+            case STRING:
+                create_lineedit_settings_entry(current_group->layout,current_group->items.last());
+                break;
+            case COMBO:
+                create_combo_settings_entry(current_group->layout,current_group->items.last());
+                break;
+            case COLOR:
+                SettingArrayList *arraylist = new SettingArrayList(current_group->layout->widget(),settings[i].key,{{"prefix",settings[i].name,false},{"color","Color",true}});
+                current_group->layout->addWidget(arraylist);
+                current_group->items.last().widget = arraylist;
+                break;
+
+            }
+        } else if (settings[i].group.startsWith(current_group->name+'.') || current_group->name.isEmpty()){
+            QStringList groups = settings[i].group.split(".");
+            depth++;
+            QString subgroup_name;
+
+            if (current_group->name.isEmpty()){
+                if (groups.length() == 0)
+                    subgroup_name = settings[i].group;
+                else
+                    subgroup_name = groups.at(depth-1);
+            } else {
+                subgroup_name = current_group->name;
+                subgroup_name.append(".");
+                subgroup_name.append(groups.at(depth-1));
+            }
+
+            if (current_group->get_subgroup(subgroup_name,current_group)){
+                if (depth == 1)
+                    new_page(current_group);
+                else
+                    current_group->layout = create_header(current_group->parent->layout,groups.last(),sub_header_size);
+            }
+            goto reset;
+        } else {
+            depth--;
+            if (depth == 0)
+                current_group->layout->insertStretch(-1);
+            current_group = current_group->parent;
+            goto reset;
+        }
+    }
+
 }
 
 

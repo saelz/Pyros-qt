@@ -52,7 +52,7 @@ class configtab : public Tab
     Q_OBJECT
 public:
         enum Setting{
-        TAG_HISTORY = 0,
+        TAG_HISTORY,
         GIFS_AS_VIDEO,
         TIMESTAMP,
         THEME,
@@ -77,11 +77,14 @@ public:
         KEY_CLOSE_TAB,
         KEY_REFRESH,
         KEY_APPLY,
+        KEY_FULLSCREEN,
         THUMBNAIL_SIZE,
         CBZ_THUMB_PAGE_COUNT,
         KEY_FOCUS_FILE_VIEWER,
         THUMBNAIL_DIR,
-        SHOW_REMAINING_TIME
+        SHOW_REMAINING_TIME,
+        TAG_COLOR,
+        FILE_COLOR,
     };
 private:
 
@@ -89,18 +92,40 @@ private:
         BOOL,
         STRING,
         COMBO,
+        COLOR,
     };
 
-    struct settings_item{
-        QWidget *widget;
+    struct Setting_Item{
+        Setting id;
+        QString group;
+        QString name;
+        QString key;
+        QVariant default_val;
         settings_type type;
-        Setting setting;
+        QValidator*validator;
     };
-    QVector<settings_item> settings_items;
-    QVector<SettingArrayList*> setting_array_items;
 
+    struct Setting_Group_Item{
+        const Setting_Item* item;
+        QWidget *widget;
+    };
 
-    QVector<QPushButton *> config_buttons;
+    class Setting_Group{
+    public:
+        Setting_Group(QString name,Setting_Group *parent);
+        bool get_subgroup(QString name,Setting_Group *&group);
+        void apply();
+
+        QBoxLayout *layout;
+        QPushButton *button;
+        QString name;
+        Setting_Group *parent;
+        QVector<Setting_Group_Item> items;
+        QVector<Setting_Group> sub_groups;
+    };
+
+    Setting_Group setting_group_top = Setting_Group("",nullptr);
+
     QStackedWidget *pages;
     QVBoxLayout *button_column;
 
@@ -140,19 +165,21 @@ private:
     int left_margin = 15;
 
 
-    static const setting settings[];
+    static const Setting_Item settings[];
 
     static QVector<binding> active_bindings;
 
-    QBoxLayout *new_page(QString title);
+    void new_page(Setting_Group *group);
     void set_page();
     QBoxLayout *create_header(QBoxLayout *layout,QString text,int size);
 
-    void create_checkbox_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
-    void create_lineedit_settings_entry(QBoxLayout *layout,QString display_text,Setting set);
-    void create_combo_settings_entry(QBoxLayout *layout, QString display_text,Setting set, QStringList combo_items);
+    void create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
+    void create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
+    void create_combo_settings_entry(QBoxLayout *layout, Setting_Group_Item &item);
     void apply();
     void update_bindings();
+
+    void load_setting_groups();
 
     static QVector<configtab::color_setting> get_colors(QString group);
 
