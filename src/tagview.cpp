@@ -273,6 +273,7 @@ bool TagView::loadModelFromTag(QByteArray tag,const QModelIndex index,PyrosDB *p
                         tag.startsWith("tagcount:") ||
                         tag.startsWith("limit:") ||
                         tag.startsWith("page:") ||
+                        tag.startsWith("explicit:") ||
                         tag.startsWith("size:")
                         )
                     type = TagItem::SPECIAL_TAG;

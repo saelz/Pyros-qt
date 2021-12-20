@@ -105,6 +105,18 @@ bool TagItem::setData(int column, const QVariant &value)
                                       QColor(254,192,51)).value<QColor>();
 
         type = (enum TAG_TYPE)value.toInt();
+
     }
+    update_parent_color();
     return true;
+}
+
+void TagItem::update_parent_color()
+{
+    QSettings settings;
+    QColor default_color = settings.value("special-tagcolor/default").value<QColor>();
+    if (type == ALIAS_TAG && parentItem && fg_color != default_color && parentItem->fg_color == default_color){
+        parentItem->fg_color = fg_color;
+        parentItem->update_parent_color();
+    }
 }

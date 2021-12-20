@@ -37,6 +37,8 @@ public:
 
     bool removeChildren(int position, int count);
 
+    void update_parent_color();
+
     QColor fg_color;
     QColor bg_color;
     QVariant tag;
@@ -46,6 +48,7 @@ private:
     QVector<TagItem*> childItems;
     enum TAG_TYPE type = NORMAL_TAG;
     TagItem *parentItem;
+
 };
 
 #endif // TAGITEM_H
