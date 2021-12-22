@@ -194,6 +194,12 @@ void PyrosWorker::merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByte
 
 }
 
+void PyrosWorker::vacuum_database(PyrosDB *db)
+{
+    Pyros_Vacuum_Database(db);
+    Pyros_Commit(db);
+}
+
 PyrosTC::~PyrosTC(){
     workerThread.quit();
     workerThread.wait();
@@ -266,27 +272,14 @@ PyrosTC::PyrosTC()
     connect(worker,&PyrosWorker::return_all_tags,
         this,&PyrosTC::return_all_tags);
 
+    connect(this,&PyrosTC::sig_vacuum_database,
+        worker,&PyrosWorker::vacuum_database);
+
     connect(worker,&PyrosWorker::request_finished,
         this,&PyrosTC::request_finsished);
 
     workerThread.start();
 
-}
-
-QByteArray PyrosTC::escape_glob_characters(QString tag)
-{
-    QString escaped_tag;
-    foreach (QChar c ,tag){
-        if (c == '*' || c == '?' || c == '[' || c == ']'){
-            escaped_tag.append('[');
-            escaped_tag.append(c);
-            escaped_tag.append(']');
-
-        } else {
-            escaped_tag.append(c);
-        }
-    }
-    return escaped_tag.toUtf8();
 }
 
 QByteArray PyrosTC::db_path()
@@ -537,6 +530,14 @@ void PyrosTC::merge_files(QByteArray superior_file,QVector<QByteArray> duplicate
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
         emit sig_merge_files(db,superior_file,duplicates);
+    }));
+}
+
+void PyrosTC::vacuum_database()
+{
+    if (db == nullptr) return;
+    push_request(Request(NONE,[=](){
+        emit sig_vacuum_database(db);
     }));
 }
 

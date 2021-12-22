@@ -21,7 +21,6 @@ class PyrosTC : public QObject{
 public:
     ~PyrosTC();
     static PyrosTC* get();
-    static QByteArray escape_glob_characters(QString tag);
 
     typedef std::function<void(QVector<PyrosFile*>)> search_cb;
     typedef std::function<void(QVector<PyrosTag*>)> tag_cb;
@@ -82,6 +81,7 @@ signals:
     void sig_remove_relationship(PyrosDB*,QVector<QByteArray>);
     void sig_get_all_tags(PyrosDB *);
     void sig_merge_files(PyrosDB *,QByteArray,QVector<QByteArray>);
+    void sig_vacuum_database(PyrosDB *);
 
 public:
     QByteArray db_path();
@@ -111,6 +111,8 @@ public:
     void remove_relationship(QVector<QByteArray> tags);
 
     void merge_files(QByteArray superior_file,QVector<QByteArray> duplicates);
+
+    void vacuum_database();
 };
 
 class PyrosWorker : public QObject
@@ -135,6 +137,7 @@ public slots:
     void remove_relationship(PyrosDB *db,QVector<QByteArray>tags);
     void get_all_tags(PyrosDB *db);
     void merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByteArray> duplicates);
+    void vacuum_database(PyrosDB *db);
 
 signals:
     void search_return(QVector<PyrosFile*>);

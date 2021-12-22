@@ -417,6 +417,8 @@ QVector<configtab::color_setting> configtab::get_file_colors()
     return get_colors("filecolor");
 }
 
+
+
 QVector<configtab::color_setting> configtab::get_colors(QString group)
 {
     QVector<color_setting> colors;
@@ -427,7 +429,7 @@ QVector<configtab::color_setting> configtab::get_colors(QString group)
     for(int i = 0; i < length; i++){
         color_setting color;
         settings.setArrayIndex(i);
-        color.starts_with = settings.value("prefix").toString();
+        color.glob = settings.value("prefix").toString().toLower();
         color.color = QColor(settings.value("color").toString());
         colors.append(color);
     }

@@ -70,13 +70,11 @@ bool Globbing::glob_compare(QString glob, QString str,int glob_pos, int str_pos)
         glob_pos++;
     }
 
-    while(glob.at(glob_pos) == '*')
-        glob_pos++;
+    for (;glob_pos < glob.length(); glob_pos++)
+        if (glob.at(glob_pos) != '*')
+            return false;
 
-    if (glob.length() >= glob_pos)
-        return true;
-    else
-        return false;
+    return true;
 }
 
 QByteArray Globbing::escape_glob_characters(QString tag)

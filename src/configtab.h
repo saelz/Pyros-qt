@@ -139,7 +139,7 @@ public:
 
 
     struct color_setting{
-        QString starts_with;
+        QString glob;
         QColor color;
     };
 

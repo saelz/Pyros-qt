@@ -69,7 +69,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDatabase">
@@ -78,6 +78,7 @@
     </property>
     <addaction name="actionOpen_Database"/>
     <addaction name="actionNew_Database"/>
+    <addaction name="actionVacuum_Database"/>
    </widget>
    <widget class="QMenu" name="menuPreferences">
     <property name="title">
@@ -142,6 +143,11 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionVacuum_Database">
+   <property name="text">
+    <string>Vacuum Database</string>
    </property>
   </action>
  </widget>

@@ -1,5 +1,6 @@
 #include "tagitem.h"
 #include "configtab.h"
+#include "globbing.h"
 #include <QSettings>
 
 using ct = configtab;
@@ -87,7 +88,7 @@ bool TagItem::setData(int column, const QVariant &value)
         fg_color = settings.value("special-tagcolor/default").value<QColor>();
 
         foreach(ct::color_setting tag_color,tag_colors)
-            if (tag_text.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
+            if (Globbing::glob_compare(tag_color.glob,tag_text))
                 fg_color = tag_color.color;
 
         tag = value;

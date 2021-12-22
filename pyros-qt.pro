@@ -42,6 +42,7 @@ SOURCES += \
     src/filemodel.cpp \
     src/fileview.cpp \
     src/fileviewer.cpp \
+    src/globbing.cpp \
     src/main.cpp \
     src/pyrosdb.cpp \
     src/pyrosqt.cpp \
@@ -81,6 +82,7 @@ HEADERS += \
     src/filemodel.h \
     src/fileview.h \
     src/fileviewer.h \
+    src/globbing.h \
     src/pyrosdb.h \
     src/pyrosqt.h \
     src/searchtab.h \

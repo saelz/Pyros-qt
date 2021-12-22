@@ -3,6 +3,7 @@
 #include "pyrosdb.h"
 #include "configtab.h"
 #include "thumbnailer.h"
+#include "globbing.h"
 
 #include <QWindow>
 #include <QStatusBar>
@@ -37,9 +38,9 @@ class FileDelegate : public QStyledItemDelegate {
         QColor color;
 
         QVector<ct::color_setting> file_colors = ct::get_file_colors();
-        foreach(ct::color_setting tag_color,file_colors)
-            if (mime.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
-                color = tag_color.color;
+        foreach(ct::color_setting file_color,file_colors)
+            if (Globbing::glob_compare(file_color.glob,mime))
+                color = file_color.color;
 
         QPixmap pix = model->data(index,Qt::DecorationRole).value<QPixmap>();
 

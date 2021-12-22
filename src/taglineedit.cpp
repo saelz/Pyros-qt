@@ -1,6 +1,7 @@
 #include "pyrosdb.h"
 #include "taglineedit.h"
 #include "configtab.h"
+#include "globbing.h"
 
 #include <QCompleter>
 #include <QAction>
@@ -170,11 +171,15 @@ void TagLineEdit::update_text_color(const QString &text){
         return;
     }
 
-    QVector<ct::color_setting> tag_colors = ct::get_tag_colors();
 
     setStyleSheet("");
+    if (text.isEmpty())
+        return;
+
+    QVector<ct::color_setting> tag_colors = ct::get_tag_colors();
+
     foreach(ct::color_setting tag_color,tag_colors)
-        if (text.startsWith(tag_color.starts_with,Qt::CaseInsensitive))
+        if (Globbing::glob_compare(tag_color.glob,text.toLower()))
             setStyleSheet(color_prefix+tag_color.color.name());
 
 }
@@ -187,7 +192,7 @@ void TagLineEdit::update_completion(const QString &t){
         new_text = '-';
 
     if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_GLOB)
-        new_text.append(PyrosTC::escape_glob_characters(t.toUtf8()));
+        new_text.append(Globbing::escape_glob_characters(t));
     else
         new_text.append(t);
 

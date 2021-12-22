@@ -2,6 +2,7 @@
 #include "pyrosqt.h"
 #include "pyrosdb.h"
 #include "tagitem.h"
+#include "globbing.h"
 
 #include <QClipboard>
 #include <QGuiApplication>
@@ -387,7 +388,7 @@ void TagView::create_search_with_selected_tags()
 
     if (tag_type == PYROS_FILE_RELATIONSHIP)
         for (int i = 0; i < selected_tags.count(); i++)
-            selected_tags[i] = PyrosTC::escape_glob_characters(selected_tags[i]);
+            selected_tags[i] = Globbing::escape_glob_characters(selected_tags[i]);
 
     emit new_search_with_selected_tags(selected_tags);
 }
@@ -397,7 +398,7 @@ void TagView::add_selected_tags_to_search()
     QVector<QByteArray> selected_tags = get_selected_tags();
 
     for (int i = 0; i < selected_tags.count(); i++)
-        selected_tags[i] = PyrosTC::escape_glob_characters(selected_tags[i]);
+        selected_tags[i] = Globbing::escape_glob_characters(selected_tags[i]);
 
     emit add_tag_to_current_search(selected_tags);
 
@@ -407,7 +408,7 @@ void TagView::filter_selected_tags_from_search()
     QVector<QByteArray> selected_tags = get_selected_tags();
 
     for (int i = 0; i < selected_tags.count(); i++)
-        selected_tags[i] = '-'+PyrosTC::escape_glob_characters(selected_tags[i]);
+        selected_tags[i] = '-'+Globbing::escape_glob_characters(selected_tags[i]);
 
     emit add_tag_to_current_search(selected_tags);
 }

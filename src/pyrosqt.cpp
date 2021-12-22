@@ -7,6 +7,7 @@
 #include "configtab.h"
 #include "databasecreation.h"
 #include "duplicate_selector.h"
+#include "globbing.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -28,13 +29,13 @@ PyrosQT::PyrosQT(QWidget *parent)
     connect(new_itab, &QAction::triggered,this, &PyrosQT::new_import_tab);
     connect(close_tab,&QAction::triggered,this, &PyrosQT::remove_tab_current);
 
-
     initalize_config();
-    connect(ui->actionImport_Files,  &QAction::triggered,this, &PyrosQT::new_import_tab);
-    connect(ui->actionNew_Search,    &QAction::triggered,this, &PyrosQT::new_search_tab);
-    connect(ui->actionSettings,      &QAction::triggered,this, &PyrosQT::new_config_tab);
-    connect(ui->actionNew_Database,  &QAction::triggered,this, &PyrosQT::new_database_creation_tab);
-    connect(ui->actionOpen_Database, &QAction::triggered,this, &PyrosQT::open_database);
+    connect(ui->actionImport_Files,    &QAction::triggered,this, &PyrosQT::new_import_tab);
+    connect(ui->actionNew_Search,      &QAction::triggered,this, &PyrosQT::new_search_tab);
+    connect(ui->actionSettings,        &QAction::triggered,this, &PyrosQT::new_config_tab);
+    connect(ui->actionNew_Database,    &QAction::triggered,this, &PyrosQT::new_database_creation_tab);
+    connect(ui->actionOpen_Database,   &QAction::triggered,this, &PyrosQT::open_database);
+    connect(ui->actionVacuum_Database, &QAction::triggered,PyrosTC::get(), &PyrosTC::vacuum_database);
 
     connect(ui->tabWidget,&QTabWidget::tabCloseRequested,this, &PyrosQT::remove_tab);
 
@@ -56,13 +57,13 @@ void PyrosQT::initalize_config(){
     if (settings.value("db","") == ""){
         settings.beginWriteArray("filecolor");
         settings.setArrayIndex(0);
-        settings.setValue("prefix","video");
+        settings.setValue("prefix","video*");
         settings.setValue("color","#22ff22");
         settings.setArrayIndex(1);
         settings.setValue("prefix","image/gif");
         settings.setValue("color","#44cc88");
         settings.setArrayIndex(2);
-        settings.setValue("prefix","audio");
+        settings.setValue("prefix","audio*");
         settings.setValue("color","#33bbff");
         settings.setArrayIndex(3);
         settings.setValue("prefix","application/zip");
@@ -71,7 +72,7 @@ void PyrosQT::initalize_config(){
 
         settings.beginWriteArray("tagcolor");
         settings.setArrayIndex(0);
-        settings.setValue("prefix","meta:");
+        settings.setValue("prefix","meta:*");
         settings.setValue("color","#cccccc");
         settings.endArray();
 
