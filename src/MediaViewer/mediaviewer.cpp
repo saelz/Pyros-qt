@@ -75,6 +75,9 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
 
     connect(this,&MediaViewer::file_changed,overlay,&Overlay::set_file);
 
+
+    connect(PyrosTC::get(),&PyrosTC::file_removed,this,&MediaViewer::hide_files);
+
     slide_timer.setSingleShot(true);
     connect(&slide_timer, &QTimer::timeout, this, &MediaViewer::next_slide);
 }
@@ -113,9 +116,9 @@ bool MediaViewer::is_apng(char *path)
             else
                 end_check_pos = 0;
 
-            if (check_pos == sizeof(check)/sizeof(*check)){
+            if (check_pos == (sizeof(check)/sizeof(*check))-1){
                 return true;
-            } else if (end_check_pos == sizeof(end_check)/sizeof(*end_check)){
+            } else if (end_check_pos == (sizeof(end_check)/sizeof(*end_check))-1){
                 return false;
             }
 

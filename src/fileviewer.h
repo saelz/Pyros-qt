@@ -39,8 +39,6 @@ private slots:
     void remove_tag(QVector<QByteArray> tags);
 
 signals:
-    void file_deleted(QVector<QByteArray>);
-    void hide_files(QVector<QByteArray>);
     void new_search_with_selected_tags(QVector<QByteArray>);
 
 };

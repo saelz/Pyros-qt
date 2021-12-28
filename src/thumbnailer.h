@@ -57,7 +57,7 @@ private slots:
     void thumbnail_finished(int num);
 
 signals:
-    void thumbnail_generated(thumbnail_item item);
+    void thumbnail_generated(Thumbnailer::thumbnail_item item);
 
 };
 

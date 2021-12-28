@@ -34,19 +34,18 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
 
     connect(insert_bind, &QAction::triggered,this, &FileViewer::select_tag_bar);
 
-    connect(ui->tag_bar, &TagLineEdit::tag_entered,ui->file_tags, &TagView::add_tags);
     connect(ui->tag_bar, &TagLineEdit::tag_entered,this, &FileViewer::add_tag);
 
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
     connect(ui->file_tags, &TagView::new_search_with_selected_tags,this, &FileViewer::new_search_with_selected_tags);
 
-    connect(this,&FileViewer::hide_files,ui->mediaviewer,&MediaViewer::hide_files);
-    connect(ui->mediaviewer,&MediaViewer::file_deleted,this,&FileViewer::file_deleted);
     connect(ui->mediaviewer,&MediaViewer::file_changed,this,&FileViewer::set_file);
 
     ui->mediaviewer->bind_keys(this,true);
     ui->mediaviewer->set_slideshows_enabled(true);
     ui->mediaviewer->set_files(new_files,inital_pos);
+
+    ui->file_tags->setTagType(PYROS_FILE_RELATIONSHIP);
 }
 
 

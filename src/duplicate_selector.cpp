@@ -40,7 +40,6 @@ duplicate_selector::duplicate_selector(QVector<PyrosFile*> files,QTabWidget *par
     connect(mark_not_duplicate_bind,&QAction::triggered,this,&duplicate_selector::mark_not_duplicate);
     connect(mark_superior_bind,&QAction::triggered,this,&duplicate_selector::mark_superior);
 
-    connect(this,&duplicate_selector::hide_files,ui->mediaviewer,&MediaViewer::hide_files);
     connect(ui->mediaviewer,&MediaViewer::position_changed,this,&duplicate_selector::set_position);
     connect(ui->mediaviewer,&MediaViewer::file_removed_at,this,&duplicate_selector::file_hidden);
 
@@ -98,7 +97,6 @@ void duplicate_selector::apply()
 
     if (duplicates.length() >= 1 && !superior_file.isEmpty()){
         ptc->merge_files(superior_file,duplicates);
-        emit files_removed(duplicates);
     }
     delete_self();
 

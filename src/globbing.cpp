@@ -48,7 +48,7 @@ bool Globbing::glob_compare(QString glob, QString str,int glob_pos, int str_pos)
             return false;
 
         if (glob.at(glob_pos) == '*'){
-            while(glob.at(glob_pos) == '*')
+            while(glob.length() > glob_pos && glob.at(glob_pos) == '*')
                 glob_pos++;
 
             if (glob.length()  <= glob_pos)

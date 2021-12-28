@@ -47,6 +47,7 @@ FileImport::FileImport(QTabWidget *parent) :
 
     QStandardItemModel *model = new QStandardItemModel(0,1);
     ui->selected_files->setModel(model);
+    ui->import_tags->setTagType(PYROS_FILE_RELATIONSHIP);
 
     filecontextMenu = new QMenu(this);
     ui->selected_files->setContextMenuPolicy(Qt::CustomContextMenu);

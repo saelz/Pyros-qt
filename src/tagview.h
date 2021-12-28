@@ -1,10 +1,14 @@
 #ifndef TAGVIEW_H
 #define TAGVIEW_H
-#include "tagtreemodel.h"
 
 #include <QWidget>
 #include <QTreeView>
 #include <QMenu>
+
+class TagTreeModel;
+class PyrosTag;
+class PyrosFile;
+class PyrosList;
 
 class  QSortFilterProxyModel;
 
@@ -18,8 +22,7 @@ public:
     QMenu* contextMenu;
 
     void clear();
-    bool loadModelFromTag(QByteArray tag, const QModelIndex index,PyrosDB *pyrosDB);
-    bool generateModel(PyrosTag **pt,size_t cur,size_t max,const QModelIndex index,TagItem::TAG_TYPE type = TagItem::NORMAL_TAG);
+    bool generateModel(PyrosTag **pt,size_t cur,size_t max,const QModelIndex index,int tag_type);
 
     void setTagsFromFile(PyrosFile *file);
 
@@ -27,21 +30,30 @@ public:
 
     void append_search_options_to_contenxt_menu();
 
-    int tag_type = PYROS_FILE_RELATIONSHIP;
+    int tag_type;
     TagTreeModel *tag_model;
 
 private:
     QVector<QByteArray> get_selected_tags();
     QVector<QByteArray> create_tag_dialog(QByteArray title);
     QSortFilterProxyModel *sort_model;
+    QByteArray file_hash;
 
-    void add_tag_as_child(TagItem::TAG_TYPE type,QString tag);
+    bool add_unloaded_tag_to_model(QString tag);
 
+    void add_related_tags_to_view_recursively(QVector<QByteArray> tags,QVector<QByteArray> related_tags,uint type,QModelIndex parent);
+    void remove_related_tags_from_view_recursively(QVector<QByteArray> tag_pairs,QModelIndex parent,bool tag_found);
 public slots:
+    void remove_tag_from_view(QVector<QByteArray> hashes,QVector<QByteArray> tags);
+    void add_tags_by_hash(QVector<QByteArray> hashes,QVector<QByteArray> tags);
     void add_tags(QVector<QByteArray> tags);
     void remove_tag();
+    void add_related_tags_to_view(QVector<QByteArray> tags,QVector<QByteArray> related_tags,uint type);
+    void remove_related_tags_from_view(QVector<QByteArray> tag_pairs);
 
 private slots:
+
+    void replace_temp_tags(QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags);
 
     void remove_relationship();
 

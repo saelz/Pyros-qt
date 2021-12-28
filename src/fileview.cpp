@@ -91,6 +91,8 @@ FileView::FileView(QWidget *parent) :
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &FileView::launch_timer);
     connect(&thumbtimer, &QTimer::timeout, this, &FileView::get_visible);
 
+    connect(PyrosTC::get(), &PyrosTC::file_removed, this,&FileView::hide_files_by_hash);
+
     QAction *delete_bind   = ct::create_binding(ct::KEY_DELETE_FILE,"delete file",this);
     connect(delete_bind,  &QAction::triggered,this, &FileView::remove_file);
 

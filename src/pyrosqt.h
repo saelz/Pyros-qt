@@ -23,9 +23,6 @@ public:
     ~PyrosQT();
 
     void initalize_config();
-signals:
-    void hide_files(QVector<QByteArray>);
-    void files_removed(QVector<QByteArray> hashes);
 
 private:
     Ui::PyrosQT *ui;

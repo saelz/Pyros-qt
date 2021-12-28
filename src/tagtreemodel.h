@@ -9,13 +9,29 @@
 
 #include <pyros.h>
 
-#include "tagitem.h"
-
+class TagItem;
 
 class TagTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
+    enum USER_ROLES{
+        TAG_ROLE = Qt::DisplayRole,
+        TYPE_ROLE = Qt::UserRole,
+    };
+
+    enum TAG_TYPE{
+        NORMAL_TAG = 0,
+        ALIAS_TAG,
+        SPECIAL_TAG,
+        NEW_TAG,
+        INVALID_TAG,
+        TEMP_TAG,
+        TAG_TYPE_COUNT
+    };
+
+
     TagTreeModel(const QString &column_title, QObject *parent = nullptr);
     ~TagTreeModel();
 
@@ -48,6 +64,8 @@ public:
 
     bool setHeaderData(int section, Qt::Orientation orientation,
                               const QVariant &value, int role = Qt::EditRole) override;
+
+    bool update_tag_type(const QModelIndex &index, enum TAG_TYPE type);
 private:
 
     TagItem *addChild(const QString &tag, TagItem *parent);

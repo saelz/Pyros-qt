@@ -34,15 +34,18 @@ int TagItem::childNumber() const
     return 0;
 }
 
-QVariant TagItem::data(int column) const
+QVariant TagItem::data(int role) const
 {
-    if (column == TAG_COLUMN){
+    switch(role){
+    case TagTreeModel::TAG_ROLE:
         return tag;
-    } else if (column == TYPE_COLUMN){
-        return QVariant(type);
+    case TagTreeModel::TYPE_ROLE:
+        return type;
+    case Qt::ForegroundRole:
+        return fg_color;
+    default:
+        return QVariant();
     }
-
-    return QVariant();
 }
 
 bool TagItem::insertChildren(int position, int count)
@@ -76,13 +79,11 @@ bool TagItem::removeChildren(int position, int count)
 }
 
 
-bool TagItem::setData(int column, const QVariant &value)
+bool TagItem::setData(const QVariant &value,int role)
 {
-    if (column < 0 || column >= COLUMN_COUNT)
-        return false;
     QSettings settings;
 
-    if (column == TAG_COLUMN){
+    if (role == TagTreeModel::TAG_ROLE){
         const QString tag_text = value.toString();
         QVector<ct::color_setting> tag_colors = ct::get_tag_colors();
         fg_color = settings.value("special-tagcolor/default").value<QColor>();
@@ -92,20 +93,23 @@ bool TagItem::setData(int column, const QVariant &value)
                 fg_color = tag_color.color;
 
         tag = value;
-    } else if(column == TYPE_COLUMN){
-        if (value.toInt() < 0 || value.toInt() >= TAG_TYPE_COUNT)
+    } else if(role == TagTreeModel::TYPE_ROLE){
+        if (value.toInt() < 0 || value.toInt() >= TagTreeModel::TAG_TYPE_COUNT)
             return false;
-        if (value.toInt() == SPECIAL_TAG)
+        if (value == TagTreeModel::SPECIAL_TAG)
             fg_color = settings.value("special-tagcolor/special",
                                       QColorConstants::LightGray).value<QColor>();
-        else if (value.toInt() == INVALID_TAG)
+        else if (value == TagTreeModel::TEMP_TAG)
+            fg_color = settings.value("special-tagcolor/unloaded",
+                                      QColorConstants::LightGray).value<QColor>();
+        else if (value == TagTreeModel::INVALID_TAG)
             fg_color = settings.value("special-tagcolor/invalid",
                                       QColorConstants::Red).value<QColor>();
-        else if (value.toInt() == NEW_TAG)
+        else if (value == TagTreeModel::NEW_TAG)
             fg_color = settings.value("special-tagcolor/new",
                                       QColor(254,192,51)).value<QColor>();
 
-        type = (enum TAG_TYPE)value.toInt();
+        type = value;
 
     }
     update_parent_color();
@@ -116,7 +120,7 @@ void TagItem::update_parent_color()
 {
     QSettings settings;
     QColor default_color = settings.value("special-tagcolor/default").value<QColor>();
-    if (type == ALIAS_TAG && parentItem && fg_color != default_color && parentItem->fg_color == default_color){
+    if (type == TagTreeModel::ALIAS_TAG && parentItem && fg_color != default_color && parentItem->fg_color == default_color){
         parentItem->fg_color = fg_color;
         parentItem->update_parent_color();
     }

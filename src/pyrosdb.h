@@ -24,6 +24,7 @@ public:
 
     typedef std::function<void(QVector<PyrosFile*>)> search_cb;
     typedef std::function<void(QVector<PyrosTag*>)> tag_cb;
+    typedef std::function<void(QVector<PyrosList*>,QVector<QByteArray>)> related_cb;
     typedef std::function<void(int)> import_progress_cb;
     typedef std::function<void(QStringList*)> all_tags_cb;
     typedef void(PyrosExtFunc)(PyrosDB*,const char*,const char*);
@@ -42,13 +43,17 @@ private:
         Request(QPointer<QObject> sender,uint flags,search_cb s_cb,import_progress_cb ip_cb,std::function<void()> execute_cmd);
         Request(QPointer<QObject> sender,uint flags,tag_cb cb,std::function<void()> execute_cmd);
         Request(QPointer<QObject> sender,uint flags,all_tags_cb cb,std::function<void()> execute_cmd);
+        Request(QPointer<QObject> sender,uint flags, related_cb cb,std::function<void()> execute_cmd);
 
         QPointer<QObject> sender = nullptr;
         uint flags;
+
         search_cb s_cb;
-        import_progress_cb ip_cb = nullptr;
-        tag_cb t_cb = nullptr;
-        all_tags_cb at_cb = nullptr;
+        import_progress_cb ip_cb;
+        tag_cb t_cb;
+        all_tags_cb at_cb;
+        related_cb r_cb;
+
         bool discard = false;
         bool active = false;
         std::function<void()> execute_cmd = nullptr;
@@ -64,9 +69,20 @@ public slots:
     void tag_return(QVector<PyrosTag*> tags);
     void return_all_tags(QStringList tags);
 
+    void related_tag_return(QVector<PyrosList*>,QVector<QByteArray>);
+
     void request_finsished();
 
 signals:
+    // external
+    void tags_added_with_related(QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags);
+    void tag_added(QVector<QByteArray> hash, QVector<QByteArray> tag);
+    void tag_removed(QVector<QByteArray> hash,QVector<QByteArray> tag);
+    void tag_relationship_added(QVector<QByteArray> tag,QVector<QByteArray> related_tag,uint type);
+    void tag_relationship_removed(QVector<QByteArray> tag_pairs);
+    void file_removed(QVector<QByteArray> files);
+
+    // internal
     void sig_add_tags(PyrosDB *db,QVector<QByteArray> hashes, QVector<QByteArray>tags);
     void sig_add_tags_to_file(PyrosDB *db,QByteArray hashes, QVector<QByteArray>tags);
     void sig_search(PyrosDB *db,QVector<QByteArray> tags);
@@ -74,6 +90,7 @@ signals:
     void sig_remove_tags_from_file(PyrosDB *db,QByteArray hashes, QVector<QByteArray>tags);
     void sig_import(PyrosDB *db,QVector<QByteArray> files,bool use_tag_files,QVector<QByteArray> import_tags);
     void sig_get_tags_from_hash(PyrosDB* db,QByteArray hash);
+    void sig_get_related_tags(PyrosDB* db, QVector<QByteArray> tags,uint relation_type);
     void sig_delete_file(PyrosDB* db,PyrosFile*file);
     void sig_delete_files(PyrosDB* db,QVector<PyrosFile*>files);
     void sig_tag_relation_func(PyrosDB *db,QVector<QByteArray>,QVector<QByteArray>,PyrosTC::PyrosExtFunc*);
@@ -98,6 +115,7 @@ public:
     void import(QPointer<QObject> sender,QVector<QByteArray> files, search_cb cb,import_progress_cb prog_cb,bool use_tag_files,QVector<QByteArray> import_tags);
 
     void get_tags_from_hash(QPointer<QObject> sender,QByteArray hash, PyrosTC::tag_cb func);
+    void get_related_tags(QPointer<QObject> sender,QVector<QByteArray> tags,related_cb cb,uint relation_type);
 
     void delete_file(PyrosFile*file);
     void delete_file(QVector<PyrosFile*>files);
@@ -130,6 +148,7 @@ public slots:
     void remove_tags_from_file(PyrosDB *db,QByteArray hash, QVector<QByteArray>tags);
     void import(PyrosDB *db,QVector<QByteArray> files,bool use_tag_files,QVector<QByteArray> import_tags);
     void get_tags_from_hash(PyrosDB* db,QByteArray hash);
+    void get_related_tags(PyrosDB* db, QVector<QByteArray> tags,uint relation_type);
     void delete_file(PyrosDB* db,PyrosFile*);
     void delete_files(PyrosDB* db,QVector<PyrosFile*>files);
     void tag_relation_func(PyrosDB *db,QVector<QByteArray>,QVector<QByteArray>,PyrosTC::PyrosExtFunc*);
@@ -143,12 +162,14 @@ signals:
     void search_return(QVector<PyrosFile*>);
     void report_progress(int);
     void tag_return(QVector<PyrosTag*>);
+    void related_tag_return(QVector<PyrosList*>,QVector<QByteArray>);
     void return_all_tags(QStringList);
     void request_finished();
 };
 
 Q_DECLARE_METATYPE(QVector<QByteArray>)
 Q_DECLARE_METATYPE(QVector<PyrosFile*>)
+Q_DECLARE_METATYPE(QVector<PyrosList*>)
 Q_DECLARE_METATYPE(QVector<PyrosTag*>)
 Q_DECLARE_METATYPE(PyrosTC::PyrosExtFunc*)
 

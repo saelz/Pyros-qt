@@ -30,23 +30,14 @@ QVariant TagTreeModel::data(const QModelIndex &index, int role) const
 
     TagItem *item = getItem(index);
 
-    if (role == Qt::DisplayRole ){
-        return item->data(TagItem::TAG_COLUMN);
-    }else if( role == Qt::EditRole){
-        return item->data(TagItem::TYPE_COLUMN);
-    } else if (role == Qt::ForegroundRole) {
-        return item->fg_color;
-    }
-
-    return QVariant();
+    return item->data(role);
 }
 
 TagItem *TagTreeModel::getItem(const QModelIndex &index) const
 {
     if (index.isValid()){
        TagItem *item = static_cast<TagItem*>(index.internalPointer());
-       if (item != nullptr)
-           return item;
+       return item;
     }
 
     return rootItem;
@@ -99,7 +90,7 @@ TagItem *TagTreeModel::addChild(const QString &tag, TagItem *parent)
     if (!tag.isEmpty()){
         parent->insertChildren(0,1);
         TagItem *child = parent->child(0);
-        child->setData(0,tag);
+        child->setData(tag,TAG_ROLE);
         return child;
     }
     return nullptr;
@@ -108,8 +99,9 @@ TagItem *TagTreeModel::addChild(const QString &tag, TagItem *parent)
 QVariant TagTreeModel::headerData(int section, Qt::Orientation orientation,
                                int role) const
 {
+    Q_UNUSED(section);
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return rootItem->data(section);
+        return rootItem->data(TAG_ROLE);
 
     return QVariant();
 }
@@ -121,7 +113,7 @@ bool TagTreeModel::insertRows(int position, int rows, const QModelIndex &parent)
         return false;
 
     beginInsertRows(parent, position, position + rows -1);
-    const bool success = parentItem->insertChildren(position,
+    bool success = parentItem->insertChildren(position,
                                                     rows);
     endInsertRows();
 
@@ -130,16 +122,30 @@ bool TagTreeModel::insertRows(int position, int rows, const QModelIndex &parent)
 
 bool TagTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role != Qt::EditRole || !index.isValid())
+    if (!index.isValid() || (role != TAG_ROLE && role != TYPE_ROLE))
         return false;
 
     TagItem *item = getItem(index);
 
-    bool result = item->setData(index.column(), value);
+    bool result = item->setData(value, role);
 
-    if (result && item->data(index.column()).isValid()){
-        emit dataChanged(index, index, {Qt::DisplayRole,Qt::EditRole});
-    }
+    if (result && item->data(index.column()).isValid())
+        emit dataChanged(index, index, {Qt::DisplayRole});
+
+    return result;
+}
+
+bool TagTreeModel::update_tag_type(const QModelIndex &index, TAG_TYPE type)
+{
+    TagItem *item = getItem(index);
+
+    if (type == NORMAL_TAG && item->data(TYPE_ROLE) != type)
+        item->setData(item->data(TAG_ROLE),TAG_ROLE);
+
+    bool result = item->setData(type,TYPE_ROLE);
+
+    if (result && item->data(index.column()).isValid())
+        emit dataChanged(index, index, {Qt::DisplayRole});
 
     return result;
 }
@@ -187,7 +193,7 @@ bool TagTreeModel::setHeaderData(int section, Qt::Orientation orientation,
     if (role != Qt::EditRole || orientation != Qt::Horizontal)
         return false;
 
-    const bool result = rootItem->setData(section, value);
+    const bool result = rootItem->setData(value,TAG_ROLE);
 
     if (result)
         emit headerDataChanged(orientation, section, section);

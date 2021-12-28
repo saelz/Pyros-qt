@@ -123,6 +123,31 @@ void PyrosWorker::get_tags_from_hash(PyrosDB *db, QByteArray hash)
     emit request_finished();
 }
 
+void PyrosWorker::get_related_tags(PyrosDB *db, QVector<QByteArray> tags,uint relation_type)
+{
+    QVector<PyrosList*> related_tags;
+    QVector<QByteArray> unfound_tags;
+    foreach(QByteArray tag,tags){
+        PyrosList *t;
+        if (!tag.compare("*")){
+            unfound_tags.append(tag);
+        } else{
+            t = Pyros_Get_Related_Tags(db,tag.data(),relation_type);
+            if (t == nullptr || t->length == 0)
+                unfound_tags.append(tag);
+            else
+                related_tags.append(t);
+
+            if (t != nullptr && t->length == 0)
+                Pyros_List_Free(t,nullptr);
+        }
+    }
+
+    emit related_tag_return(related_tags,unfound_tags);
+    emit request_finished();
+
+}
+
 void PyrosWorker::delete_file(PyrosDB *db, PyrosFile*pFile)
 {
     Pyros_Remove_File(db,pFile);
@@ -215,6 +240,7 @@ PyrosTC::PyrosTC()
     qRegisterMetaType<QVector<QByteArray>>("QVecByteArray");
     qRegisterMetaType<QVector<PyrosFile*>>("QVecPyrosFileptr");
     qRegisterMetaType<QVector<PyrosTag*>>("QVecPyrosTagptr");
+    qRegisterMetaType<QVector<PyrosList*>>("QVecPyrosListptr");
     qRegisterMetaType<PyrosTC::PyrosExtFunc*>("PyrosExtFunc");
 
     PyrosWorker *worker = new PyrosWorker;
@@ -248,6 +274,11 @@ PyrosTC::PyrosTC()
         worker,&PyrosWorker::get_tags_from_hash);
     connect(worker,&PyrosWorker::tag_return,
         this,&PyrosTC::tag_return);
+
+    connect(this,&PyrosTC::sig_get_related_tags,
+        worker,&PyrosWorker::get_related_tags);
+    connect(worker,&PyrosWorker::related_tag_return,
+        this,&PyrosTC::related_tag_return);
 
     connect(this,&PyrosTC::sig_delete_file,
         worker,&PyrosWorker::delete_file);
@@ -372,6 +403,19 @@ void PyrosTC::tag_return(QVector<PyrosTag*> tags)
 
 }
 
+void PyrosTC::related_tag_return(QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags)
+{
+    Request req = requests.front();
+
+    if (req.discard || req.sender.isNull()){
+        foreach(PyrosList *tags, related_tags)
+            Pyros_List_Free(tags,(Pyros_Free_Callback)Pyros_Free_Tag);
+    } else {
+        req.r_cb(related_tags,unfound_tags);
+    }
+
+}
+
 void PyrosTC::return_all_tags(QStringList tags)
 {
     known_tags = tags;
@@ -392,9 +436,32 @@ void PyrosTC::add_tags(QVector<QByteArray> hashes, QVector<QByteArray> tags)
         if (!known_tags.contains(tag))
             known_tags.append(tag);
 
+    emit tag_added(hashes,tags);
+
+    related_cb r_cb = [&](QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags){
+        emit tags_added_with_related(related_tags,unfound_tags);
+        foreach(PyrosList *tags,related_tags)
+            Pyros_List_Free(tags,(Pyros_Free_Callback)Pyros_Free_Tag);
+    };
+
+    push_request(Request(this,NONE,r_cb,[=](){
+        emit sig_get_related_tags(db,tags,PYROS_FILE_RELATIONSHIP);
+    }));
+
     push_request(Request(NONE,[=](){
         emit sig_add_tags(db,hashes,tags);
     }));
+
+}
+
+void PyrosTC::get_related_tags(QPointer<QObject> sender,QVector<QByteArray> tags,related_cb cb,uint relation_type)
+{
+    if (db == nullptr) return;
+
+    push_request(Request(sender,NONE,cb,[=](){
+        emit sig_get_related_tags(db,tags,relation_type);
+    }));
+
 }
 
 void PyrosTC::add_tags(QByteArray hash, QVector<QByteArray> tags)
@@ -404,10 +471,23 @@ void PyrosTC::add_tags(QByteArray hash, QVector<QByteArray> tags)
         if (!known_tags.contains(tag))
             known_tags.append(tag);
 
+    emit tag_added(QVector<QByteArray>{hash},tags);
+    related_cb r_cb = [&](QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags){
+        emit tags_added_with_related(related_tags,unfound_tags);
+        foreach(PyrosList *tags,related_tags)
+            Pyros_List_Free(tags,(Pyros_Free_Callback)Pyros_Free_Tag);
+    };
+
+    push_request(Request(this,NONE,r_cb,[=](){
+        emit sig_get_related_tags(db,tags,PYROS_FILE_RELATIONSHIP);
+    }));
+
     push_request(Request(NONE,[=](){
         emit sig_add_tags_to_file(db,hash,tags);
     }));
+
 }
+
 
 void PyrosTC::search(QPointer<QObject>sender,QVector<QByteArray> tags, search_cb func)
 {
@@ -424,6 +504,8 @@ void PyrosTC::remove_tags(QVector<QByteArray> hashes, QVector<QByteArray> tags)
     push_request(Request(NONE,[=](){
         emit sig_remove_tags(db,hashes,tags);
     }));
+
+    emit tag_removed(hashes,tags);
 }
 
 void PyrosTC::remove_tags(QByteArray hash, QVector<QByteArray> tags)
@@ -432,6 +514,8 @@ void PyrosTC::remove_tags(QByteArray hash, QVector<QByteArray> tags)
     push_request(Request(NONE,[=](){
         emit sig_remove_tags_from_file(db,hash,tags);
     }));
+
+    emit tag_removed(QVector<QByteArray>{hash},tags);
 }
 
 void PyrosTC::import(QPointer<QObject>sender,QVector<QByteArray> files, search_cb func,import_progress_cb ib,bool use_tag_files,QVector<QByteArray> import_tags)
@@ -458,6 +542,8 @@ void PyrosTC::delete_file(PyrosFile *file)
     push_request(Request(NONE,[=](){
         emit sig_delete_file(db,file);
     }));
+
+    emit file_removed(QVector<QByteArray>{file->hash});
 }
 
 void PyrosTC::delete_file(QVector<PyrosFile*> files)
@@ -466,30 +552,42 @@ void PyrosTC::delete_file(QVector<PyrosFile*> files)
     push_request(Request(NONE,[=](){
         emit sig_delete_files(db,files);
     }));
+
+    QVector<QByteArray> hashes;
+    foreach(PyrosFile *file,files)
+        hashes.append(file->hash);
+
+    emit file_removed(hashes);
 }
 
-void PyrosTC::add_alias(QVector<QByteArray> tag, QVector<QByteArray> alises)
+void PyrosTC::add_alias(QVector<QByteArray> tags, QVector<QByteArray> aliases)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_tag_relation_func(db,tag,alises,Pyros_Add_Alias);
+        emit sig_tag_relation_func(db,tags,aliases,Pyros_Add_Alias);
     }));
+
+    emit tag_relationship_added(tags,aliases,PYROS_ALIAS);
 }
 
-void PyrosTC::add_parent(QVector<QByteArray> tag, QVector<QByteArray> parents)
+void PyrosTC::add_parent(QVector<QByteArray> tags, QVector<QByteArray> parents)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_tag_relation_func(db,tag,parents,Pyros_Add_Parent);
+        emit sig_tag_relation_func(db,tags,parents,Pyros_Add_Parent);
     }));
+
+    emit tag_relationship_added(tags,parents,PYROS_PARENT);
 }
 
-void PyrosTC::add_child(QVector<QByteArray> tag, QVector<QByteArray> children)
+void PyrosTC::add_child(QVector<QByteArray> tags, QVector<QByteArray> children)
 {
     if (db == nullptr) return;
     push_request(Request(NONE,[=](){
-        emit sig_tag_relation_func(db,tag,children,Pyros_Add_Child);
+        emit sig_tag_relation_func(db,tags,children,Pyros_Add_Child);
     }));
+
+    emit tag_relationship_added(tags,children,PYROS_CHILD);
 }
 
 void PyrosTC::close_db()
@@ -507,6 +605,9 @@ void PyrosTC::remove_relationship(QVector<QByteArray> tags)
     push_request(Request(NONE,[=](){
         emit sig_remove_relationship(db,tags);
     }));
+
+
+    emit tag_relationship_removed(tags);
 }
 
 void PyrosTC::get_all_tags(QPointer<QObject>sender,all_tags_cb cb)
@@ -531,6 +632,8 @@ void PyrosTC::merge_files(QByteArray superior_file,QVector<QByteArray> duplicate
     push_request(Request(NONE,[=](){
         emit sig_merge_files(db,superior_file,duplicates);
     }));
+
+    emit file_removed(duplicates);
 }
 
 void PyrosTC::vacuum_database()
@@ -552,4 +655,7 @@ PyrosTC::Request::Request(QPointer<QObject> sender,uint flags,tag_cb cb,std::fun
 
 PyrosTC::Request::Request(QPointer<QObject> sender,uint flags,all_tags_cb cb,std::function<void()> execute_cmd):
     sender(sender),flags(flags),at_cb(cb),execute_cmd(execute_cmd){}
+
+PyrosTC::Request::Request(QPointer<QObject> sender,uint flags,related_cb cb,std::function<void()> execute_cmd):
+    sender(sender),flags(flags),r_cb(cb),execute_cmd(execute_cmd){}
 

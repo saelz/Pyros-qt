@@ -6,48 +6,32 @@
 #include <QVector>
 #include <QColor>
 
+#include "tagtreemodel.h"
+
 class TagItem
 {
 public:
     explicit TagItem(const QVariant &data,TagItem* parent = nullptr);
     ~TagItem();
 
-    enum COLUMNS{
-        TAG_COLUMN = 0,
-        TYPE_COLUMN,
-        COLUMN_COUNT
-    };
-
-    enum TAG_TYPE{
-        NORMAL_TAG = 0,
-        ALIAS_TAG,
-        SPECIAL_TAG,
-        NEW_TAG,
-        INVALID_TAG,
-        TAG_TYPE_COUNT
-    };
-
     TagItem *child(int number);
     int childCount() const;
-    QVariant data(int column) const;
+    QVariant data(int role) const;
     TagItem *parent();
     int childNumber() const;
     bool insertChildren(int position, int count);
-    bool setData(int column, const QVariant &value);
+    bool setData(const QVariant &value,int role);
 
     bool removeChildren(int position, int count);
 
     void update_parent_color();
 
-    QColor fg_color;
-    QColor bg_color;
-    QVariant tag;
-
-
 private:
     QVector<TagItem*> childItems;
-    enum TAG_TYPE type = NORMAL_TAG;
+    QVariant tag;
+    QVariant type = TagTreeModel::NORMAL_TAG;
     TagItem *parentItem;
+    QColor fg_color;
 
 };
 

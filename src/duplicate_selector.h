@@ -42,8 +42,6 @@ private slots:
     void entry_changed(int);
 
 signals:
-    void hide_files(QVector<QByteArray>);
-    void files_removed(QVector<QByteArray>);
     void set_dupe_combo_box_status(int);
     void set_apply_button_enabled(bool);
     void hide_combo_box_entry(int,bool);
