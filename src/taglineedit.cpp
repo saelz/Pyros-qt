@@ -31,14 +31,14 @@ TagCompleter::TagCompleter(const QStringList *tags,QVector<QString> *tag_history
 void TagCompleter::update(QString text)   {
     QString comparison_text;
 
-    if ((text.isEmpty() || text.isNull()) && !hist_mode){
+    if (text.isEmpty() && !hist_mode){
         popup()->hide();
         return;
     }
 
 
 
-    if (text.at(0) == '-'){
+    if (!text.isEmpty() && text.at(0) == '-'){
         if (text.length() == 1){
             popup()->hide();
             return;

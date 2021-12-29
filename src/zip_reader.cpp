@@ -1,8 +1,6 @@
 #include "zip_reader.h"
 
-#ifdef ENABLE_ZLIB
 #include <zlib.h>
-#endif
 
 #include <QByteArray>
 #include <QFile>
@@ -60,7 +58,7 @@ qint64 zip_reader::find_next(QFile &file,qint64 position,QByteArray header)
         file_data = file.read(1024);
         for	(int i = 0;i < file_data.length();i++){
             position++;
-            if (file_data[i] == header[current_index]){
+            if (file_data.at(i) == header.at(current_index)){
                 current_index++;
                 if (current_index == header.length()){
                     return position-header.length();
@@ -114,15 +112,8 @@ void zip_reader::read_file(QByteArray path)
 
         if (starting_disk > 0){
             qWarning("multi disk zips are not supported");
-#ifdef ENABLE_ZLIB
         } else if (zfile.compression_type != 0 && zfile.compression_type != 8 ){
             qWarning("only zip files that are compressed using DEFLATE or are uncompressed are supported");
-#else
-        } else if (zfile.compression_type == 8){
-            qWarning() << QCoreApplication::arguments().at(0) << "not compiled with zlib support";
-        } else if (zfile.compression_type != 0){
-            qWarning("only zip files that are uncompressed are supported");
-#endif
         } else if (zfile.compressed_size == 0){
         } else {
             m_files.append(zfile);
@@ -148,7 +139,7 @@ int zip_reader::file_count()
         return 0;
     return m_files.length();
 }
-#ifdef ENABLE_ZLIB
+
 QByteArray zip_reader::uncompress(const QByteArray &data,unsigned final_size)
 {
     z_stream stream;
@@ -189,7 +180,7 @@ QByteArray zip_reader::uncompress(const QByteArray &data,unsigned final_size)
     inflateEnd(&stream);
     return result;
 }
-#endif
+
 
 QByteArray zip_reader::get_file_data(int i)
 {
@@ -218,17 +209,11 @@ QByteArray zip_reader::get_file_data(int i)
         goto error;
 
     if (zfile.compression_type == 8){
-#ifdef ENABLE_ZLIB
         //zlib header
         data.prepend(0x01);//FLG
         data.prepend(0x78);//CMF
 
         data = uncompress(data,zfile.uncompressed_size);
-#else
-        isValid = false;
-        file.close();
-        return QByteArray();
-#endif
     }
 
 

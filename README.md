@@ -32,8 +32,8 @@ You can also use [globbing] with tags, including the filters listed above.
 * Qt
 * [libPyros]
 * mpv (used for video and audio playback)
+* zlib (used for viewing compressed cbz/zip files)
 * ffmpegthumbnailer (optional; used for video thumbnails)
-* zlib (optional; used for viewing compressed cbz/zip files)
 
 [libPyros]: https://github.com/saelz/libPyros
 [globbing]: https://en.wikipedia.org/wiki/Glob_(programming)

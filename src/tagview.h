@@ -6,9 +6,9 @@
 #include <QMenu>
 
 class TagTreeModel;
-class PyrosTag;
-class PyrosFile;
-class PyrosList;
+struct PyrosTag;
+struct PyrosFile;
+struct PyrosList;
 
 class  QSortFilterProxyModel;
 

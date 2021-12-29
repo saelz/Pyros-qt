@@ -94,7 +94,7 @@ HEADERS += \
     src/thumbnailer.h \
     src/zip_reader.h
 
-LIBS += -lpyros
+LIBS += -lpyros -lz
 PKGCONFIG += mpv
 
 FORMS += \
@@ -105,11 +105,6 @@ FORMS += \
     src/pyrosqt.ui \
     src/searchtab.ui \
     src/slideshowconfdialog.ui
-
-packagesExist(zlib) {
-   DEFINES += ENABLE_ZLIB
-   LIBS += -lz
-}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -16,7 +16,7 @@ class zip_reader
         unsigned header_position;
     };
 
-    const QByteArray SOCD_HEADER = (char[]){0x50,0x4b,0x01,0x02};
+    const QByteArray SOCD_HEADER = QByteArray((const char[4]){0x50,0x4b,0x01,0x02},4);
     enum SOCD_HEADER_DATA{
         file_compression_type    = 10,
         file_compressed_size     = 20,
@@ -29,7 +29,7 @@ class zip_reader
         filename_location        = 46,
     };
 
-    const QByteArray LF_HEADER = (char[]){0x50,0x4b,0x03,0x04};
+    const QByteArray LF_HEADER = QByteArray((const char[4]){0x50,0x4b,0x03,0x04},4);
     enum LF_HEADER_DATA{
         lf_filename_len = 26,
         lf_extra_len    = 28,
@@ -45,9 +45,9 @@ class zip_reader
     QByteArray get_bytes_at(QFile &file,qint64 position,int string_len);
     qint64 find_next(QFile &file,qint64 starting_pos,QByteArray header);
 
-#ifdef ENABLE_ZLIB
+
     QByteArray uncompress(const QByteArray &data,unsigned final_size);
-#endif
+
 public:
     zip_reader();
     zip_reader(QByteArray file);
