@@ -31,7 +31,7 @@ TagCompleter::TagCompleter(const QStringList *tags,QVector<QString> *tag_history
 void TagCompleter::update(QString text)   {
     QString comparison_text;
 
-    if (text.isEmpty() && !hist_mode){
+    if (text.isEmpty() && !m_hist_mode){
         popup()->hide();
         return;
     }
@@ -61,7 +61,7 @@ void TagCompleter::update(QString text)   {
         comparison_text = comparison_text.toLower();
 
     QStringList filtered;
-    if (hist_mode){
+    if (m_hist_mode){
         foreach(QString t,*tag_history)
             if (!t.isEmpty() && t.contains(comparison_text))
                 filtered.append(t);
@@ -110,6 +110,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 {
     QLineEdit::keyPressEvent(event);
 
+
     if (event->key() == Qt::Key::Key_Up){
         if ((++hist_location) >= tag_history.length())
             hist_location = 0;
@@ -125,6 +126,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
         if (completer != nullptr){
             completer->toggle_hist_mode();
             completer->update(text());
+            update_text_color(text());
         }
     } else if (event->key() == Qt::Key::Key_Enter || event->key() == Qt::Key::Key_Return){
         if (completer != nullptr)
@@ -162,17 +164,20 @@ void TagLineEdit::process_tag()
 
 void TagLineEdit::update_text_color(const QString &text){
     QSettings settings;
-    QString color_prefix = "color: ";
+    QString color_prefix = "";
+
+    if (completer != nullptr && completer->hist_mode())
+        color_prefix = "border: 2px solid red;";
 
     if (text.startsWith('-')){
         QColor color = settings.value("special-tagcolor/invalid",
                           QColorConstants::Red).value<QColor>();
-        setStyleSheet(color_prefix+color.name());
+        setStyleSheet(color_prefix+" color: "+color.name());
         return;
     }
 
 
-    setStyleSheet("");
+    setStyleSheet(color_prefix);
     if (text.isEmpty())
         return;
 
@@ -180,7 +185,7 @@ void TagLineEdit::update_text_color(const QString &text){
 
     foreach(ct::color_setting tag_color,tag_colors)
         if (Globbing::glob_compare(tag_color.glob,text.toLower()))
-            setStyleSheet(color_prefix+tag_color.color.name());
+            setStyleSheet(color_prefix+"color:"+tag_color.color.name());
 
 }
 

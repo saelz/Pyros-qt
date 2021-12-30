@@ -16,15 +16,16 @@ public:
     TagCompleter(const QStringList *tags,QVector<QString> *tag_history,int relation_type, QObject * parent);
     void update(QString text);
 
-    inline void toggle_hist_mode(){ hist_mode = !hist_mode;}
+    inline void toggle_hist_mode(){ m_hist_mode = !m_hist_mode;}
 
-    inline void set_hist_false(){hist_mode = false;}
+    inline void set_hist_false(){m_hist_mode = false;}
+    inline bool hist_mode(){return m_hist_mode;}
 
 private:
     const QStringList *m_list;
     QStringListModel m_model;
     QVector<QString> *tag_history;
-    bool hist_mode = false;
+    bool m_hist_mode = false;
     int relation_type;
 };
 

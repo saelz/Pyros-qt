@@ -162,7 +162,7 @@ void MediaViewer::set_file()
            !qstrcmp(file->mime,"application/vnd.comicbook+zip")){
         viewer = new Cbz_Viewer(label);
 
-    } else if (!qstrcmp(file->mime,"text/plain")){
+    } else if (!qstrncmp(file->mime,"text/",5) ||!qstrncmp(file->mime,"message/",8)){
         viewer = new Text_Viewer(label);
 
     } else {
