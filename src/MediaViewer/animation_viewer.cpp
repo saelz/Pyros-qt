@@ -5,7 +5,6 @@
 
 Animation_Viewer::Animation_Viewer(QLabel *label) : Image_Viewer(label)
 {
-    controller = new Animation_Controller(this);
 }
 
 Animation_Viewer::~Animation_Viewer()
@@ -29,10 +28,10 @@ void Animation_Viewer::set_file(char *path)
         frames.append(Frame(pix,img_reader.nextImageDelay()));
     }
 
-    if (frames.count() > 1)
+    if (frames.count() > 1){
+        controller = new Animation_Controller(this);
         controller->fast_forward();
-    else
-        controller->pause();
+    }
 }
 
 void Animation_Viewer::set_frame(int frame_number)
