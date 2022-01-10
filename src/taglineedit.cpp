@@ -140,7 +140,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 void TagLineEdit::process_tag()
 {
     QSettings settings;
-    const QByteArray tag = text().toLower().toUtf8();
+    const QByteArray tag = text().simplified().toLower().toUtf8();
     hist_location = 0;
 
 
