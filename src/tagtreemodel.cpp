@@ -200,3 +200,29 @@ bool TagTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
     return result;
 }
+
+void TagTreeModel::set_child_tag_highlight(const QModelIndex &index, bool highlight)
+{
+    TagItem *item = getItem(index);
+    if (item != rootItem){
+        if (highlight)
+            item->children_highlighted++;
+        else
+            item->children_highlighted--;
+
+        if (item->children_highlighted <= 1)
+            emit dataChanged(index, index, {Qt::BackgroundColorRole});
+        set_child_tag_highlight(index.parent(),highlight);
+    }
+}
+
+void TagTreeModel::set_tag_highlight(const QModelIndex &index, bool highlight)
+{
+    TagItem *item = getItem(index);
+    if (item != rootItem && item->highlighted != highlight){
+        item->highlighted = highlight;
+        emit dataChanged(index, index, {Qt::BackgroundColorRole});
+        set_child_tag_highlight(index.parent(),highlight);
+    }
+}
+

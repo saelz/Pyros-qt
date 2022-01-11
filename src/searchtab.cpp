@@ -35,8 +35,7 @@ SearchTab::SearchTab(QVector<QByteArray> &tags,QTabWidget *parent) :
     create_title(tags);
 }
 
-SearchTab::~SearchTab()
-{
+SearchTab::~SearchTab(){
     delete ui;
 }
 
@@ -82,6 +81,7 @@ void SearchTab::init()
     connect(ui->search_tags, &TagView::removeTag,ui->file_view, &FileView::remove_tag_from_search);
 
     connect(ui->tag_bar, &TagLineEdit::tag_entered,ui->file_view, &FileView::add_tag);
+    connect(ui->tag_bar, &TagLineEdit::textChanged,ui->file_tags, &TagView::highlight_similar_tags);
 
     connect(ui->file_tags,&TagView::removeTag,ui->file_view,&FileView::remove_tag);
     connect(ui->file_tags,&TagView::add_tag_to_current_search,ui->search_tags,&TagView::add_tags);
@@ -92,6 +92,7 @@ void SearchTab::init()
     connect(ui->file_view, &FileView::activated, this, &SearchTab::create_new_viewer_tab);
     connect(ui->file_view, &FileView::new_files, this, &SearchTab::set_file_count);
     connect(ui->file_view->selectionModel(), &QItemSelectionModel::selectionChanged ,this, &SearchTab::set_bottom_bar);
+
 
     connect(ui->file_tags,&TagView::new_search_with_selected_tags,this,&SearchTab::create_new_search_with_tags);
     connect(ui->search_tags,&TagView::new_search_with_selected_tags,this,&SearchTab::create_new_search_with_tags);

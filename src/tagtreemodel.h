@@ -66,7 +66,10 @@ public:
                               const QVariant &value, int role = Qt::EditRole) override;
 
     bool update_tag_type(const QModelIndex &index, enum TAG_TYPE type);
+
+    void set_tag_highlight(const QModelIndex &index,bool highlight);
 private:
+    void set_child_tag_highlight(const QModelIndex &index,bool highlight);
 
     TagItem *addChild(const QString &tag, TagItem *parent);
     bool generateModel(PyrosTag **pt,size_t cur,size_t max,TagItem *parent);

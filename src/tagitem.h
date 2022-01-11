@@ -26,12 +26,16 @@ public:
 
     void update_parent_color();
 
+    bool highlighted = false;
+    int children_highlighted = 0;
 private:
     QVector<TagItem*> childItems;
     QVariant tag;
     QVariant type = TagTreeModel::NORMAL_TAG;
     TagItem *parentItem;
     QColor fg_color;
+    QColor highlight_color;
+    QColor child_highlight_color;
 
 };
 

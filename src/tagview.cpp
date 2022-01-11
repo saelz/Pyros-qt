@@ -4,6 +4,7 @@
 #include "tagitem.h"
 #include "globbing.h"
 #include "tagtreemodel.h"
+#include "configtab.h"
 
 #include <QClipboard>
 #include <QGuiApplication>
@@ -78,6 +79,7 @@ TagView::TagView(QWidget *parent) :
     connect(copy_bind,&QAction::triggered,this,&TagView::copy_tag);
 
     connect(this, &TagView::customContextMenuRequested, this, &TagView::onCustomContextMenu);
+
 
     setItemDelegate(new TagDelegate(sort_model,this));
 }
@@ -417,12 +419,12 @@ void TagView::remove_related_tags_from_view_recursively(QVector<QByteArray> tag_
         bool tag_matched = false;
 
         for(int j = 1; j < tag_pairs.count();j+=2){
-            QString tag = tag_model->data(index,TagTreeModel::TAG_ROLE).toByteArray();
+            QString tag = tag_model->data(index,TagTreeModel::TAG_ROLE).toString();
 
             if ((tag == tag_pairs.at(j) || tag == tag_pairs.at(j-1))){
                 tag_matched = true;
                 if (tag_found){
-                    QString parent_tag = tag_model->data(parent,TagTreeModel::TAG_ROLE).toByteArray();
+                    QString parent_tag = tag_model->data(parent,TagTreeModel::TAG_ROLE).toString();
 
                     if ((parent_tag == tag_pairs.at(j) || parent_tag == tag_pairs.at(j-1))){
                         tag_model->removeRow(index.row(),parent);
@@ -490,4 +492,32 @@ void TagView::filter_selected_tags_from_search()
         selected_tags[i] = '-'+Globbing::escape_glob_characters(selected_tags[i]);
 
     emit add_tag_to_current_search(selected_tags);
+}
+
+void TagView::highlight_similar_tags_recursively(const QString &text,const QModelIndex parent)
+{
+    if (text.isEmpty()){
+        for(int i = 0; i < tag_model->rowCount(parent);i++){
+            QModelIndex index = tag_model->index(i,0,parent);
+            tag_model->set_tag_highlight(index,false);
+            highlight_similar_tags_recursively(text,index);
+        }
+        return;
+    }
+
+    for(int i = 0; i < tag_model->rowCount(parent);i++){
+        QModelIndex index = tag_model->index(i,0,parent);
+        QString tag = tag_model->data(index,TagTreeModel::TAG_ROLE).toString();
+        tag_model->set_tag_highlight(index,tag.startsWith(text));
+        highlight_similar_tags_recursively(text,index);
+    }
+
+}
+
+void TagView::highlight_similar_tags(const QString &text)
+{
+    bool use_highlights = configtab::setting_value(configtab::HIGHLIGHT_SIMMILAR_TAGS).value<bool>();
+
+    if (use_highlights)
+        highlight_similar_tags_recursively(text,QModelIndex());
 }

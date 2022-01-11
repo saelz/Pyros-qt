@@ -140,7 +140,7 @@ void TagLineEdit::keyPressEvent(QKeyEvent *event)
 void TagLineEdit::process_tag()
 {
     QSettings settings;
-    const QByteArray tag = text().simplified().toLower().toUtf8();
+    const QByteArray tag = text().toLower().toUtf8();
     hist_location = 0;
 
 
@@ -151,6 +151,9 @@ void TagLineEdit::process_tag()
 
     QList<QByteArray> l = tag.split('\n');
     QVector<QByteArray> tags = l.toVector();
+
+    for	(int i = 0;i < tags.length();i++)
+        tags[i] = tags[i].simplified();
 
     if (ct::setting_value(ct::TAG_HISTORY).toBool()){
         foreach(QByteArray hist_tag, tags){
@@ -193,7 +196,7 @@ void TagLineEdit::update_text_color(const QString &text){
 void TagLineEdit::update_completion(const QString &t){
     QString new_text;
 
-    if (this->text().startsWith('-'))
+    if (text().startsWith('-'))
         new_text = '-';
 
     if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_GLOB)

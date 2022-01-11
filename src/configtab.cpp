@@ -36,16 +36,28 @@ const configtab::Setting_Item configtab::settings[] = {
      "theme",QStringList(std::initializer_list<QString>({"Default","Dark Theme"})),COMBO,
      nullptr},
 
-    {TAG_COLOR,"Tags.Tag Color","Tag",
-     "tagcolor",QVariant(),COLOR,
-     nullptr},
+    {HIGHLIGHT_SIMMILAR_TAGS,"Tags.Tag Highlighting","Highlight tags smmilar to the tag currently being typed",
+    "highlight-similar-tags",true,BOOL,
+    nullptr},
 
-    {FILE_COLOR,"Files.File Border","Mime/Type",
-     "filecolor",QVariant(),COLOR,
+    {HIGHLIGHT_COLOR,"Tags.Tag Highlighting","Simmilar tag highlight color",
+    "highlight-color",QColor(100,100,230),COLOR,
+    nullptr},
+
+    {CHILD_HIGHLIGHT_COLOR,"Tags.Tag Highlighting","Related tag highlight color",
+    "highlight-related-color",QColor(230,100,230),COLOR,
+    nullptr},
+
+    {TAG_COLOR,"Tags.Tag Color","Tag",
+     "tagcolor",QVariant(),COLOR_ARRAY,
      nullptr},
 
     {THUMBNAIL_DIR,"Files.Thumbnails","Location used for thumbnail storage",
      "thumbnail_dir","~/.cache/PyrosQT",STRING,
+     nullptr},
+
+    {FILE_COLOR,"Files.File Border","Mime/Type",
+     "filecolor",QVariant(),COLOR_ARRAY,
      nullptr},
 
     {THUMBNAIL_SIZE,"Files.Thumbnails","Thumbnails size",
@@ -178,6 +190,11 @@ void configtab::Setting_Group::apply()
             value = lineedit->text();
             break;
         }
+        case COLOR:{
+            QLineEdit *lineedit = qobject_cast<QLineEdit *>(item.widget);
+            value = '#'+lineedit->text();
+            break;
+        }
         case BOOL:{
             continue;
             QCheckBox *checkbox = qobject_cast<QCheckBox *>(item.widget);
@@ -189,7 +206,7 @@ void configtab::Setting_Group::apply()
             value = combobox->currentText();
             break;
         }
-        case COLOR:
+        case COLOR_ARRAY:
             SettingArrayList *arraylist = qobject_cast<SettingArrayList *>(item.widget);
             arraylist->apply();
             break;
@@ -373,6 +390,22 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_
     layout->addLayout(container);
     item.widget = text_box;
 }
+void configtab::create_colorlineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
+{
+    QHBoxLayout *container = new QHBoxLayout();
+    QLabel *label = new QLabel(item.item->name+":");
+    QLineEdit *text_box = new ColorLineEdit();
+    QFont font = QFont();
+    font.setPointSize(font_size);
+
+    container->addWidget(label);
+    container->addWidget(text_box);
+    label->setFont(font);
+    text_box->setText(setting_value(item.item->id).toString().remove(0,1));
+
+    layout->addLayout(container);
+    item.widget = text_box;
+}
 
 
 void configtab::create_combo_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
@@ -471,6 +504,9 @@ void configtab::load_setting_groups()
                 create_combo_settings_entry(current_group->layout,current_group->items.last());
                 break;
             case COLOR:
+                create_colorlineedit_settings_entry(current_group->layout,current_group->items.last());
+                break;
+            case COLOR_ARRAY:
                 SettingArrayList *arraylist = new SettingArrayList(current_group->layout->widget(),settings[i].key,{{"prefix",settings[i].name,false},{"color","Color",true}});
                 current_group->layout->addWidget(arraylist);
                 current_group->items.last().widget = arraylist;
@@ -555,12 +591,14 @@ SettingArrayList::add_entry(int existing_entry)
     entry.delete_button = delete_button;
 
     foreach(Key key,keys){
-        QLineEdit *lineedit = new QLineEdit();
+        QLineEdit *lineedit;
+
+        if (key.isColor)
+            lineedit = new ColorLineEdit();
+        else
+            lineedit = new QLineEdit();
+
         lineedit->setPlaceholderText(key.placeholder);
-        if (key.isColor){
-            lineedit->setInputMask("HHHHHH");
-            connect(lineedit,&QLineEdit::textChanged,this,&SettingArrayList::update_color);
-        }
 
         if (existing_entry >= 0){
             settings.setArrayIndex(existing_entry);
@@ -583,19 +621,6 @@ SettingArrayList::add_entry(int existing_entry)
 
     connect(delete_button,&QPushButton::clicked,this,&SettingArrayList::delete_entry);
     connect(delete_button,&QPushButton::clicked,container,&SettingArrayList::deleteLater);
-}
-
-void SettingArrayList::update_color(const QString &text)
-{
-    QLineEdit* lineedit = qobject_cast<QLineEdit*>(sender());
-    if (text.length() != 3 && text.length() != 6){
-        lineedit->setStyleSheet("color:#ff0000");
-        return;
-    }
-
-    QColor c = "#"+text;
-    lineedit->setStyleSheet("color:"+c.name());
-
 }
 
 void SettingArrayList::delete_entry()
@@ -625,5 +650,25 @@ void SettingArrayList::apply()
     }
 
     settings.endArray();
+
+}
+
+ColorLineEdit::ColorLineEdit(QWidget *parent) : QLineEdit(parent)
+{
+    setInputMask("HHHHHH");
+    connect(this,&ColorLineEdit::textChanged,this,&ColorLineEdit::update_color);
+}
+
+ColorLineEdit::~ColorLineEdit(){}
+
+void ColorLineEdit::update_color(const QString &text)
+{
+    if (text.length() != 3 && text.length() != 6){
+        setStyleSheet("color:#ff0000");
+        return;
+    }
+
+    QColor c = "#"+text;
+    setStyleSheet("color:"+c.name());
 
 }

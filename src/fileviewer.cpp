@@ -35,6 +35,7 @@ FileViewer::FileViewer(QVector<PyrosFile*> files,int inital_pos,QTabWidget *pare
     connect(insert_bind, &QAction::triggered,this, &FileViewer::select_tag_bar);
 
     connect(ui->tag_bar, &TagLineEdit::tag_entered,this, &FileViewer::add_tag);
+    connect(ui->tag_bar, &TagLineEdit::textChanged,ui->file_tags, &TagView::highlight_similar_tags);
 
     connect(ui->file_tags, &TagView::removeTag, this,&FileViewer::remove_tag);
     connect(ui->file_tags, &TagView::new_search_with_selected_tags,this, &FileViewer::new_search_with_selected_tags);

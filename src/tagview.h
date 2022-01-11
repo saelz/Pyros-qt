@@ -51,6 +51,9 @@ public slots:
     void add_related_tags_to_view(QVector<QByteArray> tags,QVector<QByteArray> related_tags,uint type);
     void remove_related_tags_from_view(QVector<QByteArray> tag_pairs);
 
+    void highlight_similar_tags(const QString &text);
+private:
+    void highlight_similar_tags_recursively(const QString &text,const QModelIndex parent);
 private slots:
 
     void replace_temp_tags(QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags);

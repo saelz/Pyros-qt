@@ -8,7 +8,10 @@ using ct = configtab;
 TagItem::TagItem(const QVariant &data, TagItem *parent)
     : tag(data),
       parentItem(parent)
-{}
+{
+    highlight_color = ct::setting_value(ct::HIGHLIGHT_COLOR).value<QColor>();
+    child_highlight_color = ct::setting_value(ct::CHILD_HIGHLIGHT_COLOR).value<QColor>();
+}
 
 TagItem::~TagItem()
 {
@@ -43,6 +46,13 @@ QVariant TagItem::data(int role) const
         return type;
     case Qt::ForegroundRole:
         return fg_color;
+    case Qt::BackgroundColorRole:
+        if (highlighted)
+            return highlight_color;
+        else if (children_highlighted > 0)
+            return child_highlight_color;
+        else
+            return QVariant();
     default:
         return QVariant();
     }

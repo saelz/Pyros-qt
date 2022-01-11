@@ -63,6 +63,7 @@ FileImport::FileImport(QTabWidget *parent) :
 
     connect(ui->lineEdit, &TagLineEdit::tag_entered,this,&FileImport::add_tags);
     connect(ui->lineEdit, &TagLineEdit::tag_entered,ui->import_tags,&TagView::add_tags);
+    connect(ui->lineEdit, &TagLineEdit::textChanged,ui->import_tags, &TagView::highlight_similar_tags);
 
     connect(ui->import_tags, &TagView::removeTag,this, &FileImport::remove_tags);
     connect(ui->import_tags, &TagView::new_search_with_selected_tags,this, &FileImport::new_search_with_tags);

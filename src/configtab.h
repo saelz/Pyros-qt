@@ -5,6 +5,7 @@
 #include <QPointer>
 #include <QVariant>
 #include <QFrame>
+#include <QLineEdit>
 
 #include "tab.h"
 
@@ -12,15 +13,25 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QBoxLayout;
 class QSettings;
-class QLineEdit;
 class QPushButton;
 class QCheckBox;
 class QStackedWidget;
 class QValidator;
 
+class ColorLineEdit : public QLineEdit{
+    Q_OBJECT
+public:
+    ColorLineEdit(QWidget *parent = nullptr);
+    ~ColorLineEdit();
+
+private slots:
+    void update_color(const QString &text);
+
+};
+
 class SettingArrayList : public QFrame{
     Q_OBJECT
-private:
+
     QString array_name;
     struct Key{
         QString name;
@@ -34,8 +45,6 @@ private:
 
     QVector<Entry> entries;
     QVBoxLayout *entry_container;
-
-    void update_color(const QString &text);
 
     QVector<Key> keys;
 
@@ -85,6 +94,9 @@ public:
         SHOW_REMAINING_TIME,
         TAG_COLOR,
         FILE_COLOR,
+        HIGHLIGHT_SIMMILAR_TAGS,
+        HIGHLIGHT_COLOR,
+        CHILD_HIGHLIGHT_COLOR,
     };
 private:
 
@@ -92,6 +104,7 @@ private:
         BOOL,
         STRING,
         COMBO,
+        COLOR_ARRAY,
         COLOR,
     };
 
@@ -175,6 +188,7 @@ private:
 
     void create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
     void create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
+    void create_colorlineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
     void create_combo_settings_entry(QBoxLayout *layout, Setting_Group_Item &item);
     void apply();
     void update_bindings();
