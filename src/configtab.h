@@ -25,6 +25,7 @@ public:
     ~ColorLineEdit();
 
 private slots:
+    void update_color_text(const QString &text);
     void update_color(const QString &text);
 
 };

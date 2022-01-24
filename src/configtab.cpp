@@ -199,7 +199,7 @@ void configtab::Setting_Group::apply()
         }
         case COLOR:{
             QLineEdit *lineedit = qobject_cast<QLineEdit *>(item.widget);
-            value = '#'+lineedit->text();
+            value = lineedit->text();
             break;
         }
         case BOOL:{
@@ -622,10 +622,7 @@ SettingArrayList::add_entry(int existing_entry)
 
         if (existing_entry >= 0){
             settings.setArrayIndex(existing_entry);
-            if (key.isColor)
-                lineedit->setText(settings.value(key.name).toString().remove(0,1));
-            else
-                lineedit->setText(settings.value(key.name).toString());
+            lineedit->setText(settings.value(key.name).toString());
         }
 
         hbox->addWidget(lineedit);
@@ -662,10 +659,7 @@ void SettingArrayList::apply()
         for (int j = 0; j < keys.length(); j++){
             QString str = entries[i].data.at(j)->text();
             settings.setValue(keys[j].name,str);
-            if (keys[j].isColor)
-                settings.setValue(keys[j].name,"#"+str);
-            else
-                settings.setValue(keys[j].name,str);
+            settings.setValue(keys[j].name,str);
         }
     }
 
@@ -675,20 +669,31 @@ void SettingArrayList::apply()
 
 ColorLineEdit::ColorLineEdit(QWidget *parent) : QLineEdit(parent)
 {
-    setInputMask("HHHHHH");
-    connect(this,&ColorLineEdit::textChanged,this,&ColorLineEdit::update_color);
+    connect(this,&QLineEdit::textChanged,this,&ColorLineEdit::update_color);
+    connect(this,&QLineEdit::textEdited,this,&ColorLineEdit::update_color_text);
 }
 
 ColorLineEdit::~ColorLineEdit(){}
 
-void ColorLineEdit::update_color(const QString &text)
+void ColorLineEdit::update_color_text(const QString &text)
 {
-    if (text.length() != 3 && text.length() != 6){
-        setStyleSheet("color:#ff0000");
-        return;
+    QString new_str = "#";
+    for	(int i = 0; i < text.length();i++){
+        if ((text.at(i).toLower() >= 'a' && text.at(i).toLower() <= 'f') ||
+                (text.at(i) >= '0' && text.at(i) <= '9'))
+            new_str.append(text.at(i).toLower());
+        if (new_str.length() >= 7)
+            break;
     }
 
-    QColor c = "#"+text;
-    setStyleSheet("color:"+c.name());
+    setText(new_str);
+}
 
+void ColorLineEdit::update_color(const QString &)
+{
+
+    if (text().length() != 4 && text().length() != 7)
+        setStyleSheet("color:#ff0000");
+    else
+        setStyleSheet("color:"+QColor(text()).name());
 }
