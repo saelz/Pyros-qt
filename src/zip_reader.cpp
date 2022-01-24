@@ -35,7 +35,7 @@ T zip_reader::get_number(QFile &file,qint64 position)
 {
     file.seek(position);
     T result;
-    char  bytes[sizeof(result)];
+    char bytes[sizeof(result)];
     if (file.read(bytes,sizeof(result)) < 0){
         isValid = false;
         qDebug("unable to read value at 0x%llx",position);
@@ -55,7 +55,7 @@ qint64 zip_reader::find_next(QFile &file,qint64 position,QByteArray header)
     QByteArray file_data;
     file.seek(position);
     while (!file.atEnd()){
-        file_data = file.read(1024);
+        file_data = file.read(4096);
         for	(int i = 0;i < file_data.length();i++){
             position++;
             if (file_data.at(i) == header.at(current_index)){
@@ -114,8 +114,7 @@ void zip_reader::read_file(QByteArray path)
             qWarning("multi disk zips are not supported");
         } else if (zfile.compression_type != 0 && zfile.compression_type != 8 ){
             qWarning("only zip files that are compressed using DEFLATE or are uncompressed are supported");
-        } else if (zfile.compressed_size == 0){
-        } else {
+        } else if (zfile.compressed_size != 0){
             m_files.append(zfile);
         }
 
