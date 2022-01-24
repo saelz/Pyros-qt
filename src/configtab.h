@@ -29,6 +29,7 @@ private slots:
 
 };
 
+
 class SettingArrayList : public QFrame{
     Q_OBJECT
 
@@ -103,6 +104,7 @@ private:
     enum settings_type{
         BOOL,
         STRING,
+        KEY,
         COMBO,
         COLOR_ARRAY,
         COLOR,
@@ -161,7 +163,8 @@ public:
     static QAction *create_binding(Setting setting,QString name,QWidget *widget);
     static QVector<color_setting> get_tag_colors();
     static QVector<color_setting> get_file_colors();
-
+    static void update_bindings();
+    static void disable_bindings();
 
 private:
     struct binding{
@@ -186,12 +189,14 @@ private:
     void set_page();
     QBoxLayout *create_header(QBoxLayout *layout,QString text,int size);
 
-    void create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
+
+    template <typename T>
     void create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
-    void create_colorlineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
+    void create_keybind_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
+    void create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_Item &item);
     void create_combo_settings_entry(QBoxLayout *layout, Setting_Group_Item &item);
+
     void apply();
-    void update_bindings();
 
     void load_setting_groups();
 

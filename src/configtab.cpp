@@ -14,6 +14,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QAction>
+#include <QKeyEvent>
+#include <QKeySequenceEdit>
 
 const configtab::Setting_Item configtab::settings[] = {
     {TAG_HISTORY,"General","Use tag history",
@@ -81,83 +83,83 @@ const configtab::Setting_Item configtab::settings[] = {
      nullptr},
 
     {KEY_FOCUS_TAG_BAR,"Key Binds.General","Focus tag bar",
-     "keybind/focus-tag-bar","i",STRING,
+     "keybind/focus-tag-bar","i",KEY,
      nullptr},
 
     {KEY_DELETE_FILE,"Key Binds.General","Delete file",
-     "keybind/delete-file","CTRL+del",STRING,
+     "keybind/delete-file","CTRL+del",KEY,
      nullptr},
 
     {KEY_APPLY,"Key Binds.Tabs","Apply",
-     "keybind/apply","CTRL+Return",STRING,
+     "keybind/apply","CTRL+Return",KEY,
      nullptr},
 
     {KEY_NEW_SEARCH,"Key Binds.Tabs","New Search tab",
-     "keybind/new-search-tab","CTRL+t",STRING,
+     "keybind/new-search-tab","CTRL+t",KEY,
      nullptr},
 
     {KEY_NEW_IMPORT,"Key Binds.Tabs","New Import tab",
-     "keybind/new-import-tab","CTRL+i",STRING,
+     "keybind/new-import-tab","CTRL+i",KEY,
      nullptr},
 
     {KEY_CLOSE_TAB,"Key Binds.Tabs","Close tab",
-     "keybind/close-tab","CTRL+w",STRING,
+     "keybind/close-tab","CTRL+w",KEY,
      nullptr},
 
     {KEY_INVERT_SELECTION,"Key Binds.Search","Invert file selection",
-     "keybind/invert-selection","SHIFT+i",STRING,
+     "keybind/invert-selection","SHIFT+i",KEY,
      nullptr},
 
     {KEY_FOCUS_SEARCH_BAR,"Key Binds.Search","Focus search bar",
-     "keybind/focus-search-bar","a",STRING,
+     "keybind/focus-search-bar","a",KEY,
      nullptr},
 
     {KEY_FOCUS_FILE_GRID,"Key Binds.Search","Focus file grid",
-     "keybind/focus-file-grid","CTRL+f",STRING,
+     "keybind/focus-file-grid","CTRL+f",KEY,
      nullptr},
 
     {KEY_REFRESH,"Key Binds.Search","refresh",
-     "keybind/refresh","CTRL+r",STRING,
+     "keybind/refresh","CTRL+r",KEY,
      nullptr},
 
     {KEY_FOCUS_FILE_VIEWER,"Key Binds.File Viewer","Focus File Viewer",
-     "keybind/focus-file-viewer","CTRL+f",STRING,
+     "keybind/focus-file-viewer","CTRL+f",KEY,
      nullptr},
 
     {KEY_NEXT_FILE,"Key Binds.File Viewer","Next file",
-     "keybind/next-file","CTRL+n",STRING,
+     "keybind/next-file","CTRL+n",KEY,
      nullptr},
 
     {KEY_PREV_FILE,"Key Binds.File Viewer","Previous file",
-     "keybind/prev-file","CTRL+p",STRING,
+     "keybind/prev-file","CTRL+p",KEY,
      nullptr},
 
     {KEY_ZOOM_IN,"Key Binds.File Viewer","Zoom in",
-     "keybind/zoom-in","CTRL++",STRING,
+     "keybind/zoom-in","CTRL++",KEY,
      nullptr},
 
     {KEY_ZOOM_OUT,"Key Binds.File Viewer","Zoom out",
-     "keybind/zoom-out","CTRL+-",STRING,
+     "keybind/zoom-out","CTRL+-",KEY,
      nullptr},
 
     {KEY_NEXT_PAGE,"Key Binds.File Viewer","Next page",
-     "keybind/next-page",">",STRING,
+     "keybind/next-page",">",KEY,
      nullptr},
 
     {KEY_PREV_PAGE,"Key Binds.File Viewer","Previous page",
-     "keybind/prev-page","<",STRING,
+     "keybind/prev-page","<",KEY,
      nullptr},
 
-    {KEY_FULLSCREEN,"Key Binds.File Viewer","Toggle Fullscreen",
-     "keybind/fullscreen","CTRL+SHIFT+f",STRING,
-     nullptr},
+    /*{KEY_FULLSCREEN,"Key Binds.File Viewer","Toggle Fullscreen",
+     "keybind/fullscreen","CTRL+SHIFT+f",KEY,
+     nullptr},*/
 
     {KEY_TOGGLE_MUTE,"Key Binds.File Viewer","Toggle Mute",
-     "keybind/toggle-mute","m",STRING,
+     "keybind/toggle-mute","m",KEY,
      nullptr},
 
     {KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Key Binds.File Viewer","Lock Overlay to stop it from automatically hiding",
-     "keybind/lock-media-overlay","CTRL+l",STRING,
+     "keybind/lock-media-overlay","CTRL+l",KEY,
      nullptr},
 };
 
@@ -188,6 +190,11 @@ void configtab::Setting_Group::apply()
         case STRING:{
             QLineEdit *lineedit = qobject_cast<QLineEdit *>(item.widget);
             value = lineedit->text();
+            break;
+        }
+        case KEY:{
+            QKeySequenceEdit *kse = qobject_cast<QKeySequenceEdit *>(item.widget);
+            value = kse->keySequence().toString();
             break;
         }
         case COLOR:{
@@ -373,12 +380,12 @@ void configtab::create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_
     layout->addWidget(checkbox);
     item.widget = checkbox;
 }
-
-void configtab::create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
+template <typename T>
+void configtab::create_lineedit_settings_entry(QBoxLayout *layout, Setting_Group_Item &item)
 {
     QHBoxLayout *container = new QHBoxLayout();
     QLabel *label = new QLabel(item.item->name+":");
-    QLineEdit *text_box = new QLineEdit();
+    T *text_box = new T();
     QFont font = QFont();
     font.setPointSize(font_size);
 
@@ -390,24 +397,24 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout,Setting_Group_
     layout->addLayout(container);
     item.widget = text_box;
 }
-void configtab::create_colorlineedit_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
+
+void configtab::create_keybind_settings_entry(QBoxLayout *layout, Setting_Group_Item &item)
 {
     QHBoxLayout *container = new QHBoxLayout();
     QLabel *label = new QLabel(item.item->name+":");
-    QLineEdit *text_box = new ColorLineEdit();
+    QKeySequenceEdit *text_box = new QKeySequenceEdit();
     QFont font = QFont();
     font.setPointSize(font_size);
 
     container->addWidget(label);
     container->addWidget(text_box);
     label->setFont(font);
-    text_box->setText(setting_value(item.item->id).toString().remove(0,1));
+    //text_box->setText(setting_value(item.item->id).toString());
+    text_box->setKeySequence(setting_value(item.item->id).toString());
 
     layout->addLayout(container);
     item.widget = text_box;
 }
-
-
 void configtab::create_combo_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
 {
     QHBoxLayout *container = new QHBoxLayout();
@@ -476,13 +483,23 @@ QVector<configtab::color_setting> configtab::get_colors(QString group)
 void configtab::update_bindings()
 {
     for (int i = active_bindings.length()-1; i >= 0; i--) {
-        if (active_bindings[i].action.isNull()){
+        if (active_bindings[i].action.isNull())
             active_bindings.remove(i);
-        } else {
-            active_bindings[i].action->setShortcut(QKeySequence(setting_value(active_bindings[i].set).toString()));
-        }
+        else
+            active_bindings[i].action->setShortcut(QKeySequence(setting_value(active_bindings[i].set).toString().toLower(),QKeySequence::SequenceFormat::PortableText));
     }
 }
+
+void configtab::disable_bindings()
+{
+    for (int i = active_bindings.length()-1; i >= 0; i--) {
+        if (active_bindings[i].action.isNull())
+            active_bindings.remove(i);
+         else
+            active_bindings[i].action->setShortcut(QKeySequence(""));
+    }
+}
+
 
 void configtab::load_setting_groups()
 {
@@ -498,13 +515,16 @@ void configtab::load_setting_groups()
                 create_checkbox_settings_entry(current_group->layout,current_group->items.last());
                 break;
             case STRING:
-                create_lineedit_settings_entry(current_group->layout,current_group->items.last());
+                create_lineedit_settings_entry<QLineEdit>(current_group->layout,current_group->items.last());
+                break;
+            case KEY:
+                create_keybind_settings_entry(current_group->layout,current_group->items.last());
                 break;
             case COMBO:
                 create_combo_settings_entry(current_group->layout,current_group->items.last());
                 break;
             case COLOR:
-                create_colorlineedit_settings_entry(current_group->layout,current_group->items.last());
+                create_lineedit_settings_entry<ColorLineEdit>(current_group->layout,current_group->items.last());
                 break;
             case COLOR_ARRAY:
                 SettingArrayList *arraylist = new SettingArrayList(current_group->layout->widget(),settings[i].key,{{"prefix",settings[i].name,false},{"color","Color",true}});
