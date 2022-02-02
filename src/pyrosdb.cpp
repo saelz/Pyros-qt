@@ -223,6 +223,7 @@ void PyrosWorker::vacuum_database(PyrosDB *db)
 {
     Pyros_Vacuum_Database(db);
     Pyros_Commit(db);
+    emit request_finished();
 }
 
 PyrosTC::~PyrosTC(){
