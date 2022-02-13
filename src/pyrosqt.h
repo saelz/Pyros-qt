@@ -48,5 +48,7 @@ private slots:
 
     void closeEvent(QCloseEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+public slots:
+    void show_error(QString msg);
 };
 #endif // PYROSQT_H

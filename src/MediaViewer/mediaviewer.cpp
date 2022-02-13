@@ -85,7 +85,7 @@ MediaViewer::MediaViewer(QWidget *parent) : QWidget(parent)
 MediaViewer::~MediaViewer()
 {
     foreach(PyrosFile *file,files)
-        Pyros_Close_File(file);
+        Pyros_Free_File(file);
     if (viewer != nullptr)
         delete viewer;
 }
@@ -260,7 +260,7 @@ void MediaViewer::hide_files(QVector<QByteArray> hashes)
                 if (i < pos)
                     pos--;
                 emit file_removed_at(i);
-                Pyros_Close_File(file);
+                Pyros_Free_File(file);
                 hashes.removeAt(j);
             }
         }

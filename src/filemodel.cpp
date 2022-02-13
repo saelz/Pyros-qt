@@ -66,7 +66,7 @@ void FileModel::remove_file(const QModelIndex &index)
     if (position >= m_files.length())
         return;
 
-    Pyros_Close_File(m_files.at(position).pFile);
+    Pyros_Free_File(m_files.at(position).pFile);
     m_files.remove(position);
 }
 
@@ -76,7 +76,7 @@ void FileModel::clear()
     beginResetModel();
 
     foreach(file_item item, m_files)
-        Pyros_Close_File(item.pFile);
+        Pyros_Free_File(item.pFile);
     m_files.clear();
 
     endResetModel();

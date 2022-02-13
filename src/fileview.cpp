@@ -452,7 +452,7 @@ void FileView::open_duplicate_menu()
         emit new_duplicate_selector_tab(ffiles);
     else
         foreach(PyrosFile *file,ffiles)
-            Pyros_Close_File(file);
+            Pyros_Free_File(file);
 
 
 }

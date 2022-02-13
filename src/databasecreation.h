@@ -23,6 +23,7 @@ private slots:
 signals:
     void new_search();
     void delete_all_tabs();
+    void error_occurred(QString msg);
 };
 
 #endif // DATABASECREATION_H

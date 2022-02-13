@@ -205,9 +205,9 @@ void SearchTab::set_bottom_bar(const QItemSelection &selected, const QItemSelect
 
     QItemSelectionModel *select = ui->file_view->selectionModel();
     QModelIndexList indexes = select->selectedIndexes();
-    quint64 total_file_size = 0;
-    quint64 earliest_timestamp = -1;
-    quint64 latest_timestamp = 0;
+    qint64 total_file_size = 0;
+    qint64 earliest_timestamp = INT64_MAX;
+    qint64 latest_timestamp = 0;
 
 
     if (indexes.count() == 0){

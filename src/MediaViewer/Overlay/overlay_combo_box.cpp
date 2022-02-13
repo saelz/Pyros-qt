@@ -158,6 +158,8 @@ void Overlay_Combo_Box::toggle_drop_down()
     if (display_dropdown){
         dropdownrect.clear();
         if (highlighted_entry != -1){
+            if (highlighted_entry >= entries.length())
+                highlighted_entry = entries.length()-1;
             selected_entry = highlighted_entry;
             emit entry_changed(entries[highlighted_entry].value);
         }

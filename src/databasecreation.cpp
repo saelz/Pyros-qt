@@ -47,9 +47,27 @@ void DatabaseCreation::create_database(){
 
         PyrosTC* ptc = PyrosTC::get();
         ptc->close_db();
-        PyrosDB *db = Pyros_Create_Database(path.data(),hashtype);
-        Pyros_Commit(db);
-        Pyros_Close_Database(db);
+        PyrosDB *db = Pyros_Alloc_Database(path.data());
+        if (db == NULL){
+            emit error_occurred("Out of memory");
+            return;
+        }
+
+        if (Pyros_Create_Database(db,hashtype) != PYROS_OK){
+            emit error_occurred(Pyros_Get_Error_Message(db));
+            return;
+        }
+
+        if (Pyros_Commit(db) != PYROS_OK){
+            emit error_occurred(Pyros_Get_Error_Message(db));
+            return;
+        }
+
+        if (Pyros_Close_Database(db) != PYROS_OK){
+            emit error_occurred(Pyros_Get_Error_Message(db));
+            return;
+        }
+
 
         settings.setValue("db",path);
         emit delete_all_tabs();

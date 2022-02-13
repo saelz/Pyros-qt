@@ -14,6 +14,7 @@
 #include <QErrorMessage>
 #include <QMouseEvent>
 #include <QTabBar>
+#include <QErrorMessage>
 
 PyrosQT::PyrosQT(QWidget *parent)
     : QMainWindow(parent)
@@ -36,6 +37,8 @@ PyrosQT::PyrosQT(QWidget *parent)
     connect(ui->actionNew_Database,    &QAction::triggered,this, &PyrosQT::new_database_creation_tab);
     connect(ui->actionOpen_Database,   &QAction::triggered,this, &PyrosQT::open_database);
     connect(ui->actionVacuum_Database, &QAction::triggered,PyrosTC::get(), &PyrosTC::vacuum_database);
+
+    connect(PyrosTC::get(), &PyrosTC::error_occurred,this,&PyrosQT::show_error);
 
     connect(ui->tabWidget,&QTabWidget::tabCloseRequested,this, &PyrosQT::remove_tab);
 
@@ -189,6 +192,7 @@ void PyrosQT::new_database_creation_tab()
     DatabaseCreation *dc = new DatabaseCreation(ui->tabWidget);
     connect(dc,&DatabaseCreation::new_search,this,&PyrosQT::new_search_tab);
     connect(dc,&DatabaseCreation::delete_all_tabs,this,&PyrosQT::close_all_tabs);
+    connect(dc, &DatabaseCreation::error_occurred,this,&PyrosQT::show_error);
 }
 
 void PyrosQT::new_duplicate_selector_tab(QVector<PyrosFile*> files)
@@ -242,4 +246,8 @@ bool PyrosQT::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QMainWindow::eventFilter(obj,event);
+}
+
+void PyrosQT::show_error(QString msg){
+    qWarning() << msg;
 }

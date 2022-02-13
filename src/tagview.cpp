@@ -322,20 +322,19 @@ void TagView::replace_temp_tags(QVector<PyrosList*> related_tags,QVector<QByteAr
             if (tag_model->data(index,TagTreeModel::TAG_ROLE) == tag){
 
                 if (tag_type == PYROS_SEARCH_RELATIONSHIP){
+                    type = TagTreeModel::INVALID_TAG;
                     if(tag.contains('*') || tag.contains('?') ||
-                            (tag.contains('[') && tag.contains(']')) ||
-                            tag.startsWith("mime:") ||
-                            tag.startsWith("ext:") ||
-                            tag.startsWith("order:") ||
-                            tag.startsWith("tagcount:") ||
-                            tag.startsWith("limit:") ||
-                            tag.startsWith("page:") ||
-                            tag.startsWith("explicit:") ||
-                            tag.startsWith("size:")
-                            )
+                            (tag.contains('[') && tag.contains(']'))){
                         type = TagTreeModel::SPECIAL_TAG;
-                    else
-                        type = TagTreeModel::INVALID_TAG;
+                    } else {
+                        for	(unsigned j = 0; j < sizeof(PYROS_SEARCH_KEYWORDS)/sizeof(*PYROS_SEARCH_KEYWORDS);j++){
+                            if (tag.startsWith(QByteArray(PYROS_SEARCH_KEYWORDS[j])+':')){
+                                type = TagTreeModel::SPECIAL_TAG;
+                                break;
+                            }
+                        }
+                    }
+
                 }
 
                 tag_model->update_tag_type(index,type);

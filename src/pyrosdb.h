@@ -9,6 +9,7 @@
 #include <pyros.h>
 
 
+
 class PyrosTC : public QObject{
     Q_OBJECT
 
@@ -27,7 +28,7 @@ public:
     typedef std::function<void(QVector<PyrosList*>,QVector<QByteArray>)> related_cb;
     typedef std::function<void(int)> import_progress_cb;
     typedef std::function<void(QStringList*)> all_tags_cb;
-    typedef void(PyrosExtFunc)(PyrosDB*,const char*,const char*);
+    typedef PYROS_ERROR(PyrosExtFunc)(PyrosDB*,const char*,const char*);
 
 private:
     QStringList known_tags;
@@ -75,6 +76,7 @@ public slots:
 
 signals:
     // external
+    void error_occurred(QString message);
     void tags_added_with_related(QVector<PyrosList*> related_tags,QVector<QByteArray> unfound_tags);
     void tag_added(QVector<QByteArray> hash, QVector<QByteArray> tag);
     void tag_removed(QVector<QByteArray> hash,QVector<QByteArray> tag);
@@ -99,6 +101,7 @@ signals:
     void sig_get_all_tags(PyrosDB *);
     void sig_merge_files(PyrosDB *,QByteArray,QVector<QByteArray>);
     void sig_vacuum_database(PyrosDB *);
+
 
 public:
     QByteArray db_path();
@@ -138,6 +141,7 @@ class PyrosWorker : public QObject
     Q_OBJECT
 private:
     QVector<const char*> QVBA_to_QVc(QVector<QByteArray> &vec);
+    void show_error(PyrosDB *db);
 
 public slots:
     void add_tags(PyrosDB *db, QVector<QByteArray> hashes,  QVector<QByteArray>tags);
@@ -158,6 +162,7 @@ public slots:
     void merge_files(PyrosDB *db,QByteArray superior_file,QVector<QByteArray> duplicates);
     void vacuum_database(PyrosDB *db);
 
+
 signals:
     void search_return(QVector<PyrosFile*>);
     void report_progress(int);
@@ -165,6 +170,7 @@ signals:
     void related_tag_return(QVector<PyrosList*>,QVector<QByteArray>);
     void return_all_tags(QStringList);
     void request_finished();
+    void error_occurred(QString message);
 };
 
 Q_DECLARE_METATYPE(QVector<QByteArray>)
@@ -172,6 +178,7 @@ Q_DECLARE_METATYPE(QVector<PyrosFile*>)
 Q_DECLARE_METATYPE(QVector<PyrosList*>)
 Q_DECLARE_METATYPE(QVector<PyrosTag*>)
 Q_DECLARE_METATYPE(PyrosTC::PyrosExtFunc*)
+Q_DECLARE_OPAQUE_POINTER(PyrosDB*)
 
 
 #endif // PYROSDB_H
