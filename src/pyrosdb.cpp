@@ -31,7 +31,7 @@ void PyrosWorker::add_tags(PyrosDB *db,QVector<QByteArray> hashes, QVector<QByte
     QVector<const char*> ctags  = QVBA_to_QVc(tags);
 
     foreach(QByteArray hash,hashes){
-        if (Pyros_Add_Tag(db,hash,(char**)ctags.data(),ctags.size()) != PYROS_OK)
+        if (Pyros_Add_Tag(db,hash,ctags.data(),ctags.size()) != PYROS_OK)
             return show_error(db);
     }
 
@@ -44,7 +44,7 @@ void PyrosWorker::add_tags_to_file(PyrosDB *db,QByteArray hash, QVector<QByteArr
 {
     QVector<const char*> ctags  = QVBA_to_QVc(tags);
 
-    if (Pyros_Add_Tag(db,hash,(char**)ctags.data(),ctags.size()) != PYROS_OK)
+    if (Pyros_Add_Tag(db,hash,ctags.data(),ctags.size()) != PYROS_OK)
         return show_error(db);
 
     if (Pyros_Commit(db) != PYROS_OK)
@@ -58,7 +58,7 @@ void PyrosWorker::search(PyrosDB *db, QVector<QByteArray> tags)
     PyrosList *files;
     QVector<PyrosFile*> vec_files;
 
-    files = Pyros_Search(db,(char**)ctags.data(),ctags.size());
+    files = Pyros_Search(db,ctags.data(),ctags.size());
 
     if (files == NULL){
         emit search_return(vec_files);
@@ -114,8 +114,8 @@ void PyrosWorker::import(PyrosDB *db, QVector<QByteArray> files,bool use_tag_fil
     };
 
     hashes = Pyros_Add_Full(db,
-                            (char**)ctags.data(),ctags.length(),
-                            (char**)cimport_tags.data(),cimport_tags.length(),
+                            ctags.data(),ctags.length(),
+                            cimport_tags.data(),cimport_tags.length(),
                             use_tag_files,true,
                             add_callback,this);
     if (hashes == NULL){
