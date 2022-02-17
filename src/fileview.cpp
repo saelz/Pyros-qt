@@ -2,8 +2,8 @@
 #include "pyrosqt.h"
 #include "pyrosdb.h"
 #include "configtab.h"
-#include "thumbnailer.h"
 #include "globbing.h"
+#include "Thumbnailer/thumbnailer.h"
 
 #include <QWindow>
 #include <QStatusBar>

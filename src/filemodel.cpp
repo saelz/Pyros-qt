@@ -2,7 +2,7 @@
 #include "zip_reader.h"
 #include "configtab.h"
 #include "pyrosdb.h"
-#include "thumbnailer.h"
+#include "Thumbnailer/thumbnailer.h"
 
 #include <QPixmap>
 #include <QImage>

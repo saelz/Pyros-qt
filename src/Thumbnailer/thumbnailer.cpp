@@ -6,8 +6,8 @@
 #include <pyros.h>
 
 #include "thumbnailer.h"
-#include "configtab.h"
-#include "zip_reader.h"
+#include "../configtab.h"
+#include "../zip_reader.h"
 
 using ct = configtab;
 
