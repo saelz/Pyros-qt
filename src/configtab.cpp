@@ -19,134 +19,167 @@
 
 const configtab::Setting_Item configtab::settings[] = {
     {TAG_HISTORY,"General","Use tag history",
+     "Whether or not pressing up in a line edit will show previously entered tags",
      "use_tag_history",true,BOOL,
      nullptr},
 
     {GIFS_AS_VIDEO,"General","Use video player for gifs",
+     "Use video player for gifs instead of image viewer",
      "treat_gifs_as_video",false,BOOL,
      nullptr},
 
     {TIMESTAMP,"General","Timestamp format",
+     "",
      "timestamp_format","MM/dd/yy",STRING,
      nullptr},
 
     {SHOW_REMAINING_TIME,"General","Show remaining time for videos instead of duration",
+     "",
      "show_video_remaining_time",false,BOOL,
      nullptr},
 
     {THEME,"General","Theme",
+     "",
      "theme",QStringList(std::initializer_list<QString>({"Default","Dark Theme"})),COMBO,
      nullptr},
 
-    {HIGHLIGHT_SIMMILAR_TAGS,"Tags.Tag Highlighting","Highlight tags smmilar to the tag currently being typed",
+    {HIGHLIGHT_SIMMILAR_TAGS,"Tags.Tag Highlighting","Highlight tags similar to the tag currently being typed",
+     "",
     "highlight-similar-tags",true,BOOL,
     nullptr},
 
     {HIGHLIGHT_COLOR,"Tags.Tag Highlighting","Simmilar tag highlight color",
+     "Highlight color for tags that start with the text currently being typed",
     "highlight-color",QColor(100,100,230),COLOR,
     nullptr},
 
     {CHILD_HIGHLIGHT_COLOR,"Tags.Tag Highlighting","Related tag highlight color",
+     "Highlight color for tags with related tags that start with the text currently being typed",
     "highlight-related-color",QColor(230,100,230),COLOR,
     nullptr},
 
     {TAG_COLOR,"Tags.Tag Color","Tag",
+     "",
      "tagcolor",QVariant(),COLOR_ARRAY,
      nullptr},
 
     {THUMBNAIL_DIR,"Files.Thumbnails","Location used for thumbnail storage",
+     "Directory to store file thumbnails",
      "thumbnail_dir","~/.cache/PyrosQT",STRING,
      nullptr},
 
     {FILE_COLOR,"Files.File Border","Mime/Type",
+     "",
      "filecolor",QVariant(),COLOR_ARRAY,
      nullptr},
 
     {THUMBNAIL_SIZE,"Files.Thumbnails","Thumbnails size",
+     "",
      "thumbnail_size","256",STRING,
      new QIntValidator(25, 999)},
 
     {USE_INTERNAL_IMAGE_THUMBNAILER,"Files.Thumbnails","Use internal image thumbnailer",
+     "If disabled will use an exteral image thumnailer (if one is available)",
      "use_interal_image-thumbnailer",true,BOOL,
      nullptr},
 
     {USE_CBZ_THUMBNAILER,"Files.Thumbnails","Use internal cbz/zip thumbnailer",
+     "If disabled will use an exteral cbz/zip thumnailer (if one is available)",
      "use_interal_cbz-thumbnailer",true,BOOL,
      nullptr},
 
     {CBZ_THUMB_PAGE_COUNT,"Files.Thumbnails","Number of pages to show in cbz/zip thumbnail",
+     "",
      "cbz_thumbnail_pages","3",STRING,
      new QIntValidator(1, 5)},
 
     {USE_EXTERNAL_THUMBNAILER,"Files.Thumbnails","Use external thumbnailers from /usr/share/thumbnailers",
+     "",
      "use_exernal_thumbnailer",true,BOOL,
      nullptr},
 
     {KEY_FOCUS_TAG_BAR,"Key Binds.General","Focus tag bar",
+     "",
      "keybind/focus-tag-bar","i",KEY,
      nullptr},
 
     {KEY_DELETE_FILE,"Key Binds.General","Delete file",
+     "",
      "keybind/delete-file","CTRL+del",KEY,
      nullptr},
 
     {KEY_APPLY,"Key Binds.Tabs","Apply",
+     "",
      "keybind/apply","CTRL+Return",KEY,
      nullptr},
 
     {KEY_NEW_SEARCH,"Key Binds.Tabs","New Search tab",
+     "",
      "keybind/new-search-tab","CTRL+t",KEY,
      nullptr},
 
     {KEY_NEW_IMPORT,"Key Binds.Tabs","New Import tab",
+     "",
      "keybind/new-import-tab","CTRL+i",KEY,
      nullptr},
 
     {KEY_CLOSE_TAB,"Key Binds.Tabs","Close tab",
+     "",
      "keybind/close-tab","CTRL+w",KEY,
      nullptr},
 
     {KEY_INVERT_SELECTION,"Key Binds.Search","Invert file selection",
+     "",
      "keybind/invert-selection","SHIFT+i",KEY,
      nullptr},
 
     {KEY_FOCUS_SEARCH_BAR,"Key Binds.Search","Focus search bar",
+     "",
      "keybind/focus-search-bar","a",KEY,
      nullptr},
 
     {KEY_FOCUS_FILE_GRID,"Key Binds.Search","Focus file grid",
+     "",
      "keybind/focus-file-grid","CTRL+f",KEY,
      nullptr},
 
     {KEY_REFRESH,"Key Binds.Search","refresh",
+     "",
      "keybind/refresh","CTRL+r",KEY,
      nullptr},
 
     {KEY_FOCUS_FILE_VIEWER,"Key Binds.File Viewer","Focus File Viewer",
+     "",
      "keybind/focus-file-viewer","CTRL+f",KEY,
      nullptr},
 
     {KEY_NEXT_FILE,"Key Binds.File Viewer","Next file",
+     "",
      "keybind/next-file","CTRL+n",KEY,
      nullptr},
 
     {KEY_PREV_FILE,"Key Binds.File Viewer","Previous file",
+     "",
      "keybind/prev-file","CTRL+p",KEY,
      nullptr},
 
     {KEY_ZOOM_IN,"Key Binds.File Viewer","Zoom in",
+     "",
      "keybind/zoom-in","CTRL++",KEY,
      nullptr},
 
     {KEY_ZOOM_OUT,"Key Binds.File Viewer","Zoom out",
+     "",
      "keybind/zoom-out","CTRL+-",KEY,
      nullptr},
 
     {KEY_NEXT_PAGE,"Key Binds.File Viewer","Next page",
+     "",
      "keybind/next-page",">",KEY,
      nullptr},
 
     {KEY_PREV_PAGE,"Key Binds.File Viewer","Previous page",
+     "",
      "keybind/prev-page","<",KEY,
      nullptr},
 
@@ -155,10 +188,12 @@ const configtab::Setting_Item configtab::settings[] = {
      nullptr},*/
 
     {KEY_TOGGLE_MUTE,"Key Binds.File Viewer","Toggle Mute",
+     "",
      "keybind/toggle-mute","m",KEY,
      nullptr},
 
     {KEY_LOCK_MEDIA_VIEWER_OVERLAY,"Key Binds.File Viewer","Lock Overlay to stop it from automatically hiding",
+     "",
      "keybind/lock-media-overlay","CTRL+l",KEY,
      nullptr},
 };
@@ -367,13 +402,13 @@ QBoxLayout *configtab::create_header(QBoxLayout *layout,QString text, int size)
 
 }
 
-
 void configtab::create_checkbox_settings_entry(QBoxLayout *layout,Setting_Group_Item &item)
 {
     QCheckBox *checkbox = new QCheckBox(item.item->name);
     QFont font = QFont();
     font.setPointSize(font_size);
 
+    checkbox->setToolTip(item.item->tooltip);
     checkbox->setFont(font);
     checkbox->setChecked(setting_value(item.item->id).toBool());
 
@@ -391,6 +426,7 @@ void configtab::create_lineedit_settings_entry(QBoxLayout *layout, Setting_Group
 
     container->addWidget(label);
     container->addWidget(text_box);
+    label->setToolTip(item.item->tooltip);
     label->setFont(font);
     text_box->setText(setting_value(item.item->id).toString());
 
@@ -409,6 +445,7 @@ void configtab::create_keybind_settings_entry(QBoxLayout *layout, Setting_Group_
     container->addWidget(label);
     container->addWidget(text_box);
     label->setFont(font);
+    label->setToolTip(item.item->tooltip);
     //text_box->setText(setting_value(item.item->id).toString());
     text_box->setKeySequence(setting_value(item.item->id).toString());
 
@@ -427,6 +464,7 @@ void configtab::create_combo_settings_entry(QBoxLayout *layout,Setting_Group_Ite
     container->addStretch(-1);
     container->addWidget(combobox);
     label->setFont(font);
+    label->setToolTip(item.item->tooltip);
 
     QStringList combo_items = item.item->default_val.toStringList();
     combobox->addItems(combo_items);

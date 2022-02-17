@@ -199,7 +199,7 @@ void TagLineEdit::update_completion(const QString &t){
     if (text().startsWith('-'))
         new_text = '-';
 
-    if (text().startsWith("explicit:"))
+    if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_SEARCH_RELATIONSHIP && text().startsWith("explicit:"))
         new_text.append("explicit:");
 
     if (relation_type & PYROS_TAG_RELATION_FLAGS::PYROS_GLOB)

@@ -17,6 +17,7 @@ class QPushButton;
 class QCheckBox;
 class QStackedWidget;
 class QValidator;
+class QLabel;
 
 class ColorLineEdit : public QLineEdit{
     Q_OBJECT
@@ -115,6 +116,7 @@ private:
         Setting id;
         QString group;
         QString name;
+        QString tooltip;
         QString key;
         QVariant default_val;
         settings_type type;
