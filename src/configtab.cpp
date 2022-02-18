@@ -83,6 +83,11 @@ const configtab::Setting_Item configtab::settings[] = {
      "use_interal_image-thumbnailer",true,BOOL,
      nullptr},
 
+    {USE_VIDEO_THUMBNAILER,"Files.Thumbnails","Use internal video thumbnailer",
+     "If disabled will use an exteral video thumnailer (if one is available)",
+     "use_interal_video-thumbnailer",true,BOOL,
+     nullptr},
+
     {USE_CBZ_THUMBNAILER,"Files.Thumbnails","Use internal cbz/zip thumbnailer",
      "If disabled will use an exteral cbz/zip thumnailer (if one is available)",
      "use_interal_cbz-thumbnailer",true,BOOL,
@@ -238,7 +243,6 @@ void configtab::Setting_Group::apply()
             break;
         }
         case BOOL:{
-            continue;
             QCheckBox *checkbox = qobject_cast<QCheckBox *>(item.widget);
             value = checkbox->checkState();
             break;

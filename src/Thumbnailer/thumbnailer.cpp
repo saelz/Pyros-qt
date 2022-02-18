@@ -81,8 +81,9 @@ Thumbnailer::thumbnail_item Thumbnailer::generate_thumbnail(thumbnail_item item)
             !item.mime.compare("application/zip"))){
             Thumbnailer::cbz_thumbnailer(item);
 
-        } else if (item.mime.startsWith("video/")){
-            Thumbnailer::video_thumbnailer(item);
+        } else if (ct::setting_value(ct::USE_VIDEO_THUMBNAILER).toBool() &&
+               (item.mime.startsWith("video/"))){
+               Thumbnailer::video_thumbnailer(item);
         }
 
         if (item.thumbnail.isNull()){
@@ -102,7 +103,6 @@ bool Thumbnailer::video_thumbnailer(thumbnail_item &item){
 
     if (original_image.isNull())
         return false;
-    qDebug("wut?");
 
     if (original_image.height() > original_image.width())
         item.thumbnail = original_image.scaledToHeight(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
@@ -236,8 +236,6 @@ bool Thumbnailer::external_thumbnailer(thumbnail_item &item)
                 QStringList cmd_list = cmd.split(' ');
                 cmd = cmd_list.at(0);
                 cmd_list.pop_front();
-                if (cmd == "ffmpegthumbnailer" && cmd_list.back() == "-f")
-                    cmd_list.pop_back();
 
                 QProcess::execute(cmd,cmd_list);
                 if (item.thumbnail.load(item.output_path))
