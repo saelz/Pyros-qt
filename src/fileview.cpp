@@ -369,7 +369,7 @@ void FileView::regenerate_thumbnail()
     foreach(QModelIndex index,indexes){
         PyrosFile *pFile = file(index);
         if (pFile != nullptr)
-            Thumbnailer::delete_thumbnail(file_model->file(index)->hash);
+            Thumbnailer::delete_thumbnail(pFile->hash);
     }
     file_model->load_thumbnails(indexes);
 }

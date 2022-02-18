@@ -6,6 +6,7 @@
 #include <pyros.h>
 
 #include "thumbnailer.h"
+#include "video_thumbnailer.h"
 #include "../configtab.h"
 #include "../zip_reader.h"
 
@@ -38,7 +39,7 @@ Thumbnailer::thumbnail_item::thumbnail_item(PyrosFile *file, int id) :id(id)
     if (!dir.exists())
         dir.mkpath(".");
 
-    output_path += hash+Thumbnailer::thumbnail_extention;
+    output_path += '/'+hash+Thumbnailer::thumbnail_extention;
 }
 
 Thumbnailer::Thumbnailer(QObject *parent) : QObject(parent)
@@ -79,6 +80,9 @@ Thumbnailer::thumbnail_item Thumbnailer::generate_thumbnail(thumbnail_item item)
                (!item.mime.compare("application/vnd.comicbook+zip") ||
             !item.mime.compare("application/zip"))){
             Thumbnailer::cbz_thumbnailer(item);
+
+        } else if (item.mime.startsWith("video/")){
+            Thumbnailer::video_thumbnailer(item);
         }
 
         if (item.thumbnail.isNull()){
@@ -92,6 +96,19 @@ Thumbnailer::thumbnail_item Thumbnailer::generate_thumbnail(thumbnail_item item)
     }
 
     return item;
+}
+bool Thumbnailer::video_thumbnailer(thumbnail_item &item){
+    QPixmap original_image = Video_thumbnailer::generate_thumbnail(item.path);
+
+    if (original_image.isNull())
+        return false;
+    qDebug("wut?");
+
+    if (original_image.height() > original_image.width())
+        item.thumbnail = original_image.scaledToHeight(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
+    else
+        item.thumbnail = original_image.scaledToWidth(ct::setting_value(ct::THUMBNAIL_SIZE).toInt(),Qt::SmoothTransformation);
+    return true;
 }
 
 bool Thumbnailer::image_thumbnailer(thumbnail_item &item){

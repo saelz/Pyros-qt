@@ -36,6 +36,7 @@ SOURCES += \
     src/MediaViewer/video_viewer.cpp \
     src/MediaViewer/viewer.cpp \
     src/Thumbnailer/thumbnailer.cpp \
+    src/Thumbnailer/video_thumbnailer.cpp \
     src/configtab.cpp \
     src/databasecreation.cpp \
     src/duplicate_selector.cpp \
@@ -76,6 +77,7 @@ HEADERS += \
     src/MediaViewer/video_viewer.h \
     src/MediaViewer/viewer.h \
     src/Thumbnailer/thumbnailer.h \
+    src/Thumbnailer/video_thumbnailer.h \
     src/configtab.h \
     src/databasecreation.h \
     src/duplicate_selector.h \
@@ -95,7 +97,7 @@ HEADERS += \
     src/zip_reader.h
 
 LIBS += -lpyros -lz
-PKGCONFIG += mpv
+PKGCONFIG += mpv libavcodec libswscale libavutil libavformat
 
 FORMS += \
     src/databasecreation.ui \
