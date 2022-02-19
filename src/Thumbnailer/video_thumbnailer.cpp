@@ -81,10 +81,9 @@ bool VideoCodec::set_file(QByteArray path)
 VideoCodec::frame::frame()
 {
     avframe = av_frame_alloc();
-    avframe_RGB = av_frame_alloc();
     packet = av_packet_alloc();
 
-    if (packet == nullptr || avframe == nullptr || avframe_RGB == nullptr){
+    if (packet == nullptr || avframe == nullptr){
         return;
     }
 }
@@ -92,80 +91,65 @@ VideoCodec::frame::~frame()
 {
     av_packet_free(&packet);
     av_frame_free(&avframe);
-    av_frame_free(&avframe_RGB);
     sws_freeContext(swsCtx);
-    av_freep(&buffer);
 }
 
 QImage VideoCodec::frame::read_next_frame(codec_stream video_stream)
 {
-    int new_size;
+    AVPixelFormat fmt = AV_PIX_FMT_RGB24;
+    int alignment = 24;
+    uint8_t *rgb_data[4];
+    int rgb_linesize[4];
+
     avcodec_send_packet(video_stream.codec_ctx,packet);
-    AVPixelFormat fmt = AV_PIX_FMT_ARGB;
-    int alignment = 8;
-
     if (avcodec_receive_frame(video_stream.codec_ctx,avframe) == 0){
-        QImage img = QImage(avframe->width,avframe->height,QImage::Format_RGB32);
+        QImage img = QImage(avframe->width,avframe->height, QImage::Format_RGB32);
+        av_image_alloc(rgb_data,rgb_linesize,avframe->width,avframe->height,fmt,alignment);
 
-        new_size = av_image_get_buffer_size(fmt,
-                        avframe->width,avframe->height,
-                        alignment);
-        if (new_size > buffer_size){
-            buffer_size = new_size;
-            buffer = (quint8*)av_realloc(buffer,buffer_size*sizeof(*buffer));
-            if (buffer == nullptr){
-                return QImage();
-            }
-
-            av_image_fill_arrays(avframe_RGB->data,avframe_RGB->linesize,buffer,fmt,
-                     avframe->width,avframe->height,alignment);
-
-            if (avframe->format == -1)
-                avframe->format = video_stream.codec_ctx->pix_fmt;
-            swsCtx = sws_getCachedContext(swsCtx,avframe->width,avframe->height,
+        if (avframe->format == -1)
+            avframe->format = video_stream.codec_ctx->pix_fmt;
+        swsCtx = sws_getCachedContext(swsCtx,avframe->width,avframe->height,
                       (AVPixelFormat)avframe->format,
                       avframe->width,avframe->height,
                       fmt,SWS_BILINEAR,
                       NULL,NULL,NULL);
-        }
-
 
         sws_scale(swsCtx,avframe->data,avframe->linesize,0,avframe->height,
-              avframe_RGB->data,avframe_RGB->linesize);
+              rgb_data,rgb_linesize);
 
-        quint8 *src = (quint8 *)(avframe_RGB->data[0]);
+        uint8_t *src = (uint8_t *)(rgb_data[0]);
         for (int y = 0; y < avframe->height; y++){
-            QRgb *scanLine = (QRgb*) img.scanLine(y);
+            QRgb *scanLine = (QRgb *) img.scanLine(y);
             for (int x = 0; x < avframe->width; x++)
-                scanLine[x] = QColor(src[4*x+1],src[4*x+2],src[4*x+3],src[4*x]).rgba();
-            src += avframe_RGB->linesize[0];
+                scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]);
+
+            src += rgb_linesize[0];
         }
-        //QImage img = QImage(buffer,avframe->width,avframe->height,avframe_RGB->linesize[0],QImage::Format_RGB32,(QImageCleanupFunction)av_free);
-        //buffer = nullptr;
-        //buffer_size = -1;
-        av_packet_unref(packet);
+
+
+        av_freep(&rgb_data[0]);
         return img;
     }
-    av_packet_unref(packet);
 
     return QImage();
 }
 
 QPixmap VideoCodec::get_first_frame()
 {
-    QPixmap frame_pix;
     frame vid_frame;
 
     while (av_read_frame(format_ctx,vid_frame.packet) >= 0){
         if (vid_frame.packet->stream_index == video_stream.stream_pos){
             QImage img = vid_frame.read_next_frame(video_stream);
             if (!img.isNull()){
+                av_packet_unref(vid_frame.packet);
                 return QPixmap::fromImage(img);
             }
         }
+        av_packet_unref(vid_frame.packet);
     }
 
-    return frame_pix;
+    return QPixmap();
 }
 
 

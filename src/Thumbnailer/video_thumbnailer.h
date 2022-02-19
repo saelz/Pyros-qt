@@ -14,7 +14,6 @@ class VideoCodec{
     class codec_stream{
     public:
         codec_stream();
-       // ~codec_stream();
         codec_stream(AVFormatContext *format_ctx,int codec_type);
         void set_codec(AVFormatContext *format_ctx,int codec_type);
 
@@ -30,12 +29,8 @@ class VideoCodec{
         ~frame();
         QImage read_next_frame(codec_stream video_stream);
         AVFrame *avframe = nullptr;
-        AVFrame *avframe_RGB = nullptr;
         AVPacket *packet = nullptr;
-        quint8 *buffer = nullptr;
         SwsContext *swsCtx = nullptr;
-
-        int buffer_size = -1;
     };
 
 public:
