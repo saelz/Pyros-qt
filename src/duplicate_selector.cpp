@@ -95,6 +95,8 @@ void duplicate_selector::apply()
                 duplicates.append(file->hash);
     }
 
+    delete ui->mediaviewer;
+
     if (duplicates.length() >= 1 && !superior_file.isEmpty()){
         ptc->merge_files(superior_file,duplicates);
     }
