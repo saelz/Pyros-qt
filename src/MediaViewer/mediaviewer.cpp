@@ -248,12 +248,12 @@ void MediaViewer::set_current_file(int position)
 void MediaViewer::hide_files(QVector<QByteArray> hashes)
 {
     int pos = file_position;
-    for (int i  = files.length()-1;i >= 0;i--) {
+    for (int i  = 0;i < files.length();i++) {
         PyrosFile *file = files.at(i);
         if (file == nullptr)
             continue;
 
-        for (int j  = hashes.length()-1;j >= 0;j--) {
+        for (int j  = 0;j < hashes.length();j++) {
             if (!hashes.at(j).compare(file->hash)){
                 files.removeAt(i);
                 file_position = -1;
@@ -262,6 +262,11 @@ void MediaViewer::hide_files(QVector<QByteArray> hashes)
                 emit file_removed_at(i);
                 Pyros_Free_File(file);
                 hashes.removeAt(j);
+                if (i < files.length())
+                    break;
+                if (j < hashes.length())
+                    i--;
+                j--;
             }
         }
     }
