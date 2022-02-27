@@ -262,11 +262,8 @@ void MediaViewer::hide_files(QVector<QByteArray> hashes)
                 emit file_removed_at(i);
                 Pyros_Free_File(file);
                 hashes.removeAt(j);
-                if (i < files.length())
-                    break;
-                if (j < hashes.length())
-                    i--;
-                j--;
+                i--;
+                break;
             }
         }
     }
