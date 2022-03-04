@@ -364,7 +364,7 @@ void MediaViewer::delete_file()
     PyrosTC *ptc = PyrosTC::get();
     PyrosFile *m_pFile;
 
-    if (file_position >= files.length() || (m_pFile = files.at(file_position)) == nullptr)
+    if (file_position == -1 || file_position >= files.length() || (m_pFile = files.at(file_position)) == nullptr)
         return;
 
     QVector<QByteArray> file_hashes;
