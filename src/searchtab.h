@@ -29,6 +29,7 @@ private:
     void init();
     void create_title(QVector<QByteArray> tags);
     void set_loading_screen(QString text);
+    void refresh();
     void show_results();
 
 

@@ -65,7 +65,7 @@ void SearchTab::init()
     hheader->setMinimumSectionSize(ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
     hheader->setDefaultSectionSize(ct::setting_value(ct::THUMBNAIL_SIZE).toInt());
 
-    connect(refresh_bind, &QAction::triggered,ui->file_view, &FileView::refresh);
+    connect(refresh_bind, &QAction::triggered,this, &SearchTab::refresh);
     connect(search_bind,  &QAction::triggered,this, &SearchTab::select_search_bar);
     connect(tagbar_bind,  &QAction::triggered,this, &SearchTab::select_tag_bar);
     connect(invert_bind,  &QAction::triggered,ui->file_view, &FileView::invertSelection);
@@ -98,11 +98,19 @@ void SearchTab::init()
     connect(ui->search_tags,&TagView::new_search_with_selected_tags,this,&SearchTab::create_new_search_with_tags);
 }
 
+
 void SearchTab::set_loading_screen(QString text)
 {
     ui->stackedWidget->setCurrentIndex(1);
     ui->loading_status->setText(text);
 }
+
+void SearchTab::refresh()
+{
+    set_loading_screen("Loading...");
+    ui->file_view->refresh();
+}
+
 
 void SearchTab::show_results()
 {
