@@ -96,8 +96,8 @@ HEADERS += \
     src/tagview.h \
     src/zip_reader.h
 
-LIBS += -lpyros -lz
-PKGCONFIG += mpv libavcodec libswscale libavutil libavformat
+LIBS += -lpyros
+PKGCONFIG += mpv libavcodec libswscale libavutil libavformat zlib
 
 FORMS += \
     src/databasecreation.ui \
