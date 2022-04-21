@@ -35,6 +35,8 @@ SOURCES += \
     src/MediaViewer/unsupported_viewer.cpp \
     src/MediaViewer/video_viewer.cpp \
     src/MediaViewer/viewer.cpp \
+    src/Thumbnailer/thumbnailer.cpp \
+    src/Thumbnailer/video_thumbnailer.cpp \
     src/configtab.cpp \
     src/databasecreation.cpp \
     src/duplicate_selector.cpp \
@@ -52,7 +54,6 @@ SOURCES += \
     src/taglineedit.cpp \
     src/tagtreemodel.cpp \
     src/tagview.cpp \
-    src/thumbnailer.cpp \
     src/zip_reader.cpp
 
 HEADERS += \
@@ -75,6 +76,8 @@ HEADERS += \
     src/MediaViewer/unsupported_viewer.h \
     src/MediaViewer/video_viewer.h \
     src/MediaViewer/viewer.h \
+    src/Thumbnailer/thumbnailer.h \
+    src/Thumbnailer/video_thumbnailer.h \
     src/configtab.h \
     src/databasecreation.h \
     src/duplicate_selector.h \
@@ -91,11 +94,10 @@ HEADERS += \
     src/taglineedit.h \
     src/tagtreemodel.h \
     src/tagview.h \
-    src/thumbnailer.h \
     src/zip_reader.h
 
-LIBS += -lpyros -lz
-PKGCONFIG += mpv
+LIBS += -lpyros
+PKGCONFIG += mpv libavcodec libswscale libavutil libavformat zlib
 
 FORMS += \
     src/databasecreation.ui \

@@ -1,5 +1,5 @@
 #include "pyrosdb.h"
-#include "thumbnailer.h"
+#include "Thumbnailer/thumbnailer.h"
 
 #include <QSettings>
 #include <QDateTime>

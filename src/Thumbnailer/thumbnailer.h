@@ -37,6 +37,7 @@ public:
 
 
     static QVector <external_thumbnailer> loaded_thumbnailers;
+    static bool video_thumbnailer(thumbnail_item &item);
     static bool image_thumbnailer(thumbnail_item &item);
     static bool cbz_thumbnailer(thumbnail_item &item);
     static bool external_thumbnailer(thumbnail_item &item);

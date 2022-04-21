@@ -6,7 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include <pyros.h>
-#include "thumbnailer.h"
+#include "Thumbnailer/thumbnailer.h"
 
 class FileModel : public QAbstractTableModel
 {

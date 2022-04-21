@@ -1,5 +1,5 @@
 #include "pyrosqt.h"
-#include "thumbnailer.h"
+#include "Thumbnailer/thumbnailer.h"
 
 #include <QApplication>
 #include <QPalette>
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
             qInfo("Usage:\t%s [OPTION]\n"
                   "\nOPTIONS:\n"
                   " --thumbnail <INTPUT_FILE> <OUTPUT_PATH>\tGenerate a thumbnail of file to output location\n"
-                  " --search <TAG>...\t\t\t\tOpen with intal search set to specified tags\n"
+                  " --search <TAG>...\t\t\t\tOpen with inital search set to specified tags\n"
                   " --help \t\t\t\t\tShow this message\n",
                   argv[0]);
             return 0;
